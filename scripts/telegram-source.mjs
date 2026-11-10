@@ -1,6 +1,6 @@
 /** Accompany every distributed SDK WASM with its source, original notices and replacement recipe. */
 import {readFileSync,writeFileSync,copyFileSync,statSync} from 'node:fs';
-import {resolve} from 'node:path';
+import {resolve,relative,sep} from 'node:path';
 import {execFileSync} from 'node:child_process';
 import {createHash} from 'node:crypto';
 const sha=data=>createHash('sha256').update(data).digest('hex');
@@ -29,7 +29,7 @@ export function writeTelegramSources(directory){
  manifest.phoneCountryData={license:'Apache-2.0',source:'vendor/phone-countries/SOURCE.json',notices:countryNotices};
  const sourceFiles=['package.json','package-lock.json','vite.config.ts','tsconfig.json','index.html','pilot.html','samples.html','src','public','scripts','tests','vendor/telegram-wasm','vendor/phone-countries',...names.map(n=>`node_modules/${n}`)];
  // All roots are explicit. No .local, owner configuration, attachment or session is archived.
- execFileSync('tar',['--sort=name','--mtime=2026-11-02T00:00:00Z','--owner=0','--group=0','--numeric-owner','-czf',resolve(out,'telegram-sources.tar.gz'),...sourceFiles],{cwd:root,stdio:'pipe'});
+ execFileSync('tar',['--sort=name','--mtime=2026-11-02T00:00:00Z','--owner=0','--group=0','--numeric-owner','-czf',relative(root,resolve(out,'telegram-sources.tar.gz')).split(sep).join('/'),...sourceFiles],{cwd:root,stdio:'pipe'});
  manifest.telegramSources.sha256=sha(readFileSync(resolve(out,'telegram-sources.tar.gz')));writeFileSync(resolve(out,'third-party-licenses.json'),JSON.stringify(manifest,null,2)+'\n');
  // The SW generation must also change when accompanying sources/recipe change.
  return sha(Buffer.from(JSON.stringify(manifest)));

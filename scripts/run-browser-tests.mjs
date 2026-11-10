@@ -2,6 +2,7 @@ import {createServer} from 'node:http';
 import {readFile, realpath, stat} from 'node:fs/promises';
 import {extname, resolve, sep} from 'node:path';
 import {chromium} from 'playwright-core';
+import {chromiumLaunchOptions} from './chromium-launch.mjs';
 
 const cases = {
   'metadata-rescan': ['metadata-rescan.html','pulsoMetadataRescan'],
@@ -76,7 +77,7 @@ try {
     } catch { res.writeHead(404).end(); }
   });
   await new Promise((resolveListen, reject) => { server.once('error', reject); server.listen(0, '127.0.0.1', resolveListen); });
-  browser = await chromium.launch({executablePath: '/usr/bin/chromium', headless: true, chromiumSandbox: true});
+  browser = await chromium.launch(chromiumLaunchOptions());
   report.browserVersion = browser.version();
   for (const name of selected.length ? selected : Object.keys(cases)) {
     const [pageName, globalName] = cases[name];
