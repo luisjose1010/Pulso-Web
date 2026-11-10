@@ -3,11 +3,12 @@ import assert from 'node:assert/strict';
 import {createServer} from 'node:http';
 import {build} from 'esbuild';
 import {chromium} from 'playwright-core';
+import {chromiumLaunchOptions} from '../../scripts/chromium-launch.mjs';
 
 test('native IDB and Web Locks preserve order across reload and fence a late old lease',async()=>{
  const bundle=await build({entryPoints:['src/telegram/saved-session.ts'],bundle:true,format:'iife',globalName:'vault',write:false});
  const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end('<!doctype html>');});await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const address=server.address();if(!address||typeof address==='string')throw Error('server');
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,chromiumSandbox:true,env:{...process.env,INSTABOX_HEADLESS:'1'}});
+ const browser=await chromium.launch(chromiumLaunchOptions({env:{...process.env,INSTABOX_HEADLESS:'1'}}));
  try{const page=await browser.newPage();await page.goto(`http://127.0.0.1:${address.port}`);await page.addScriptTag({content:bundle.outputFiles[0].text});
   const lease=await page.evaluate(async()=>{const v=(globalThis as any).vault;const l=await v.sessionLease();await v.saveTelegramSession(l,'synthetic');await v.saveTelegramBots(l,[{username:'bravo',label:'Bravo',id:2,low:2,high:1},{username:'alpha',label:'Alpha',id:1,low:1,high:1}]);return l;});
   await page.reload();await page.addScriptTag({content:bundle.outputFiles[0].text});
@@ -19,7 +20,7 @@ test('native IDB and Web Locks preserve order across reload and fence a late old
 test('two native workers fence stale selection writes including an ABA change',async()=>{
  const bundle=await build({entryPoints:['src/telegram/saved-session.ts'],bundle:true,format:'iife',globalName:'vault',write:false});
  const server=createServer((_req,res)=>{res.setHeader('Content-Type','text/html');res.end('<!doctype html>');});await new Promise<void>(resolve=>server.listen(0,'127.0.0.1',resolve));const address=server.address();if(!address||typeof address==='string')throw Error('server');
- const browser=await chromium.launch({executablePath:'/usr/bin/chromium',headless:true,chromiumSandbox:true,env:{...process.env,INSTABOX_HEADLESS:'1'}});
+ const browser=await chromium.launch(chromiumLaunchOptions({env:{...process.env,INSTABOX_HEADLESS:'1'}}));
  try{const page=await browser.newPage();await page.goto(`http://127.0.0.1:${address.port}`);
   // tsx preserves nested function names with this harmless serialization helper.
   await page.addScriptTag({content:'globalThis.__name=(fn)=>fn;'});
