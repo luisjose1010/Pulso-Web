@@ -12,7 +12,7 @@ import {CatalogArtwork} from './CatalogArtwork';
 const catalog=new AlbumCatalog((...args)=>fetch(...args));
 const detailKey=(detail:AlbumDetail)=>JSON.stringify(detail.tracks.map(track=>albumTrackChoice(track,detail.edition.title))); 
 export interface AlbumCoordinator {running:boolean;uncertainTracks:Set<number>;remoteClock:{settledAt:number};rows:Map<number,{key:string;rows:AlbumRow[]}>;listeners:Set<()=>void>}
-interface Props {coordinator:AlbumCoordinator;captureInspection?:()=>SongCopyInspection|null;selectedKey:string|null;libraryTrackIds?:ReadonlySet<string>;title:string;artist:string|null;editionId?:number;artworkUrl?:string;searchBatch?:{data:unknown;pending:boolean};backLabel?:string;scope:string;visible:boolean;client:TelegramSessionClient|null;revision:number|undefined;provider:string|null;providers:readonly OrderedProvider[];capture:()=>SongPlaybackAttempt|null;management:(id:string)=>SongManagement|null;onBack:()=>void;onChoose:(choice:SongChoice)=>void;songActions:React.ReactNode}
+interface Props {coordinator:AlbumCoordinator;captureInspection?:()=>SongCopyInspection|null;selectedKey:string|null;libraryTrackIds?:ReadonlySet<string>;title:string;artist:string|null;editionId?:number;/** Playlist import: a ready-made edition, no catalogue lookup. */preloaded?:AlbumDetail;artworkUrl?:string;searchBatch?:{data:unknown;pending:boolean};backLabel?:string;scope:string;visible:boolean;client:TelegramSessionClient|null;revision:number|undefined;provider:string|null;providers:readonly OrderedProvider[];capture:()=>SongPlaybackAttempt|null;management:(id:string)=>SongManagement|null;onBack:()=>void;onChoose:(choice:SongChoice)=>void;songActions:React.ReactNode}
 const metadataIdentity=(props:Props)=>JSON.stringify([props.title,props.artist,props.editionId??null,props.scope]);
 const catalogError=(reason:AlbumFailure,detail:boolean,stage?:AlbumStage,httpStatus?:number)=>{
  const prefix=detail?'No se pudo verificar la lista completa de pistas.':'No se pudo consultar el catálogo de álbumes.';
@@ -44,6 +44,7 @@ export function AlbumPageController(props:Props){
   if(!props.visible)return;
   const identity=metadataIdentity(props);
   if(detail&&loadedMetadata.current===identity)return;
+  if(props.preloaded){const ready=props.preloaded;loadedMetadata.current=identity;setEditions([]);setRetryTarget(undefined);setDetail(ready);setCopies({});inspectedEdition.current=null;const saved=props.coordinator.rows.get(ready.edition.id),compatible=saved?.key===detailKey(ready);rows.current=compatible?saved.rows.map(r=>({...r})):ready.tracks.map(()=>({state:'unattempted' as const,trackId:null,confirmed:false,message:''}));setProgress(compatible?{rows:rows.current,message:'Comprueba las copias antes de continuar.'}:null);setStatus('');return;}
   const abort=new AbortController();metadata.current=abort;setDetail(null);setEditions([]);setRetryTarget(undefined);setStatus('Buscando ediciones…');
   const live=()=>mounted.current&&metadata.current===abort&&!abort.signal.aborted&&latest.current.visible&&metadataIdentity(latest.current)===identity;
   if(props.editionId){void load({id:props.editionId,title:props.title,artist:props.artist??'',trackCount:0,releaseDate:null},abort,live);return()=>abort.abort();}
@@ -59,7 +60,7 @@ export function AlbumPageController(props:Props){
    setStatus(candidates.length?'Elige una edición para ver sus pistas.':'No se encontraron ediciones compatibles en los resultados disponibles.');
   });
   return()=>abort.abort();
- },[props.title,props.artist,props.editionId,props.scope,props.visible,relevantBatch?.pending,relevantBatch?.data,retryVersion]);
+ },[props.title,props.artist,props.editionId,props.scope,props.visible,relevantBatch?.pending,relevantBatch?.data,retryVersion,props.preloaded]);
  async function load(edition:AlbumEdition,abort:AbortController,live:()=>boolean){
   setRetryTarget(undefined);setStatus('Cargando pistas…');const result=await catalog.load(edition.id,{signal:abort.signal,current:live});if(!live())return;
   if(!result.ok){if(result.reason!=='cancelled'){setStatus(catalogError(result.reason,true,undefined,result.httpStatus));setRetryTarget(edition);}return;}loadedMetadata.current=metadataIdentity(props);setDetail(result.value);setCopies({});inspectedEdition.current=null;const saved=props.coordinator.rows.get(result.value.edition.id),compatible=saved?.key===detailKey(result.value);rows.current=compatible?saved.rows.map(r=>({...r})):result.value.tracks.map(()=>({state:'unattempted',trackId:null,confirmed:false,message:''}));setProgress(compatible?{rows:rows.current,message:'Comprueba las copias antes de continuar.'}:null);setStatus('');

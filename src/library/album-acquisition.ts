@@ -5,7 +5,9 @@ import {isBotSearchQuery,parseBotSearchTarget} from '../telegram/bot-search-prot
 import type {TelegramSessionClient} from '../telegram/session-client';
 
 export function albumTrackChoice(track:AlbumTrack,album:string):SongChoice {
- return {id:`itunes:${track.releaseId}:${track.disc}:${track.position}:${track.trackId}`,source:'itunes',title:track.title,artist:track.artist,searchArtist:track.primaryArtist??track.artist,album,duration:track.durationMs===null?null:track.durationMs/1000};
+ // Playlist import without a catalogue match: no album/duration, never an iTunes identity.
+ if(track.direct)return {id:`lrclib:${track.trackId}`,source:'lrclib',title:track.title,artist:track.artist,album:null,duration:null};
+ return {id:`itunes:${track.releaseId}:${track.disc}:${track.position}:${track.trackId}`,source:'itunes',title:track.title,artist:track.artist,searchArtist:track.primaryArtist??track.artist,album:track.album??album,duration:track.durationMs===null?null:track.durationMs/1000};
 }
 export type AlbumRowState='unattempted'|'ready'|'reused'|'downloaded'|'failed'|'uncertain';
 export interface AlbumRow {state:AlbumRowState;trackId:string|null;confirmed:boolean;message:string}

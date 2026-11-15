@@ -8,7 +8,7 @@ export interface CatalogArtist { id: number; name: string }
 export interface CatalogSongHint { releaseId:number; trackId:number; disc:number; position:number; title:string; artist:string; primaryArtist?:string; album:string; durationMs:number; artworkUrl?:string }
 export interface AlbumHint { id: number; title: string; artist: string | null; artworkUrl?: string }
 export interface AlbumEdition { id: number; title: string; artist: string; trackCount: number; releaseDate: string | null; artworkUrl?: string }
-export interface AlbumTrack { releaseId: number; trackId: number; disc: number; position: number; title: string; artist: string; durationMs: number | null; primaryArtist?: string }
+export interface AlbumTrack { releaseId: number; trackId: number; disc: number; position: number; title: string; artist: string; durationMs: number | null; primaryArtist?: string; /** Playlist import only: the track's own album, when not the synthetic edition's. */ album?: string; /** Playlist import only: no catalogue entry; searched by artist + title with no album or duration. */ direct?: true }
 export interface AlbumDetail { edition: AlbumEdition; tracks: AlbumTrack[] }
 export interface AlbumRequest { signal: AbortSignal; current: () => boolean }
 type Row = Record<string, unknown>

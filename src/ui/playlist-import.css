@@ -1,0 +1,8 @@
+.playlist-import { margin-block: 1rem; padding: .75rem 1rem; border: 1px solid var(--pulso-border, currentColor); border-radius: .75rem; color: var(--pulso-foreground); overflow-wrap: anywhere; }
+.playlist-import summary { min-height: 44px; display: flex; align-items: center; cursor: pointer; font-weight: 600; }
+.playlist-import label { display: block; margin-block: .5rem .25rem; }
+.playlist-import input, .playlist-import textarea { width: 100%; box-sizing: border-box; padding: .6rem .75rem; font: inherit; color: inherit; background: transparent; border: 1px solid var(--pulso-border, currentColor); border-radius: .5rem; }
+.playlist-import textarea { resize: vertical; min-height: 8rem; }
+.playlist-import button { min-height: 44px; padding: .65rem .9rem; font: inherit; color: inherit; cursor: pointer; border-radius: .5rem; }
+.playlist-import-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
+.playlist-import-result ul { padding-inline-start: 1.25rem; }
