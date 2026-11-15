@@ -50,7 +50,8 @@ test('client: maps API failures to specific reasons and validates the payload',a
 });
 
 // --- serverless function, with Google mocked ---
-function call(url:string,headers:Record<string,string>={},method='GET'){
+function call(url:string,extra:Record<string,string>={},method='GET'){
+  const headers:Record<string,string>={'sec-fetch-site':'same-origin',...extra};
   const out:{status?:number;body?:string}={};
   const res={setHeader(){},status(code:number){out.status=code;return res;},send(body:string){out.body=body;return res;}};
   return handler({method,url,headers} as never,res as never).then(()=>({status:out.status,body:out.body?JSON.parse(out.body):null}));
@@ -64,6 +65,9 @@ test('function: not configured, bad id, cross-site and wrong method are rejected
     assert.equal((await call('/api/youtube-playlist?list=x')).status,400);
     assert.equal((await call(`/api/youtube-playlist?list=${ID}`,{'sec-fetch-site':'cross-site'})).status,403);
     assert.equal((await call(`/api/youtube-playlist?list=${ID}`,{},'POST')).status,405);
+    // a caller that omits the header entirely (curl, scripts) is refused too
+    const bare:{status?:number}={};await handler({method:'GET',url:`/api/youtube-playlist?list=${ID}`,headers:{}} as never,{setHeader(){},status(c:number){bare.status=c;return this;},send(){return this;}} as never);
+    assert.equal(bare.status,403);
     assert.equal(calls,0);
   }finally{globalThis.fetch=realFetch;delete process.env.YOUTUBE_API_KEY;}
 });

@@ -26,9 +26,9 @@ export default async function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Content-Type', 'application/json');
   if (req.method !== 'GET') return send(res, 405, {error: 'method'});
-  // Only the app itself may spend the API quota.
-  const site = req.headers['sec-fetch-site'];
-  if (site && site !== 'same-origin') return send(res, 403, {error: 'forbidden'});
+  // Only the app itself may spend the API quota. Browsers always send this header on fetch();
+  // a script that omits it is refused. (Spoofable by a determined caller: it raises the bar, nothing more.)
+  if (req.headers['sec-fetch-site'] !== 'same-origin') return send(res, 403, {error: 'forbidden'});
   const key = process.env.YOUTUBE_API_KEY;
   if (!key) return send(res, 503, {error: 'not-configured'});
   const id = new URL(req.url, 'http://localhost').searchParams.get('list') ?? '';
@@ -52,6 +52,8 @@ export default async function handler(req, res) {
       const info = await google('playlists', {part: 'snippet', id}, key);
       name = String(info.items?.[0]?.snippet?.title ?? '').slice(0, 120);
     } catch { /* the name is optional */ }
+    // The result is public playlist metadata with no user data: a short edge cache saves quota on repeat reads.
+    res.setHeader('Cache-Control', 'public, s-maxage=600, stale-while-revalidate=60');
     return send(res, 200, {name, total, truncated: items.length >= MAX_ITEMS && !!pageToken, items: items.slice(0, MAX_ITEMS)});
   } catch (error) {
     if (error.status === 404) return send(res, 404, {error: 'not-found'});
