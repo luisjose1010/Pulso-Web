@@ -24,6 +24,15 @@ test('closer duration still beats a better bitrate',()=>{
   const exact=audio({bytes:1_600_000,durationSeconds:100}),longer=audio({bytes:4_400_000,durationSeconds:101});
   assert.deepEqual(matchingSongRows([longer,exact],target),[exact,longer]);
 });
+test('sub-second duration noise does not hide the better file; a full second still wins',()=>{
+  const t={...target,durationSeconds:199.6};
+  const low=audio({durationSeconds:200,bytes:3_200_000}),high=audio({durationSeconds:199,bytes:8_000_000});
+  assert.deepEqual(matchingSongRows([low,high],t),[high,low]);          // 0.4 s vs 0.6 s: same bucket, 320 kbps wins
+  const sameTier=audio({durationSeconds:199,bytes:3_200_000});
+  assert.deepEqual(matchingSongRows([sameTier,low],t),[low,sameTier]);   // same quality: the closer duration wins
+  const far=audio({durationSeconds:201,bytes:8_000_000});
+  assert.deepEqual(matchingSongRows([far,low],t),[low,far]);             // 1.4 s away: quality does not override
+});
 test('a file the downloader would reject never outranks one it can fetch',()=>{
   const tooBig=audio({bytes:AUDIO_FILE_MAX_BYTES+1}),flac=audio({mimeType:'audio/flac',bytes:9_000_000}),ok=audio({bytes:1_600_000});
   assert.deepEqual(matchingSongRows([tooBig,flac,ok],target),[ok,tooBig,flac]);

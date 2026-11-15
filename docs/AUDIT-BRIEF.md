@@ -56,3 +56,22 @@ npx --no-install vite preview --host 127.0.0.1 --port 4173 --strictPort
 ```
 
 Contexto adicional: `SPEC.md` en la carpeta padre (`Pulso Web/`), `docs/VERCEL.md`, `doc/SPEC.md` y `STATUS.md` de upstream.
+
+## Resultado de la auditoría · 2026-11-15 (sobre `audit-baseline`)
+
+Corregido (commit posterior a la etiqueta):
+- **Ranking**: Telegram da la duración en segundos enteros y el catálogo en milisegundos; una diferencia de décimas decidía antes que la calidad. Ahora la calidad decide dentro del mismo segundo entero.
+- **Lote importado**: dos canciones de álbumes distintos podían compartir `disco:pista` y con ello la `key` de React de la fila. La `key` incluye ahora `trackId`.
+
+Revisado sin cambios:
+- Cabeceras en vivo correctas en `/`, `try/web/listen/pilot.html`, `/releases/*`, `session.worker-*`, `sw.js`, `/api/*`.
+- Canciones sin ficha (`lrclib:9…`, álbum y duración nulos): clave, alias, guardado y verificación de etiquetas de upstream ya admiten ese caso. Sin colisión práctica de ids.
+- `PLAYLIST_EDITION_ID` compartido: el coordinador compara la lista de pistas y reinicia filas si difiere; una importación nueva no hereda estados de otra.
+- Función de YouTube: no devuelve la clave ni ids; errores cerrados. Una respuesta 200 en caché se sirve también sin la cabecera `Sec-Fetch-Site` (no gasta cuota; son datos públicos).
+
+Riesgos aceptados / abiertos:
+- La cabecera `Sec-Fetch-Site` es falsificable: alguien decidido puede agotar la cuota diaria de YouTube (unas 330 playlists grandes). Efecto: el campo de enlace falla hasta el día siguiente; sin coste.
+- En el lote importado las filas muestran «Disco 1, pista N» del álbum de origen (cosmético).
+- Al abrir un lote, el cuadro conserva solo las líneas restantes; las de la tanda abierta y la lista de no preparadas dejan de verse.
+- Descarga real por Telegram, bots reales e iPhone: sin probar.
+- `.vercel/` (ids, no credenciales) sigue en commits antiguos.

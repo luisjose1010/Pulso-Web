@@ -155,6 +155,10 @@ export function matchingSongRows(rows:readonly BotSearchRow[],target:BotSearchTa
   const clean=row.label.replace(/^\s*(?:#\d{1,3}\s+|\d{1,3}\s*[.)]\s*)/u,'').replace(/\s*[[(]\d{1,2}:[0-5]\d[)\]]\s*$/u,'');
   return matches(clean)?1900+correlation:0;
  };
- return rows.map((row,index)=>({row,index,score:score(row),usable:downloadableRow(row),tier:qualityTier(row)})).filter(v=>v.score>0)
-  .sort((a,b)=>Number(b.usable)-Number(a.usable)||b.score-a.score||b.tier-a.tier||a.index-b.index).map(v=>v.row);
+ // Telegram reports whole seconds while the catalogue has milliseconds, so two encodes of one
+ // recording often differ by a fraction. Quality decides inside the same whole-second bucket;
+ // the exact difference only breaks ties after it.
+ const bucket=(row:BotSearchRow,value:number)=>row.kind==='audio'?Math.ceil((value-(row.correlation==='reply'?1:0))/100)*100:value;
+ return rows.map((row,index)=>{const value=score(row);return {row,index,score:value,coarse:bucket(row,value),usable:downloadableRow(row),tier:qualityTier(row)};}).filter(v=>v.score>0)
+  .sort((a,b)=>Number(b.usable)-Number(a.usable)||b.coarse-a.coarse||b.tier-a.tier||b.score-a.score||a.index-b.index).map(v=>v.row);
 }
