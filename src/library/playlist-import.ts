@@ -14,7 +14,8 @@ export type PlaylistMatch=
  |{readonly entry:PlaylistEntry;readonly status:'catalog'|'direct';readonly track:AlbumTrack}
  |{readonly entry:PlaylistEntry;readonly status:'duplicate'}
  |{readonly entry:PlaylistEntry;readonly status:'unresolved';readonly reason:'no-artist'|'invalid'};
-export interface PlaylistParse {readonly entries:readonly PlaylistEntry[];readonly skipped:number;readonly truncated:number}
+/** `remaining`: the pasted lines from the first one that did not fit this batch, ready for the next batch. */
+export interface PlaylistParse {readonly entries:readonly PlaylistEntry[];readonly skipped:number;readonly truncated:number;readonly remaining:string}
 
 const SEPARATOR=/\s[-–—]\s/u;
 const NOISE_GROUP=/\s*[[(][^\])]*?\b(?:official|lyrics?|lyric video|visuali[sz]er|music video|video oficial|audio oficial|animated|hd|4k)\b[^\])]*[\])]/giu;
@@ -25,7 +26,8 @@ const cleanArtist=(s:string)=>clean(s).replace(/\s*-\s*Topic$/iu,'').replace(/\s
  * A line without a separator is a title with no artist: it can never be matched. */
 export function parsePlaylistText(text:string,max=PLAYLIST_IMPORT_MAX):PlaylistParse {
  const entries:PlaylistEntry[]=[],seen=new Set<string>();let skipped=0,truncated=0;
- for(const rawLine of text.split(/\r?\n/u)){
+ const all=text.split(/\r?\n/u);let restFrom=-1;
+ for(let index=0;index<all.length;index++){const rawLine=all[index];
   // "Artist - Topic - Title": YouTube auto-generated channel suffix, not part of the name.
   const line=rawLine.replace(/^\s*(?:[-*•]|\d{1,4}\s*[.)])\s+/u,'').replace(/\s[-–—]\s+Topic(?=\s[-–—]\s)/iu,'').trim();
   if(!line||line.startsWith('#'))continue;
@@ -36,10 +38,10 @@ export function parsePlaylistText(text:string,max=PLAYLIST_IMPORT_MAX):PlaylistP
   if(!title||title.length>300||(artist?.length??0)>300){skipped++;continue;}
   const key=`${musicIdentityText(artist??'')}|${musicIdentityText(title)}`;
   if(seen.has(key)){skipped++;continue;}seen.add(key);
-  if(entries.length>=max){truncated++;continue;}
+  if(entries.length>=max){truncated++;if(restFrom<0)restFrom=index;continue;}
   entries.push(Object.freeze({raw:line,title,artist}));
  }
- return Object.freeze({entries:Object.freeze(entries),skipped,truncated});
+ return Object.freeze({entries:Object.freeze(entries),skipped,truncated,remaining:restFrom<0?'':all.slice(restFrom).join('\n')});
 }
 
 // Featured-artist markers are credit decoration; version words (live, remix, slowed) are kept.
