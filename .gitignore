@@ -8,3 +8,6 @@ __pycache__/
 *.py[cod]
 .wrangler/
 .dev.vars*
+
+# Vercel
+.vercel
