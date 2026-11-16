@@ -73,13 +73,14 @@ export function PlaylistImportPanel({visible,onOpen}:Props){
   <div className="playlist-import-actions">
    <button type="button" onClick={()=>void resolve()} disabled={busy||reading||!parsed.entries.length}>{busy?'Buscando…':'Buscar canciones'}</button>
    {busy&&<button type="button" onClick={()=>abort.current?.abort()}>Cancelar</button>}
+   {!busy&&remainingCount>0&&<button type="button" onClick={()=>{setText(parsed.remaining);setResolved(null);}}>Pasar a la siguiente tanda ({remainingCount} restantes)</button>}
   </div>
   {progress&&<p role="status">Buscando {progress[0]}/{progress[1]}… (el catálogo limita el ritmo, tarda un poco)</p>}
   {message&&<p role="status">{message}</p>}
   {resolved&&<div role="status" className="playlist-import-result">
    <p>{usable} lista{usable===1?'':'s'} para descargar{direct?` (${direct} sin ficha del catálogo: se buscarán directo en el bot, con verificación más floja)`:''}. {lost.length} no se pudieron preparar.</p>
    {lost.length>0&&<ul>{lost.map((m,i)=><li key={i}><bdi dir="auto">{m.entry.raw}</bdi> — {m.status==='unresolved'?reasonText[m.reason]:reasonText.duplicate}</li>)}</ul>}
-   <button type="button" disabled={!usable} onClick={()=>{draft.text=resolved.rest;onOpen(playlistDetail(resolved.name,resolved.matches));}}>Abrir lote ({usable}){resolved.rest?' · el resto queda preparado':''}</button>
+   <button type="button" disabled={!usable} onClick={()=>onOpen(playlistDetail(resolved.name,resolved.matches))}>Abrir lote ({usable})</button>
   </div>}
  </details>;
 }
