@@ -5,6 +5,8 @@ import {spotifyPlaylist} from '../../deployment/cloudflare/spotify-playlist.mjs'
 export default async function handler(req, res) {
   const host = req.headers['x-forwarded-host'] ?? req.headers.host ?? 'localhost';
   const url = new URL(req.url, `https://${host}`);
+  // Vercel appends the dynamic segment as ?id=…; drop only that so Diego's 'no query' rule still applies to callers.
+  if (url.searchParams.get('id') === url.pathname.split('/').pop()) url.searchParams.delete('id');
   const controller = new AbortController();
   req.on('close', () => { if (!res.writableEnded) controller.abort(); });
   const headers = new Headers();
