@@ -55,3 +55,19 @@ test('terminal byte-validation failure continues only after settlement of the ex
   assert.equal(looked,unavailable?1:2);assert.equal(result?.rows[0].state,unavailable?'uncertain':'failed');assert.equal(result?.rows[1].confirmed,!unavailable);assert.equal(mock.searches,1);assert.equal(mock.downloads,1);
  }
 });
+
+// The fake client reports a pending lane, so every bot attempt settles as unconfirmed without any send.
+const stuckClient={captureBotsCurrent:()=>()=>true,botsSnapshot:()=>({revision:0}),searchSnapshot:()=>({pending:true})} as never;
+const five:AlbumDetail={edition:{id:2,title:'Lista',artist:'Varios',trackCount:5,releaseDate:null},tracks:[1,2,3,4,5].map(i=>({releaseId:9,trackId:i,disc:1,position:i,title:`Song ${i}`,artist:'Artist',durationMs:60000}))};
+const fiveRows=():AlbumRow[]=>five.tracks.map(()=>({state:'unattempted',trackId:null,confirmed:false,message:''}));
+test('imported playlist: an unconfirmed bot exchange does not block the row or the batch; three in a row pause it',async()=>{
+ let result:AlbumProgress|undefined;const uncertainTracks=new Set<number>();
+ await acquireAlbum({resilient:true,detail:five,attempt:attempt(async()=>null),client:stuckClient,provider:'p',providers:[{providerRef:'p',label:'Bot'}],revision:0,management:()=>manager(async()=>true),signal:new AbortController().signal,current:()=>true,rows:fiveRows(),uncertainTracks,update:v=>{result=v;}});
+ assert.deepEqual(result?.rows.map(r=>r.state),['failed','failed','failed','unattempted','unattempted']);
+ assert.equal(uncertainTracks.size,0);assert.match(result!.message,/pausa/);
+});
+test('ordinary album keeps the strict stop on the first unconfirmed exchange',async()=>{
+ let result:AlbumProgress|undefined;
+ await acquireAlbum({detail:five,attempt:attempt(async()=>null),client:stuckClient,provider:'p',providers:[{providerRef:'p',label:'Bot'}],revision:0,management:()=>manager(async()=>true),signal:new AbortController().signal,current:()=>true,rows:fiveRows(),update:v=>{result=v;}});
+ assert.deepEqual(result?.rows.map(r=>r.state),['uncertain','unattempted','unattempted','unattempted','unattempted']);
+});
