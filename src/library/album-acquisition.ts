@@ -15,6 +15,8 @@ export interface AlbumProgress {rows:AlbumRow[];message:string}
 export interface AlbumAcquisition {
  detail:AlbumDetail;attempt:SongPlaybackAttempt;client:TelegramSessionClient|null;provider:string|null;providers?:readonly OrderedProvider[];revision:number|undefined;
  management:(id:string)=>SongManagement|null;signal:AbortSignal;current:()=>boolean;update:(value:AlbumProgress)=>void;rows:AlbumRow[];remoteClock?:{settledAt:number};uncertainTracks?:Set<number>;
+ /** Imported playlists: an unconfirmed bot exchange marks that row as retryable and the batch continues; three in a row pause it. Storage uncertainty still stops. */
+ resilient?:boolean;
 }
 export async function acquireAlbum(p:AlbumAcquisition):Promise<void> {
  const rows=p.rows.map(row=>row.confirmed?{...row,state:'ready' as const,confirmed:false,message:'Pendiente de verificar de nuevo.'}:{...row});
@@ -22,6 +24,7 @@ export async function acquireAlbum(p:AlbumAcquisition):Promise<void> {
  const update=(message:string)=>{for(let i=0;i<rows.length;i++)if(rows[i].state==='uncertain')p.uncertainTracks?.add(p.detail.tracks[i].trackId);p.update({rows:rows.map(row=>({...row})),message});};
  const remoteClock=p.remoteClock??{settledAt:0},networkCurrent=p.client?.captureBotsCurrent();
  const uncertainTracks=new Set([...(p.uncertainTracks??[]),...p.detail.tracks.filter((_,i)=>rows[i].state==='uncertain').map(t=>t.trackId)]);
+ let unsettled=0;
  update('Comprobando copias…');
  try {
   for(let i=0;i<p.detail.tracks.length;i++){
@@ -40,6 +43,12 @@ export async function acquireAlbum(p:AlbumAcquisition):Promise<void> {
     if(!target||!isBotSearchQuery(target.title)){row.state='failed';row.message='Metadatos insuficientes.';update(row.message);continue;}
     const result=await acquireFromOrderedBots({client,providers,revision:p.revision,target,signal:p.signal,current:live,networkCurrent,remoteClock,progress:(provider,index)=>{row.message=`Probando ${provider.label} (${index+1}/${providers.length})…`;update(row.message);}});
     if(!live()){if(result.state!=='known-failure'){row.state='uncertain';row.message='Operación interrumpida; revisa antes de repetir.';}break;}
+    if(result.state==='uncertain'&&p.resilient){
+     row.state='failed';
+     if(++unsettled<3){row.message='El bot no confirmó esta canción; se continúa y puedes reintentarla.';update(row.message);continue;}
+     row.message='El bot no confirmó esta canción.';update('El bot no responde con claridad. Lote en pausa: espera unos minutos y pulsa Continuar.');return;
+    }
+    unsettled=0;
     if(result.state==='uncertain'){row.state='uncertain';row.message='Operación sin confirmar; revisa Telegram.';update(row.message);return;}
     if(result.state==='known-failure'){row.state='failed';row.message=acquisitionFailureText(result.reasons);update(row.message);continue;}
     const audio=result.audio;
