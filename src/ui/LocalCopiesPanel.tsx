@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import './local-copies.css';
 
 export interface LocalCopyRowView {
@@ -56,8 +57,7 @@ const persistenceLabels: Record<LocalCopiesPanelProps['persistenceState'], strin
 };
 
 function bytes(value: number | null): string {
-  if (value === null) return 'Desconocido';
-  return `${new Intl.NumberFormat('es').format(value)} bytes`;
+  return formatStorageMB(value);
 }
 
 function count(value: number | null): string {
@@ -73,8 +73,8 @@ export function LocalCopiesPanel(props: LocalCopiesPanelProps) {
     <p>Identidad del almacenamiento: {props.identity === 'unknown' ? 'desconocida' : props.identity}.</p>
     <p>{props.partial ? 'Inventario parcial: pueden faltar copias en esta consulta.' : 'Inventario consultado.'} {props.referencesComplete ? 'Referencias consultadas.' : 'Referencias incompletas: los conteos pueden no incluir todas las relaciones.'}</p>
     <dl className="local-copies__summary">
-      <div><dt>Bytes observados</dt><dd>{bytes(props.totalObservedBytes)}</dd></div>
-      <div><dt>Bytes lógicos declarados</dt><dd>{bytes(props.totalLogicalBytes)}</dd></div>
+      <div><dt>Tamaño observado</dt><dd>{bytes(props.totalObservedBytes)}</dd></div>
+      <div><dt>Tamaño declarado</dt><dd>{bytes(props.totalLogicalBytes)}</dd></div>
       <div><dt>Uso del origen</dt><dd>{bytes(props.storageUsage)}</dd></div>
       <div><dt>Cuota del origen</dt><dd>{bytes(props.quota)}</dd></div>
     </dl>
@@ -105,10 +105,10 @@ export function LocalCopiesPanel(props: LocalCopiesPanelProps) {
       <button type="button" disabled={disabled || !props.canPreviousPage} onClick={props.onPrevious}>Página anterior</button>
       <button type="button" disabled={disabled || !props.hasNextPage} onClick={props.onNext}>Página siguiente</button>
     </div>
-    <p>La exportación individual admite hasta 8 MiB. Preparar o pulsar el enlace no confirma que el archivo se haya guardado fuera del navegador.</p>
+    <p>La exportación individual admite hasta {formatStorageMB(8*1024*1024)}. Preparar o pulsar el enlace no confirma que el archivo se haya guardado fuera del navegador.</p>
     {props.exportPreparing && <p>Preparando exportación…</p>}
     {props.exportProgress && <div>
-      <label htmlFor="local-copies-export-progress">Bytes leídos: {bytes(props.exportProgress.read)} de {bytes(props.exportProgress.total)}</label>
+      <label htmlFor="local-copies-export-progress">Leído: {bytes(props.exportProgress.read)} de {bytes(props.exportProgress.total)}</label>
       <progress id="local-copies-export-progress" value={props.exportProgress.read} max={Math.max(1, props.exportProgress.total)} />
     </div>}
     {props.exportView && <div className="local-copies__actions">

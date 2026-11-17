@@ -1,5 +1,5 @@
 /** Optional prototype metadata relay. Static hosts retain direct provider access. */
-interface RelayConfig {version:1;itunes:boolean;artwork:boolean}
+interface RelayConfig {version:1;itunes:boolean;artwork:boolean;musicbrainz?:boolean}
 const disabled:RelayConfig=Object.freeze({version:1,itunes:false,artwork:false});
 const nativeFetch:typeof fetch=(...args)=>fetch(...args);
 function cancelled(signal:AbortSignal|null|undefined){if(signal?.aborted)throw new DOMException('Consulta cancelada.','AbortError');}
@@ -43,7 +43,7 @@ export function createCatalogTransport(deps:{fetcher?:typeof fetch;origin?:strin
    try{while(true){const part=await reader.read();if(controller.signal.aborted)return disabled;if(part.done)break;size+=part.value.length;if(size>1024)return disabled;chunks.push(part.value);}
     const bytes=new Uint8Array(size);let offset=0;for(const chunk of chunks){bytes.set(chunk,offset);offset+=chunk.length;}
     const value=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes)) as Record<string,unknown>;
-    return value&&value.version===1&&typeof value.itunes==='boolean'&&typeof value.artwork==='boolean'?{version:1,itunes:value.itunes,artwork:value.artwork}:disabled;
+    return value&&value.version===1&&typeof value.itunes==='boolean'&&typeof value.artwork==='boolean'?{version:1,itunes:value.itunes,artwork:value.artwork,...(value.musicbrainz===true?{musicbrainz:true}:{})}:disabled;
    }finally{controller.signal.removeEventListener('abort',cancel);cancel();try{reader.releaseLock();}catch{/* A timed-out read may still settle. */}}
   })().catch(()=>disabled);
   probe=Promise.race([load,expired]).then(value=>{clearTimeout(timer);config=value;return value;});
@@ -55,13 +55,22 @@ export function createCatalogTransport(deps:{fetcher?:typeof fetch;origin?:strin
   const artwork=address.protocol==='https:'&&/^is[1-5]-ssl\.mzstatic\.com$/.test(address.hostname)&&!address.port&&!address.username&&!address.password;
   if(!origin||!itunes&&!artwork||init.method&&init.method!=='GET')return direct(url,init);
   const mode=await withSignal(capabilities(),init.signal);cancelled(init.signal);
-  if(itunes&&!mode.itunes)return directMetadata(url,init,direct);
+  if(itunes&&!mode.itunes){
+   const api=new URL(address);
+   // On mobile Safari, media=music can route /search into the native musics:
+   // scheme instead of the JSON API. An explicit music entity is sufficient;
+   // retain it, the market, limits and redirect:error rather than following it.
+   if(api.pathname==='/search'&&api.searchParams.get('media')==='music'&&['album','song','musicArtist'].includes(api.searchParams.get('entity')??''))api.searchParams.delete('media');
+   return directMetadata(api.href,init,direct);
+  }
   if(artwork&&!mode.artwork)return direct(url,init);
   const target=itunes?new URL('/catalog/itunes'+address.pathname+address.search,origin):new URL('/catalog/artwork?'+new URLSearchParams({u:address.href}),origin);
   return direct(target.href,{...init,headers:{Accept:itunes?'application/json':'image/png,image/jpeg,image/webp'},credentials:'same-origin',redirect:'error',referrerPolicy:'no-referrer'});
  }
- return {fetch:request,mode:():'unresolved'|'relay'|'direct'=>config===null?'unresolved':config.itunes?'relay':'direct'};
+ return {musicbrainz:async(signal?:AbortSignal)=>!!(await withSignal(capabilities(),signal)).musicbrainz,fetch:request,mode:():'unresolved'|'relay'|'direct'=>config===null?'unresolved':config.itunes?'relay':'direct'};
 }
 const transport=createCatalogTransport();
 export const catalogFetch=transport.fetch;
 export const catalogTransportMode=transport.mode;
+
+export const musicBrainzEnabled=transport.musicbrainz;

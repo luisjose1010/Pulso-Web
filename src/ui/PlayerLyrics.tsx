@@ -54,21 +54,26 @@ function activeCue(result:PlayerLyricsResult|null,seconds:number) {
  return active;
 }
 
-export function PlayerLyricsPreview({result,timeSeconds,loading}:{result:PlayerLyricsResult|null;timeSeconds:number;loading:boolean}) {
+interface LyricPlayback {canSeek?:boolean;durationSeconds?:number;onSeek?:(seconds:number)=>void}
+function cueAvailable(timeMs:number,props:LyricPlayback){return !!props.canSeek&&!!props.onSeek&&(props.durationSeconds===undefined||Number.isFinite(props.durationSeconds)&&timeMs/1000<props.durationSeconds);}
+
+export function PlayerLyricsPreview(props:{result:PlayerLyricsResult|null;timeSeconds:number;loading:boolean}&LyricPlayback) {
+ const {result,timeSeconds,loading}=props;
  if(loading)return <p>Cargando letra…</p>;
  if(result?.state==='instrumental')return <div className="player-lyrics-empty"><strong>Versión instrumental</strong><p>LRCLIB identifica esta canción como instrumental.</p></div>;
  if(result?.state!=='ready')return <div className="player-lyrics-empty"><strong>Letra no disponible</strong><p>Puedes seguir escuchando esta canción.</p></div>;
+ if(result.lyrics.kind==='timed'&&props.onSeek){const start=Math.max(0,activeCue(result,timeSeconds));return <div className="player-lyrics-preview">{result.lyrics.cues.slice(start,start+2).map((cue,index)=><button key={start+index} type="button" disabled={!cueAvailable(cue.timeMs,props)} aria-label={`Reproducir desde este verso: ${cue.text||'Pausa instrumental'}`} onClick={()=>props.onSeek?.(cue.timeMs/1000)}>{cue.text||'♪'}</button>)}</div>;}
  const lines=result.lyrics.kind==='timed'?result.lyrics.cues.slice(Math.max(0,activeCue(result,timeSeconds)),Math.max(0,activeCue(result,timeSeconds))+2).map(c=>c.text):result.lyrics.text.split(/\r?\n/).filter(line=>line.trim()).slice(0,2);
  return <div className="player-lyrics-preview">{lines.map((line,index)=><p key={index}>{line}</p>)}</div>;
 }
 
-export function PlayerLyricsReader(props:{result:PlayerLyricsResult|null;loading:boolean;error:boolean;timeSeconds:number;canSeek:boolean;onSeek:(seconds:number)=>void;onRetry:()=>void}) {
+export function PlayerLyricsReader(props:{result:PlayerLyricsResult|null;loading:boolean;error:boolean;timeSeconds:number;durationSeconds?:number;canSeek:boolean;onSeek:(seconds:number)=>void;onRetry:()=>void}) {
  const {result}=props,active=activeCue(result,props.timeSeconds);
  if(props.loading)return <p role="status">Cargando letra…</p>;
  if(props.error||result?.state==='unavailable')return <div className="player-lyrics-empty"><h3>No se pudo leer la letra</h3><p>La reproducción sigue disponible.</p><button type="button" onClick={props.onRetry}>Volver a leer letra</button></div>;
  if(result?.state==='instrumental')return <div className="player-lyrics-empty"><h3>Versión instrumental</h3><p>LRCLIB identifica esta canción como instrumental.</p></div>;
  if(result?.state!=='ready')return <div className="player-lyrics-empty"><h3>Letra no disponible</h3><p>No encontramos una letra para esta canción. Puedes seguir escuchando.</p></div>;
  return <div className="player-lyrics-reader"><p className="player-lyrics-source">{result.origin?.provenance==='lrclib'?'Letra de LRCLIB':result.origin?.provenance==='embedded'?'Letra incluida en el audio':'Letra guardada en este navegador'} · {result.lyrics.kind==='timed'?'Sincronizada':'Sin sincronización'}</p>
-  <div className="player-lyrics-lines">{result.lyrics.kind==='timed'?result.lyrics.cues.map((cue,index)=><button key={index} type="button" aria-current={active===index?'true':undefined} disabled={!props.canSeek} onClick={()=>props.onSeek(cue.timeMs/1000)}>{cue.text||'♪'}</button>):result.lyrics.text.split(/\r?\n/).map((line,index)=><p key={index}>{line||'\u00a0'}</p>)}</div>
+  <div className="player-lyrics-lines">{result.lyrics.kind==='timed'?result.lyrics.cues.map((cue,index)=><button key={index} type="button" aria-current={active===index?'true':undefined} disabled={!cueAvailable(cue.timeMs,props)} aria-label={`Reproducir desde este verso: ${cue.text||'Pausa instrumental'}`} onClick={()=>props.onSeek(cue.timeMs/1000)}>{cue.text||'♪'}</button>):result.lyrics.text.split(/\r?\n/).map((line,index)=><p key={index}>{line||'\u00a0'}</p>)}</div>
  </div>;
 }

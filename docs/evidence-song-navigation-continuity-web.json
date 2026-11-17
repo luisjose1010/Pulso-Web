@@ -1,0 +1,91 @@
+{
+  "date": "2026-11-17",
+  "status": "PUBLISHED_HTTP_VERIFIED_WITH_LIMITS",
+  "change": "A single/song acquisition is explicit state independent of the visible search panel. Internal navigation preserves the in-flight operation; cancel, pause, replacement playback, authority changes, and terminal cleanup remain effective.",
+  "sourceFreeze": {
+    "project": "Pulso-Web",
+    "files": 262,
+    "sha256": "91b44cc1d47a5a2454a1d2d532e41584e991817a7c6184799ab2366cd7bd8abe",
+    "runtimeMatches": true,
+    "rootReview": "PASS_LOCAL_MAIN_SYNTHETIC_SDK_ONLY"
+  },
+  "localValidation": {
+    "agentAcceptance": {
+      "chromium": "15/15 PASS",
+      "webkit": "8/8 PASS",
+      "lint": "PASS",
+      "typecheck": "PASS",
+      "build": "PASS",
+      "unitTests": "752/752 PASS"
+    },
+    "independentRootReview": {
+      "groups": [
+        "56 explicit song and single acquisition survives internal navigation at every boundary",
+        "57 navigation preserves explicit cancellation playback and authority revocation"
+      ],
+      "status": "2/2 PASS",
+      "boundaries": 6,
+      "negativeActions": 8,
+      "cleanup": true,
+      "liveWorkspaceMatchesFreeze": true,
+      "sourceUnchanged": true,
+      "browser": "Chromium 154.0.8037.57"
+    },
+    "sdk": "TESTONLY synthetic fixtures; no real Telegram or account"
+  },
+  "build": {
+    "command": "npm run build:cloudflare",
+    "cloudflareManifestFiles": 139,
+    "dryRun": "PASS; 288.12 KiB, 60.38 KiB gzip",
+    "serviceWorkerBuilt": true,
+    "privateTelegramConfigAssetAbsent": true,
+    "rootDistWasNotDeploymentAuthority": true
+  },
+  "deployment": {
+    "provider": "official Cloudflare MCP",
+    "worker": "pulso-web",
+    "deploymentId": "48d6ae7f980a4b73b0fd1a52876b80a7",
+    "versionId": "48d6ae7f-980a-4b73-b0fd-1a52876b80a7",
+    "origin": "https://pulso-web.pruebassoftware.workers.dev",
+    "plan": "Workers Free, USD 0",
+    "releaseEntry": "/releases/c27ab00feec84ab9.html",
+    "releaseEntrySha256": "c27ab00feec84ab9fc2a7fdf4e09b6a6111143018e133d6ed4a3cdcc829d5464",
+    "latestSha256": "df1e0b921d4f1e62830eb933efb973c1ad6e3eed37a67eda569caa85c33a605b",
+    "serviceWorkerSha256": "b9fdac61b1ead56bd1e8185cb3610641c1941c1bfe7163dc2c460ef9bf09f16e",
+    "immutableStaticRoutes": "136/136 GET bytes+SHA256 PASS; account-config.json checked separately as dynamic no-store",
+    "rootLatestEntryAndServiceWorker": "GET+HEAD HTTP 200; GET bytes/SHA256 and cache headers checked",
+    "htmlRoutes": "Cloudflare canonicalized .html paths to extensionless URLs; followed responses matched candidate bytes/SHA256",
+    "workerBundleSha256": "935fd0440f7a6ef49760c0ae669ed00bb1c790d24c28f4afdfb3914ac5244f15",
+    "workerReadbackSha256": "935fd0440f7a6ef49760c0ae669ed00bb1c790d24c28f4afdfb3914ac5244f15",
+    "workerReadbackMatchesBuild": true,
+    "bindingsPreserved": [
+      "ASSETS",
+      "CATALOG",
+      "TELEGRAM_API_IDENTITY"
+    ],
+    "compatibilityDate": "2026-11-13",
+    "workersDevEnabled": true,
+    "previewsEnabled": false,
+    "accountConfig": {
+      "http": 200,
+      "cacheControl": "no-store",
+      "enabled": false,
+      "google": false
+    },
+    "secretValuesRead": false
+  },
+  "browserPreview": "UNAVAILABLE; no public UI navigation or interaction claimed",
+  "limits": [
+    "No real Telegram session, bot, chat, account, or user audio/data was accessed.",
+    "No iPhone/Safari physical-device test; no OS background guarantee.",
+    "Browser acceptance was synthetic SDKTESTONLY local work; HTTP readback is not interaction acceptance.",
+    "Baseline WebKit style-src-attr CSP notices remain documented separately; no claim of zero CSP events.",
+    "P0-W remains in progress and incomplete."
+  ],
+  "privateReceipts": ".local/song-navigation-continuity/",
+  "readback": {
+    "source": "official Cloudflare MCP plus HTTPS GET/HEAD",
+    "staticRouteReceipt": ".local/song-navigation-continuity/release/https-readback.json",
+    "workerReceipt": ".local/song-navigation-continuity/release/mcp-readback.json"
+  }
+}

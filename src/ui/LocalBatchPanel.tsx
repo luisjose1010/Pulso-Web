@@ -1,3 +1,4 @@
+import {formatStorageProgress} from '../library/storage-format';
 import {fromKnownError,copyFailureV1} from '../errors/app-failure';
 import type {BeginPanelDiagnostic,PanelDiagnosticAttempt,PanelOperation} from '../diagnostics/panel-mapping';
 import type {Activity,ActivityToken} from '../playback/ownership';
@@ -188,7 +189,7 @@ export function LocalBatchPanel({activity, playlist, canStart, captureWriteCurre
           <p>Verificadas: {current.counts.ready}; faltantes: {current.counts.missing}; inválidas: {current.counts.invalid}; cambiadas: {current.counts.changed}; fallidas: {current.counts.failed}; pendientes: {current.counts.pending}; en comprobación: {current.counts.verifying}.</p>
           {(current.counts.missing > 0 || current.counts.invalid > 0) && <p>Reimporta los originales que falten o estén dañados. Tu organización y las demás copias se conservan.</p>}
           {current.counts.changed > 0 && <p>Hay copias diferentes de las capturadas. Crea una verificación nueva de la playlist para comprobar su selección actual.</p>}
-          <label htmlFor={`batch-progress-${job.id}`}>Bytes leídos: {current.bytesRead} de {current.totalBytes}</label>
+          <label htmlFor={`batch-progress-${job.id}`}>Leído: {formatStorageProgress(current.bytesRead,current.totalBytes)}</label>
           <progress id={`batch-progress-${job.id}`} value={bytes} max={Math.max(1, current.totalBytes)} />
           {job.state === 'queued' && <button type="button" disabled={disabled} onClick={() => void action('run', job)}>Iniciar verificación</button>}
           {job.state === 'verifying' && activeId !== job.id && <button type="button" disabled={disabled} onClick={() => void action('recover', job)}>Revisar interrupción</button>}

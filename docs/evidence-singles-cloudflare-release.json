@@ -1,0 +1,47 @@
+{
+  "date": "2026-11-16",
+  "status": "PUBLISHED_HTTP_VERIFIED_WITH_LIMITS",
+  "provider": "official Cloudflare MCP",
+  "worker": "pulso-web",
+  "deploymentId": "404c11d4-8690-483b-adc7-a968eee11692",
+  "versionId": "7f655b46-56e1-4229-b4f4-15b3cc6a0121",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "plan": "Workers Free, USD 0",
+  "release": {
+    "entry": "/releases/119a18edb9d34b79.html",
+    "indexSha256": "119a18edb9d34b79c2e13ac10e3c0b8b2306ff603c98783f6252299294283467",
+    "latestSha256": "726852c47e13099d9f4e40f7db9b0d9bcdbf45839c93b5ed7fb54318c93105cd",
+    "serviceWorkerSha256": "1196bbfa811652e3901b05a721e751fd78b22d65ba86fa87952e812bf58638f5",
+    "immutableStaticRoutes": "133/133 GET bytes+SHA256 PASS",
+    "rootLatestReleaseAndServiceWorker": "GET+HEAD HTTP 200; expected cache headers and GET bytes/SHA256 confirmed",
+    "workerBundleSha256": "935fd0440f7a6ef49760c0ae669ed00bb1c790d24c28f4afdfb3914ac5244f15",
+    "workerReadbackMatchesBuild": true
+  },
+  "workerSettings": {
+    "bindingsPreserved": ["ASSETS", "CATALOG", "TELEGRAM_API_IDENTITY"],
+    "compatibilityDate": "2026-11-13",
+    "workersDevEnabled": true,
+    "previewsEnabled": false
+  },
+  "accountConfig": {
+    "http": 200,
+    "cacheControl": "no-store",
+    "enabled": false,
+    "google": false
+  },
+  "build": {
+    "cloudflareFiles": 136,
+    "thirdPartyNoticesPresent": true,
+    "licenseManifestPresent": true,
+    "telegramConfigAssetAbsent": true,
+    "dryRun": "PASS; 288.12 KiB, 60.38 KiB gzip"
+  },
+  "browserPreview": "UNAVAILABLE; no UI navigation claimed",
+  "limits": [
+    "No real Pulso account, Neon, Google or SMTP activation.",
+    "No real Telegram session, bot, chat or musical data accessed.",
+    "No iPhone or physical Safari acceptance.",
+    "Local synthetic browser acceptance is not public browser acceptance or P0-W completion."
+  ],
+  "privateReceipts": ".local/singles-release/"
+}

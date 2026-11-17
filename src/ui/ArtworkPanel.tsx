@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import type {Activity} from '../playback/ownership';
 import {useEffect, useRef, useState} from 'react';
 import './artwork.css';
@@ -6,7 +7,7 @@ import {readArtwork, type ArtworkRead} from '../library/artwork';
 
 export function artworkFailureText(code: ArtworkFailure): string {
   switch (code) {
-    case 'image-size': return 'La imagen debe ocupar como máximo 2 MiB y no estar vacía.';
+    case 'image-size': return `La imagen debe ocupar como máximo ${formatStorageMB(2*1024*1024)} y no estar vacía.`;
     case 'image-format': return 'Elige una imagen PNG, JPEG o WebP válida.';
     case 'image-structure': return 'La imagen está dañada o usa una estructura no admitida. Prueba otra.';
     case 'image-dimensions': return 'La imagen supera 4096 píxeles por lado o 4 megapíxeles.';

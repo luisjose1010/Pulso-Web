@@ -22,7 +22,7 @@ export function audioExportFilename(title:string,mime:string):string {
  const base=title.normalize('NFC').replace(/[<>:"/\\|?*\u0000-\u001f\u007f-\u009f]/g,' ').replace(/\s+/g,' ').replace(/^[. ]+|[. ]+$/g,'').slice(0,100).replace(/[\ud800-\udbff]$/,'').replace(/[. ]+$/g,'');
  return (base||'Audio propio')+extension;
 }
-const availabilityLabels={pending:'Pendiente de comprobar',present:'Bytes presentes',missing:'Faltan los bytes',corrupt:'Copia no válida',unknown:'Desconocida',changed:'Cambió desde la consulta'} as const;
+const availabilityLabels={pending:'Pendiente de comprobar',present:'Archivo presente',missing:'Falta el archivo',corrupt:'Copia no válida',unknown:'Desconocida',changed:'Cambió desde la consulta'} as const;
 const integrityLabels={'not-checked':'Sin verificar el contenido',verified:'SHA-256 y longitud verificados',invalid:'No superó la verificación',unknown:'No se pudo confirmar'} as const;
 const classificationLabels={'current-kept':'Copia conservada', 'previous-kept':'Generación anterior conservada',staging:'Importación parcial',unclassified:'Archivo sin clasificar',invalid:'Registro inválido'} as const;
 
@@ -85,7 +85,7 @@ export function LocalCopiesController(props:LocalCopiesControllerProps) {
    if(index===0)firstPage.current=next;
    pageIndex.current=index;if(next.nextCursor)cursors.current[index+1]=next.nextCursor;else cursors.current.length=index+1;
    setPage(next);setStorage(status);setInventoryState('ready');
-   setMessage(next.partial?'Consulta parcial. Los datos desconocidos se conservan; no se ofrece retirada.':'Inventario consultado. La presencia de bytes no confirma su integridad ni la disponibilidad offline.');
+   setMessage(next.partial?'Consulta parcial. Los datos desconocidos se conservan; no se ofrece retirada.':'Inventario consultado. Encontrar el archivo no confirma su integridad ni la disponibilidad offline.');
    observe(attempt,next.partial?makeFailure('read','internal','limit-exceeded','none'):status.failure,'read',next.partial);
   }catch(error){if(attempt.current())setInventoryState('error');report(attempt,error);}finally{finish(attempt);}
  }

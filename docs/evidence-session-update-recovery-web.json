@@ -1,0 +1,73 @@
+{
+  "project": "Pulso-Web",
+  "status": "PUBLISHED_PASS",
+  "entry": "/releases/44b730b3decc0b1c.html",
+  "ownerReported": "Tras actualizar volvió a pedir el número; no informó texto de revocación.",
+  "reproduced": "Un fallo de reconexión muestra un formulario de login nuevo aunque la autorización permanezca intacta. Reproducido en Chromium y WebKit con SDK sintético.",
+  "change": "No presentar teléfono/QR mientras se comprueba la sesión, existe autorización guardada o su lectura es desconocida. Recuperar automáticamente una vez; fallo conserva Reconectar Telegram y olvido explícito. Guardar restauración/cancelación/expiry originales; no transporte ni esquema nuevos.",
+  "validation": {
+    "focused": {
+      "cases": 22,
+      "pass": 22,
+      "sdkReplacements": 1,
+      "engines": [
+        "Chromium154",
+        "WebKit27.2"
+      ],
+      "realIndexedDB": true,
+      "realTelegram": false,
+      "checks": [
+        "Antes/durante/después del login y actualizar visible",
+        "Recarga manual: misma autorización y restauración sin código",
+        "Recarga ordinaria: misma autorización",
+        "Navegación documento nuevo: misma autorización",
+        "Fallo de restauración: conserva vault, sin teléfono/QR; Reconectar funciona",
+        "Detener local: conserva vault sin pedir teléfono",
+        "Olvido explícito: borra autorización y habilita login"
+      ],
+      "pageErrors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "main": {
+      "pass": 36,
+      "pageErrors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "unit": {
+      "pass": 712,
+      "fail": 0
+    },
+    "lint": "PASS",
+    "build": "PASS",
+    "buildInputs": 279,
+    "runtime": 202,
+    "sourceMatchesBuild": true
+  },
+  "limits": [
+    "No determina si la autorización real del propietario desapareció o sólo falló su restauración.",
+    "No restaura claves ya eliminadas ni autorizaciones revocadas.",
+    "No acceso a Telegram real ni al perfil del propietario; iPhone físico/P0 pendientes.",
+    "Primera ejecución privada falló por locator que excluía una alerta dentro de Configuración cerrada; negativo conservado. Baseline posterior confirma el formulario visible con autorización existente; también conservado."
+  ],
+  "publication": {
+    "url": "https://pulso-web.pruebassoftware.workers.dev",
+    "deploymentId": "b042940c4b7141128519879dfa9d9f01",
+    "entry": "/releases/44b730b3decc0b1c.html",
+    "workerSHA256": "9c50fc3c90392730ad835af5de570b3cd1b532630be263504917a18edc07f393",
+    "bindings": [
+      "ASSETS",
+      "CATALOG",
+      "TELEGRAM_API_IDENTITY"
+    ],
+    "subdomain": "pruebassoftware",
+    "enabled": true,
+    "previewsEnabled": false,
+    "publicRoutes": 77,
+    "publicRouteBytesAndSHA256Match": true,
+    "plan": "Workers Free",
+    "costUSD": 0,
+    "method": "Cloudflare MCP official"
+  }
+}

@@ -1,0 +1,94 @@
+{
+  "project": "Pulso-Web",
+  "status": "PUBLISHED_HTTP_VERIFIED_BROWSER_NAVIGATION_PENDING",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "entry": "/releases/459fa7098cf7442f.html",
+  "problem": "Home-screen launch after update could reject FetchEvent.respondWith with shell-network when a release redirect was not usable and no exact cached document existed.",
+  "behavior": [
+    "Fetch the canonical same-origin root as a GET accepting HTML, without inheriting navigation redirect mode or following redirects.",
+    "On network failure, use a valid document from the current complete shell cache, including its canonical entry. Cache reads and fetch are bounded.",
+    "If network and shell cache are unavailable, return a real HTTP 503 document with a user-operated retry link instead of a rejected respondWith.",
+    "Cloudflare recognizes HTML navigation without Fetch Metadata so an already active legacy Safari worker can receive the current root on recognized entry URLs. Ordinary precache fetches retain immutable bytes.",
+    "No forced worker activation or reload over active music. No changes to vault, IndexedDB music, OPFS or Telegram transport."
+  ],
+  "validation": {
+    "unit": {
+      "pass": 723,
+      "fail": 0
+    },
+    "server": {
+      "pass": 14,
+      "fail": 0
+    },
+    "main": {
+      "pass": 36,
+      "engines": [
+        "Chromium154",
+        "WebKit27.2"
+      ]
+    },
+    "standalone": {
+      "pass": 16,
+      "engines": [
+        "Chromium154",
+        "WebKit27.2"
+      ],
+      "synthetic": true,
+      "physicalIPhone": false,
+      "expectedLegacyFailureReproduced": true,
+      "errorsAfterRepair": 0,
+      "externalAttempts": 0,
+      "cleanup": true,
+      "nativeAudioContinuesDuringInstall": true,
+      "syntheticAuthorizationAndMusicSHAUnchanged": true,
+      "scope": "Native desktop browsers with old/new production SW bodies plus a TESTONLY version observer, local edge without Fetch Metadata, own WAV files and synthetic session vault. Includes redirects/compressed HTML, failed network, offline, purged shell cache, and retry."
+    },
+    "lint": "PASS",
+    "build": "PASS",
+    "workerDryRun": "PASS",
+    "buildInputs": 282,
+    "runtime": 204,
+    "sourceMatchesBuild": true
+  },
+  "candidate": {
+    "inputs": 282,
+    "runtime": 204,
+    "sourceMatchesBuild": true,
+    "assets": 81,
+    "entry": "/releases/459fa7098cf7442f.html",
+    "workerSHA256": "76d57a098e23b1a03d6573d972a9e8d99ed6296adda83f07c1f04584474815fe",
+    "rootDistSHA256": "03f80776e1154d4373101adc63a413b58a9cd0611e255a5606ad1667122a62af",
+    "published": true
+  },
+  "limits": [
+    "Linux WebKit is not physical Safari/iPhone or an installed iOS home-screen acceptance.",
+    "No real Telegram session, account, private chat, audio or profile was accessed. Session retention is tested with a synthetic vault.",
+    "No background-download job queue is implemented by this increment.",
+    "Negative attempts are preserved privately. Earlier observer waits confused transient waiting with the new install; final test waits for installed and positively identifies the active new worker. Two expected WebKit baseline browser errors are recorded only for the failing legacy page, separate from repaired-flow errors.",
+    "If the browser has independently purged its data, this change cannot restore removed authorization or music.",
+    "Public navigation acceptance was not available because preview browser reported available=false; published HTTP artifacts were verified separately. iPhone/Safari installed acceptance remains pending."
+  ],
+  "publication": {
+    "method": "Official Cloudflare MCP",
+    "plan": "Workers Free",
+    "costUSD": 0,
+    "deploymentId": "ca7380a75366452cb2d04d2ec036e9cb",
+    "origin": "https://pulso-web.pruebassoftware.workers.dev",
+    "entry": "/releases/459fa7098cf7442f.html",
+    "workerSHA256": "76d57a098e23b1a03d6573d972a9e8d99ed6296adda83f07c1f04584474815fe",
+    "bindings": [
+      "ASSETS",
+      "CATALOG",
+      "TELEGRAM_API_IDENTITY"
+    ],
+    "subdomain": "pruebassoftware",
+    "enabled": true,
+    "previews": false,
+    "routes": {
+      "pass": 79,
+      "fail": 0,
+      "rootLatestServiceWorkerPass": true
+    },
+    "browserNavigation": "NOT_RUN: preview_status available=false; artifact GET is not navigation and does not establish Fetch Metadata behavior."
+  }
+}

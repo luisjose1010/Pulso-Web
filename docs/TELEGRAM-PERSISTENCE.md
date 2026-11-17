@@ -24,6 +24,8 @@ Restaurar el pool no consulta perfiles ni envía mensajes. Antes de usar un bot,
 
 Las transacciones y esperas del bloqueo del vault tienen un plazo de quince segundos. Un commit ya completado prevalece sobre una cancelación tardía. Esto no garantiza que el sistema operativo conserve los datos del sitio indefinidamente, ni sincroniza proveedores entre dispositivos.
 
+Mientras se comprueba el almacenamiento, Pulso muestra «Comprobando tu sesión guardada». Si la autorización sigue guardada, se ofrece su recuperación y no se presenta un nuevo formulario de teléfono o QR. Un error de lectura tampoco permite reemplazarla con otro login: primero hay que recuperar el acceso al almacenamiento o eliminarla explícitamente. El formulario sólo aparece al confirmar que no hay autorización guardada.
+
 La recuperación automática se intenta una sola vez por cliente. Un fallo de red conserva la autorización y muestra **Reconectar Telegram** para un nuevo intento explícito. Una revocación conocida elimina únicamente la autorización propia, sin borrar una sesión posterior. El teléfono, otro navegador y el navegador compartido de pruebas conservan autorizaciones independientes. Cambiar de dominio o perfil requiere conectarse allí; borrar datos del sitio, el navegador o una revocación de Telegram puede obligar a iniciar sesión otra vez.
 
 ## Cierre y olvido

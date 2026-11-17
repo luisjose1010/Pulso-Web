@@ -1,7 +1,8 @@
+import {MB_UUID,musicBrainzArtwork} from './catalog-id';
 import {catalogFetch} from './catalog-fetch';
 import {MAX_ARTWORK_BYTES, validateArtwork} from '../imports/artwork';
 
-export interface PlayerArtworkQuery { title:string; artist:string; album:string|null; durationSeconds:number; editionId?:number; trackId?:number }
+export interface PlayerArtworkQuery { title:string; artist:string; album:string|null; durationSeconds:number; editionId?:number; trackId?:number; musicbrainzReleaseId?:string }
 export interface PlayerArtworkMatch { album:string; url:string }
 const clean = (s:string) => s.normalize('NFC').trim().replace(/\s+/gu,' ').toLocaleLowerCase('en-US');
 const validText = (s:unknown):s is string => typeof s==='string' && s.trim().length>0 && s.length<=300;
@@ -18,11 +19,12 @@ export function artworkImageUrl(value:unknown):string|null {
  return url.href;
 }
 function validIdentity(q:PlayerArtworkQuery):boolean {
+ if(q.musicbrainzReleaseId!==undefined)return MB_UUID.test(q.musicbrainzReleaseId)&&q.editionId===undefined&&q.trackId===undefined&&q.album!==null;
  return q.editionId===undefined&&q.trackId===undefined||Number.isSafeInteger(q.editionId)&&q.editionId!>0&&Number.isSafeInteger(q.trackId)&&q.trackId!>0;
 }
 /** Only a single catalog edition with a consistent cover is safe to show. */
 export function selectPlayerArtwork(data:unknown,q:PlayerArtworkQuery,limit=50):PlayerArtworkMatch|null {
- if(!validIdentity(q)||!validText(q.title)||!validText(q.artist)||!Number.isFinite(q.durationSeconds)||q.durationSeconds<=0||q.durationSeconds>86400||q.album!==null&&!validText(q.album))return null;
+ if(q.musicbrainzReleaseId!==undefined||!validIdentity(q)||!validText(q.title)||!validText(q.artist)||!Number.isFinite(q.durationSeconds)||q.durationSeconds<=0||q.durationSeconds>86400||q.album!==null&&!validText(q.album))return null;
  if(!data||typeof data!=='object'||Array.isArray(data))return null;
  const d=data as Record<string,unknown>;
  if(!Array.isArray(d.results)||d.results.length>=limit||d.resultCount!==d.results.length)return null;
@@ -60,7 +62,7 @@ export class PlayerArtworkProvider {
  constructor(private fetcher:typeof fetch=fetch){}
  async load(q:PlayerArtworkQuery,request:{signal:AbortSignal;current:()=>boolean}):Promise<{album:string;blob:Blob}|null>{
   if(!validIdentity(q)||!validText(q.title)||!validText(q.artist)||!Number.isFinite(q.durationSeconds)||q.durationSeconds<=0||q.durationSeconds>86400||q.album!==null&&!validText(q.album))return null;
-  const key=JSON.stringify([q.title,q.artist,q.album,q.durationSeconds,q.editionId,q.trackId]);
+  const key=JSON.stringify([q.title,q.artist,q.album,q.durationSeconds,q.editionId,q.trackId,q.musicbrainzReleaseId]);
   const active=()=>{try{return !request.signal.aborted&&request.current();}catch{return false;}};
   if(!active())return null;
   const cached=this.cache.get(key);if(cached&&cached.expires>Date.now())return active()?cached.value:null;
@@ -71,16 +73,22 @@ export class PlayerArtworkProvider {
   const previous=tail;
   const task=(async()=>{
    await previous;if(!live())return null;
+   const options:RequestInit={signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',cache:'no-store'};
+   let match:PlayerArtworkMatch|null=null;
+   if(q.musicbrainzReleaseId){const url=musicBrainzArtwork(`musicbrainz:${q.musicbrainzReleaseId}`);if(!url||!q.album)return null;match={album:q.album,url};}
+   else{
    const delay=Math.max(0,nextRequest-Date.now());
    if(delay)await new Promise<void>(resolve=>{const finish=()=>{clearTimeout(t);controller.signal.removeEventListener('abort',finish);resolve();};const t=setTimeout(finish,delay);controller.signal.addEventListener('abort',finish,{once:true});if(controller.signal.aborted)finish();});
    if(!live())return null;nextRequest=Date.now()+3100;
    const exact=q.editionId!==undefined;
    const query=new URLSearchParams(exact?{id:String(q.editionId),country:'US',entity:'song',limit:'200'}:{term:`${q.title} ${q.artist}`,country:'US',media:'music',entity:'song',limit:'50'});
-   const options:RequestInit={signal:controller.signal,credentials:'omit',referrerPolicy:'no-referrer',redirect:'error',cache:'no-store'};
    const response=await catalogFetch(`https://itunes.apple.com/${exact?'lookup':'search'}?${query}`,options,this.fetcher);
    if(response.status===429||response.status===503){nextRequest=Math.max(nextRequest,Date.now()+60000);await response.body?.cancel();return null;}
    const data=JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(await bytes(response,1048576,controller.signal))) as unknown;
-   if(!live())return null;const match=selectPlayerArtwork(data,q,exact?201:50);if(!match)return null;
+   if(!live())return null;match=selectPlayerArtwork(data,q,exact?201:50);if(!match)return null;
+
+   }
+   if(!match)return null;
    const image=await catalogFetch(match.url,options,this.fetcher);const mime=image.headers.get('content-type')?.split(';')[0].trim().toLowerCase()??'';
    if(!['image/png','image/jpeg','image/webp'].includes(mime)){await image.body?.cancel();return null;}
    const raw=await bytes(image,MAX_ARTWORK_BYTES,controller.signal);if(!live())return null;

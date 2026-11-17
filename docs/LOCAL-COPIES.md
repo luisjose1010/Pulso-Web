@@ -33,3 +33,8 @@ Build/typecheck/lint y comprobaciones del producto PASS: IDB+OPFS GET/hash/rango
 Evidencia docs/evidence-local-copies-web.json y .local/evidence/local-copies-delivery-parent-verification.json con baseline src/dist y hashes. Raw R37(84 histórico+12 delta), R40(49), R41 y R43(6) separados; no sumar como una suite final. Originales README/SPEC intactos. Retirada de copias sigue pendiente: este incremento no borra/reclasifica kept, no confirma copia externa ni garantiza purga/heap/iPhone. T11/T12/T18/P0-W siguen EN CURSO; iPhone APLAZADO/PENDIENTE, USD0.
 
 Para usar el incremento entregado: abre «Gestionar copias locales», pulsa «Actualizar inventario» y elige «Verificar copia» o «Preparar exportación». La descarga sólo se solicita al pulsar el enlace preparado. No hay acción de retirada en esta entrega.
+
+
+### Unidades visibles · 2026-11-15
+
+Los tamaños observados/declarados, uso y cuota, archivos individuales, progreso de exportación y espacio retirado usan MB decimales con dos decimales. Un tamaño desconocido se conserva como «Desconocido»; uno positivo menor de0,01MB se muestra «<0,01MB». La conversión sólo afecta a la presentación: límites y comprobaciones de longitud/hash continúan en bytes. El límite de exportación de8MiB se presenta como8,39MB. Descargas y caché usan el mismo formato.

@@ -99,3 +99,25 @@ test('autoplay rejection is distinguishable from other playback failures and cle
  audio.rejection=null;audio.dispatchEvent(new Event('playing'));assert.equal(player.lastFailure,null);assert.equal(player.error,'');assert.equal(player.state,'playing');
  audio.rejection=Promise.reject(new Error('TESTONLY'));await player.play();assert.equal(player.lastFailure,'unknown');
 });
+
+test('choosing a timed lyric plays from its timestamp, including paused and ended media, without replacing the source',async()=>{
+ const {audio,player}=setup();player.select(2);audio.currentTime=4;audio.ended=true;audio.dispatchEvent(new Event('ended'));
+ const generation=player.generation,epoch=player.queueEpoch,revision=player.queueRevision,src=audio.src;
+ await player.play(1.5);assert.equal(audio.currentTime,1.5);assert.equal(audio.plays,1);assert.equal(audio.src,src);
+ assert.equal(player.generation,generation);assert.equal(player.queueEpoch,epoch);assert.equal(player.queueRevision,revision);
+ audio.dispatchEvent(new Event('playing'));audio.ended=true;audio.dispatchEvent(new Event('ended'));assert.equal(player.state,'ended','a new explicit lyric play must admit its next ended event');
+ audio.ended=false;player.pause();await player.play(2.5);assert.equal(audio.currentTime,2.5);assert.equal(audio.plays,2);
+});
+
+test('lyric playback rejects invalid positions and missing metadata, and still obeys playback admission',async()=>{
+ let admitted=true;const audio=new Fake(),player=new Player(audio,()=>admitted);player.setQueue(entries);player.select(0);
+ for(const position of [NaN,Infinity,-1,4,5])await player.play(position);assert.equal(audio.plays,0);assert.equal(audio.currentTime,0);
+ audio.duration=NaN;await player.play(1);assert.equal(audio.plays,0);audio.duration=4;
+ admitted=false;await player.play(1);assert.equal(audio.plays,0);assert.equal(audio.currentTime,0);
+ admitted=true;player.suspend();await player.play(1);assert.equal(audio.plays,0);
+});
+
+test('native seek rejection is reported without an unhandled lyric playback rejection',async()=>{
+ const {audio,player}=setup();player.select(0);Object.defineProperty(audio,'currentTime',{get:()=>0,set:()=>{throw new DOMException('Own test','InvalidStateError')}});
+ await player.play(1);assert.equal(audio.plays,0);assert.equal(player.state,'error');assert.equal(player.lastFailure,'unknown');
+});

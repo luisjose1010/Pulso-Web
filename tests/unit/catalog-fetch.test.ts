@@ -62,3 +62,22 @@ test('oversized capabilities cannot enable relay; server-side imports do not pro
  await createCatalogTransport({origin:'https://pulso.example',fetcher:fake}).fetch(query);assert.equal(urls[1],query);
  urls.length=0;await createCatalogTransport({origin:null,fetcher:fake}).fetch(query);assert.deepEqual(urls,[query]);
 });
+
+test('mobile Apple search uses the explicit music entity without the native-app media route',async()=>{
+ for(const entity of ['album','song','musicArtist']){
+  const source=`https://itunes.apple.com/search?term=mosca+Nsqk&country=US&media=music&entity=${entity}&limit=20`;
+  const calls:{url:string;options:RequestInit|undefined}[]=[];
+  const fake:typeof fetch=async(input,options)=>{const url=String(input);calls.push({url,options});return url.endsWith('/catalog-config.json')?Response.json({version:1,itunes:false,artwork:true}):Response.json({});};
+  const client=createCatalogTransport({origin:'https://pulso.example',fetcher:fake,metadataIntervalMs:0});
+  await client.fetch(source,{credentials:'omit',referrerPolicy:'no-referrer',redirect:'error'});
+  const actual=new URL(calls[1].url);assert.equal(actual.origin,'https://itunes.apple.com');assert.equal(actual.pathname,'/search');assert.equal(actual.searchParams.get('term'),'mosca Nsqk');assert.equal(actual.searchParams.get('entity'),entity);assert.equal(actual.searchParams.get('country'),'US');assert.equal(actual.searchParams.get('limit'),'20');assert.equal(actual.searchParams.has('media'),false);assert.equal(actual.searchParams.has('callback'),false);
+  assert.equal(calls[1].options?.redirect,'error');assert.equal(calls[1].options?.credentials,'omit');
+ }
+});
+test('Safari route normalization leaves lookups, relay and other media unchanged',async()=>{
+ for(const [relay,url] of [[false,'https://itunes.apple.com/lookup?id=42&media=music&entity=song'],[false,'https://itunes.apple.com/search?term=Own&media=podcast&entity=podcast'],[true,'https://itunes.apple.com/search?term=Own&media=music&entity=album']] as const){
+  const calls:string[]=[];const fake:typeof fetch=async input=>{const u=String(input);calls.push(u);return u.endsWith('/catalog-config.json')?Response.json({version:1,itunes:relay,artwork:true}):Response.json({});};
+  const client=createCatalogTransport({origin:'https://pulso.example',fetcher:fake,metadataIntervalMs:0});await client.fetch(url);
+  assert.equal(new URL(calls[1]).search,new URL(url).search);assert.equal(new URL(calls[1]).pathname,relay?'/catalog/itunes/search':new URL(url).pathname);
+ }
+});

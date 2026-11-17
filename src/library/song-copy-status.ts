@@ -29,7 +29,6 @@ async function knownTrack(choice:SongChoice,current:()=>boolean):Promise<string|
  // A direct catalogue binding can identify its exact fingerprint. Otherwise
  // inspect the full compatible set, including detached tracks, before choosing.
  const exact=await readSongAlias(choice,current,false);if(!live(current))throw Error('cancelled');if(exact)return exact;
- if(choice.source!=='itunes')return null;
  const db=await openExistingDatabase();
  try{
   if(!live(current))throw Error('cancelled');

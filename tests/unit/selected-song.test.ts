@@ -1,7 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {matchingSongRows,songChoiceKey} from '../../src/library/selected-song';
+import {matchingSongRows,samePendingSong,songChoiceKey} from '../../src/library/selected-song';
 import type {BotSearchRow,BotSearchTarget} from '../../src/telegram/bot-search-protocol';
+import type {SongChoice} from '../../src/library/selected-song';
 const target:BotSearchTarget={title:'A Song (Live)',artist:'An Artist',album:'Concert',durationSeconds:120};
 const option=(label:string,correlation:'reply'|'recent'='reply'):BotSearchRow=>({kind:'option',rowRef:crypto.randomUUID(),correlation,label});
 const audio=(title='A Song (Live)',performer:string|null='An Artist',durationSeconds=120):BotSearchRow=>({kind:'audio',rowRef:crypto.randomUUID(),correlation:'reply',title,performer,durationSeconds,bytes:100,mimeType:'audio/mpeg'});
@@ -37,6 +38,19 @@ test('numbering and duration decorations do not erase version or performer confl
 });
 test('best compatible tie uses the first row rather than asking for another choice',()=>{
  const first=option('A Song (Live) — An Artist'),second=option('A Song (Live) - An Artist');const ranked=matchingSongRows([first,second],target);assert.deepEqual(ranked,[first,second]);assert.equal(ranked[0],first);
+});
+
+test('pending selections coalesce across catalog IDs only for same full recording metadata',()=>{
+ const base:SongChoice={id:'lrclib:123',source:'lrclib',title:'Sangre !',artist:'Nsqk',album:'Single',duration:200};
+ assert.equal(samePendingSong(base,{...base,id:'itunes:1:1:1:2',source:'itunes',title:'SANGRE!',album:'Album',duration:204}),true);
+ assert.equal(samePendingSong(base,{...base,title:'Sangre (Live)'}),false);
+ assert.equal(samePendingSong(base,{...base,artist:'Nsqk & Guest'}),false);
+ assert.equal(samePendingSong(base,{...base,duration:206}),false);
+ assert.equal(samePendingSong(base,{...base,artist:null}),false);
+ for(const duration of [0,-1,NaN,Infinity])assert.equal(samePendingSong(base,{...base,duration}),false);
+ assert.equal(samePendingSong(base,{...base,title:'Sangre (Studio Version)'}),false);
+ assert.equal(samePendingSong(base,{...base,title:'Sangre (Visualizer)'}),true);
+ assert.equal(samePendingSong({...base,album:'Record Live'},{...base,album:'Record Studio'}),false);
 });
 
 test('duration metadata disagreement up to five seconds retains exact identity and larger gaps fail closed',()=>{

@@ -1,3 +1,4 @@
+import {formatStorageProgress} from '../library/storage-format';
 import React from 'react';
 import './selected-song-actions.css';
 
@@ -24,7 +25,7 @@ export function SelectedSongActions(props:SelectedSongActionsProps){
  const close=()=>{setOpen(false);trigger.current?.focus();};
  const progress=props.progress;
  const validProgress=progress&&Number.isFinite(progress.bytes)&&Number.isFinite(progress.total)&&progress.total>0&&progress.bytes>=0;
- const feedback=[props.status,validProgress?`${Math.min(progress.bytes,progress.total)} de ${progress.total} bytes`:null].filter((value,index,all)=>!!value&&all.indexOf(value)===index).join('. ');
+ const feedback=[props.status,validProgress?formatStorageProgress(progress.bytes,progress.total):null].filter((value,index,all)=>!!value&&all.indexOf(value)===index).join('. ');
  return <section className="selected-song-actions" aria-labelledby={`${id}-title`}>
   <h3 id={`${id}-title`}><bdi dir="auto">{props.title}</bdi></h3>
   {props.artist&&<p><bdi dir="auto">{props.artist}</bdi></p>}

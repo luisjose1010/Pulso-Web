@@ -1,0 +1,107 @@
+{
+  "project": "Pulso-Web",
+  "status": "PUBLISHED_HTTP_READBACK_PASS_BROWSER_PREVIEW_PENDING",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "entry": "/releases/2c93d02f856193ad.html",
+  "report": "Owner reports Chrome on Android offers installation but pressing it does nothing. No physical device has been inspected; source lacked a web app manifest/icons and custom installation flow. Missing eligibility resources are confirmed; they do not independently prove the exact cause of the device-specific browser button failure.",
+  "behavior": [
+    "Stable manifest id, start_url and scope at root, independent of release URLs; standalone display and same-origin PNG192/512 plus maskable512.",
+    "Manifest and icon links in app HTML; assets included in shell offline installation.",
+    "Configuration shows an installation card independent of Telegram login. An install button is shown only after the browser supplies beforeinstallprompt.",
+    "Invoke prompt synchronously from the click, consume its capability once, and prevent a late choice from overwriting installation confirmation.",
+    "Acceptance is labelled requested until appinstalled; cancellation/error/unsupported browsers retain manual menu instructions and require a new event for another prompt.",
+    "No automatic install prompt, reload, data migration, session change, new permissions, analytics or payment."
+  ],
+  "validation": {
+    "unit": {
+      "pass": 724,
+      "fail": 0
+    },
+    "server": {
+      "pass": 14,
+      "fail": 0
+    },
+    "focused": {
+      "pass": 12,
+      "engines": [
+        "Chromium154",
+        "WebKit27.2"
+      ],
+      "syntheticBeforeInstallPrompt": true,
+      "errors": 0,
+      "external": 0,
+      "cleanup": true
+    },
+    "main": {
+      "pass": 36,
+      "runtimeBefore": 210,
+      "runtimeAfter": 210,
+      "errors": 0,
+      "external": 0,
+      "cleanup": true
+    },
+    "nativeEligibility": {
+      "status": "PASS",
+      "browser": "Desktop Chromium154 on Linux; isolated persistent profile removed",
+      "engagementHeuristicsBypassed": true,
+      "manifestErrors": 0,
+      "installabilityErrors": 0,
+      "realBeforeInstallPromptReachedApp": true,
+      "dialogOrOSInstallAttempted": false,
+      "physicalAndroid": false,
+      "cleanup": true
+    },
+    "lint": "PASS",
+    "build": "PASS",
+    "workerDryRun": "PASS",
+    "candidate": {
+      "inputs": 288,
+      "runtime": 210,
+      "sourceMatchesBuild": true,
+      "assets": 88,
+      "entry": "/releases/2c93d02f856193ad.html",
+      "workerSHA256": "76d57a098e23b1a03d6573d972a9e8d99ed6296adda83f07c1f04584474815fe",
+      "rootDistSHA256": "03f80776e1154d4373101adc63a413b58a9cd0611e255a5606ad1667122a62af"
+    },
+    "publication": {
+      "via": "official Cloudflare MCP",
+      "plan": "Workers Free, owner confirmed, USD 0",
+      "deploymentId": "4c9ed0261c81431796048d6c1bee0f34",
+      "previousDeploymentId": "ca7380a75366452cb2d04d2ec036e9cb",
+      "origin": "https://pulso-web.pruebassoftware.workers.dev",
+      "entry": "/releases/2c93d02f856193ad.html",
+      "workerSHA256": "76d57a098e23b1a03d6573d972a9e8d99ed6296adda83f07c1f04584474815fe",
+      "bindings": ["ASSETS", "CATALOG", "TELEGRAM_API_IDENTITY"],
+      "subdomain": "pruebassoftware",
+      "enabled": true,
+      "previewsEnabled": false,
+      "readback": "PASS: exact Worker and bindings confirmed",
+      "http": {
+        "status": "PASS",
+        "publicRoutes": 86,
+        "rootLatestAndServiceWorker": "PASS",
+        "manifest": {"path": "/manifest.webmanifest", "status": 200, "contentType": "application/manifest+json", "bytes": 645},
+        "icons": [
+          {"path": "/icons/pulso-192.png", "status": 200, "contentType": "image/png", "bytes": 2061},
+          {"path": "/icons/pulso-512.png", "status": 200, "contentType": "image/png", "bytes": 5863},
+          {"path": "/icons/pulso-maskable-512.png", "status": 200, "contentType": "image/png", "bytes": 5863}
+        ],
+        "bytesAndSHA256": "PASS for all 86 routes"
+      },
+      "browserPreview": {"status": "PENDING", "available": false, "note": "preview_status returned available=false; no browser navigation was performed."},
+      "artifacts": ".local/android-install-repair/release/{deployment.json,mcp-readback.json,http-verification.json,pre-deploy-live.json}"
+    }
+  },
+  "limits": [
+    "No physical Android/Chrome installation, WebAPK minting, launch, installed-app update or Android OS permissions acceptance was performed.",
+    "Browser preview was unavailable (available=false); successful artifact GET requests do not establish a rendered public-page interaction or browser navigation acceptance.",
+    "Native eligibility test bypasses engagement heuristics; production users may need to interact and spend time on the page. Browser policies, private mode and installation permission restrictions remain outside Pulso control.",
+    "Incognito Chrome correctly rejected eligibility with in-incognito in an initial test; accepted native test uses a fresh isolated persistent profile.",
+    "Initial isolated fixture failed because its library build left process.env unresolved; next omitted HTML UTF-8 metadata. Both harness errors are preserved; production app build already provided those.",
+    "No real Telegram/profile/music was read or changed. iPhone and global P0 acceptance remain pending."
+  ],
+  "sources": [
+    "https://web.dev/articles/install-criteria",
+    "https://web.dev/learn/pwa/installation-prompt"
+  ]
+}

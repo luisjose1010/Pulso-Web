@@ -1,0 +1,154 @@
+{
+  "status": "LOCAL PASS; Cloudflare publication PASS; real-account/platform acceptance pending",
+  "date": "2026-11-17",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "entry": "/releases/b34ea1aee33c6357.html",
+  "ownerAcceptance": {
+    "baselineAccounts": "Owner reports all account tests passed; device unspecified",
+    "newIncrement": "Not yet accepted with a real account"
+  },
+  "local": {
+    "unit": {
+      "pass": 759,
+      "fail": 0
+    },
+    "cloudflareServer": {
+      "pass": 28,
+      "fail": 0
+    },
+    "accountNative": {
+      "pass": 26,
+      "fail": 0,
+      "report": {
+        "path": ".local/pulso-account-context/browser/2026-11-17T04-20-11-822Z/report.json",
+        "bytes": 12295,
+        "sha256": "129058bfce8743719b123c90d43c7c3cd9cdc5b23502f6f8ae17fefa3eac840b"
+      },
+      "pageErrors": 0,
+      "externalRequests": 0,
+      "cspEvents": 27
+    },
+    "interfaceNative": {
+      "pass": 38,
+      "fail": 0,
+      "report": {
+        "path": ".local/interface-browser-validation/2026-11-17T04-22-31-565Z/report.json",
+        "bytes": 17230,
+        "sha256": "6c9c82f7867aa7c29ac8b03db23ba14abcceb79aa3cf5a6adc78ac3b8315ee33"
+      },
+      "inputsBefore": 320,
+      "inputsAfter": 320,
+      "pageErrors": 0,
+      "externalRequests": 0,
+      "cspEvents": 116
+    },
+    "lint": "PASS",
+    "cloudflareBuild": "PASS",
+    "workerDryRun": "PASS"
+  },
+  "fixtures": "Actual production client and local HTTP cookies, TESTONLY account/Telegram responses, own WAV bytes; no real user, email, phone or Telegram account accessed",
+  "neon": {
+    "schema": "Provisioned with forced RLS, own-account policy and restricted grants",
+    "anonymous": 401,
+    "forgedToken": 401,
+    "validJwtReadWrite": "NOT TESTED",
+    "realPhoneStored": false
+  },
+  "platformLimits": [
+    "WebKit desktop is not iPhone acceptance",
+    "Safari and installed PWA storage remain separate",
+    "Installation detection and launch reuse need real platform acceptance",
+    "WebKit style-src-attr events retained; no global zero-CSP claim",
+    "No busy import/uncertain operation logout acceptance in this native matrix"
+  ],
+  "publication": {
+    "status": "PUBLISHED; independent Cloudflare MCP and HTTPS readback PASS",
+    "provider": "official Cloudflare MCP OAuth client; temporary JWT from that MCP session used only for asset upload",
+    "worker": "pulso-web",
+    "origin": "https://pulso-web.pruebassoftware.workers.dev",
+    "plan": "Workers Free / USD 0",
+    "previousAttempt": {
+      "status": "HTTP 500 during first asset bucket; no Worker PUT",
+      "receipt": ".local/pulso-account-context/publication/deployment.json",
+      "readback": ".local/pulso-account-context/publication/failed-publication-readback.json",
+      "preserved": true
+    },
+    "retry": {
+      "receipt": ".local/pulso-account-context/publication/deployment-retry-1.json",
+      "deploymentId": "afadc16fdbe14f38bac0b79ec62abd66",
+      "uploadedRequestedHashes": 9,
+      "verifiedManifestFiles": 143,
+      "workerBytes": 303826,
+      "workerSHA256": "ba1385a54b291151f15b62ecd51c30fa9697c6fa00ac67b19fe4d1d742d41165",
+      "previousVersion": "5538bd86-70fc-4d80-abfc-77a72f9406cf",
+      "bindingsPreserved": [
+        "ASSETS:assets",
+        "CATALOG:durable_object_namespace/CatalogCoordinator",
+        "TELEGRAM_API_IDENTITY:secret_text",
+        "PULSO_NEON_AUTH_URL:secret_text",
+        "PULSO_AUTH_COOKIE_SECRET:secret_text",
+        "PULSO_AUTH_GOOGLE_ENABLED:secret_text",
+        "PULSO_NEON_DATA_API_URL:secret_text"
+      ],
+      "secretValuesRead": false,
+      "secretValuesRotated": false,
+      "durableObjectMigration": false,
+      "compatibilityDate": "2026-11-13",
+      "workersDev": true,
+      "previewsEnabled": false,
+      "causalAttribution": "Retry succeeded after script corrections; this does not isolate which correction resolved the original HTTP 500"
+    },
+    "mcpReadback": {
+      "receipt": ".local/pulso-account-context/publication/mcp-readback-retry-1.json",
+      "workerExactBytesSHA": true,
+      "activeDeployment": "afadc16fdbe14f38bac0b79ec62abd66",
+      "allSevenBindingsConfirmed": true,
+      "secretValuesRead": false
+    },
+    "httpsReadback": {
+      "receipt": ".local/pulso-account-context/publication/https-readback-retry-1.json",
+      "staticAssetRoutesPass": 140,
+      "staticAssetRoutesExpected": 140,
+      "bytesAndSHA256Pass": true,
+      "latestEntry": "/releases/b34ea1aee33c6357.html",
+      "entryBytes": 1570,
+      "entrySHA256": "b34ea1aee33c635730d329f023a649a182b2edbf574236d4272b79ac9d80170a",
+      "entryMatchesCandidate": true,
+      "accountConfig": {
+        "status": 200,
+        "cacheControl": "no-store",
+        "enabled": true,
+        "google": true
+      },
+      "anonymousAccountProfile": {
+        "status": 401
+      }
+    },
+    "candidateEntryPubliclyVerified": true,
+    "realAccountAcceptance": "PENDING",
+    "validJWTProfileReadWrite": "NOT TESTED",
+    "physicalSafariIPhone": "PENDING",
+    "installedPWA": "PENDING",
+    "safariAndPWAStorage": "SEPARATE",
+    "busyImportOrUncertainLogout": "PENDING",
+    "globalP0": "INCOMPLETE",
+    "suitesAndBuildRepeated": false,
+    "localPriorResults": {
+      "unit": "759/759",
+      "cloudflareServer": "28/28",
+      "accounts": "26/26",
+      "interface": "38/38",
+      "lint": "PASS",
+      "build": "PASS",
+      "dryRun": "PASS"
+    },
+    "limitations": [
+      "HTTP verifies route responses and bytes, not navigation, login, or real account acceptance",
+      "TESTONLY account and Telegram responses in local validation",
+      "WebKit style-src-attr historical events remain",
+      "Safari and installed PWA storage are separate",
+      "physical iPhone/Safari and installed-app acceptance remain pending",
+      "no global P0-W completion claim"
+    ]
+  }
+}

@@ -1,0 +1,124 @@
+{
+  "project": "Pulso-Web",
+  "status": "PUBLISHED_AND_PUBLIC_ACCEPTANCE_PASS_WITH_TESTONLY_ITUNES_FAULT_INJECTION",
+  "entry": "/releases/459fa7098cf7442f.html",
+  "primary": "iTunes",
+  "backup": "MusicBrainz via same-origin Cloudflare relay",
+  "behavior": [
+    "Usar respaldo sólo tras fallo o resultado vacío de iTunes. Cancelar no inicia otra fuente.",
+    "Si falla la carga de una edición iTunes, buscar ediciones con título/crédito completo y conteo compatible; elegir cuando hay ambigüedad.",
+    "Conservar IDs iTunes y usar namespace musicbrainz:UUID, sin migrar ni reescribir descargas.",
+    "Abrir un álbum consulta sólo metadatos/portada, nunca Telegram.",
+    "Reutilizar copias sólo por alias exacto o conjunto único compatible, con crédito completo/duración/versión y bytes verificados.",
+    "Imágenes de Cover Art Archive por ID cerrado, con redirecciones restringidas a entrega archive.org y límite/decodificación existentes.",
+    "Cuota MusicBrainz independiente 1,1 s, User-Agent con proyecto/contacto y cooldown; sin reintentos en bucle ni nuevas cuentas."
+  ],
+  "validation": {
+    "unit": {
+      "pass": 718,
+      "fail": 0
+    },
+    "server": {
+      "pass": 13,
+      "fail": 0
+    },
+    "focused": {
+      "pass": 20,
+      "engines": [
+        "Chromium154",
+        "WebKit27.2"
+      ],
+      "syntheticMetadata": true,
+      "cachedCopies": "IDB y Audio nativos propios; añadido/reproducción conserva inventario; cero SDK de sesión",
+      "errors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "main": {
+      "pass": 36,
+      "errors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "lint": "PASS",
+    "build": "PASS",
+    "buildInputs": 282,
+    "runtime": 204,
+    "sourceMatchesBuild": true
+  },
+  "publicBaseline": {
+    "publishedChromium": "MOSCA abrió 17 pistas, lookup iTunes 200; antigua ruta relay lookup 403. No reproduce Safari del propietario.",
+    "musicbrainz": "Búsqueda exacta MOSCA/Nsqk y detalle 17 pistas HTTP200; consulta posterior 503, sin interpretar causa. Readback de parser sobre JSON completo no ejecutado por503."
+  },
+  "limits": [
+    "No garantía de disponibilidad de ambos proveedores ni equivalencia automática entre ediciones/créditos.",
+    "Pruebas sin cuenta/Telegram/audio reales; iPhone físico/P0 pendientes.",
+    "Errores iniciales preservados: fixture compartía objetos rechazados por bounded, y HTML de importación apuntaba a otro nombre. No se relajó producto para ocultarlos.",
+    "Acceptance used one explicit TESTONLY iTunes failure; the returned MusicBrainz metadata and cover were real public responses. It does not establish normal iTunes availability, sustained MusicBrainz availability or a physical iPhone/Safari result.",
+    "No real account, Telegram session, real audio, playback or album addition. Physical iPhone and global P0 acceptance remain pending."
+  ],
+  "publication": {
+    "via": "Cloudflare official MCP",
+    "deploymentId": "5f1aadebeb9f44378674664e2f0bd0bc",
+    "entry": "/releases/459fa7098cf7442f.html",
+    "workerSHA256": "725ec7f0fcb09306353ad993c679c8e31e828bc463dade37270089e051650a1f",
+    "rootDistSHA256": "03f80776e1154d4373101adc63a413b58a9cd0611e255a5606ad1667122a62af",
+    "assets": {
+      "manifest": 81,
+      "publicRoutesVerified": 79,
+      "metadataFiles": 2,
+      "shaAndBytesFailures": 0,
+      "redirectsFollowed": 23
+    },
+    "readback": {
+      "workerMatches": true,
+      "bindings": [
+        "ASSETS",
+        "CATALOG",
+        "TELEGRAM_API_IDENTITY"
+      ],
+      "subdomain": "pruebassoftware",
+      "enabled": true,
+      "previewsEnabled": false
+    },
+    "latestHTTP": 200,
+    "entryHTTP": 200,
+    "contentType": "text/html",
+    "workersPlan": "Free",
+    "costUSD": 0
+  },
+  "publicAcceptance": {
+    "result": "PASS_WITH_TESTONLY_FAULT_INJECTION",
+    "browser": "shared preview browser; own incognito tab; tab closed after acceptance",
+    "entry": "https://pulso-web.pruebassoftware.workers.dev/releases/459fa7098cf7442f.html",
+    "injection": {
+      "enabled": true,
+      "scope": "reject requests only to itunes.apple.com with TypeError(TESTONLY iTunes unavailable)",
+      "MusicBrainzAndArtworkUnmodified": true,
+      "fetchRestored": true
+    },
+    "realPublicMetadata": true,
+    "query": "mosca nsqk",
+    "album": "mosca — Nsqk",
+    "trackCount": 17,
+    "firstTrack": "SAMSA",
+    "lastTrack": "MARGOT",
+    "sourceLabel": "Catálogo MusicBrainz · respaldo.",
+    "cover": {
+      "decoded": true,
+      "naturalWidth": 500,
+      "naturalHeight": 499
+    },
+    "relayHTTP": {
+      "search": 200,
+      "artwork": 200,
+      "artists": 200,
+      "releaseDetail": 200
+    },
+    "startedSessionTelegramOrAudioResources": 0,
+    "playback": "not started",
+    "albumAdded": "false",
+    "trackSelected": "false",
+    "note": "Browser resource log recorded an aborted duplicate artwork request after a successful HTTP 200; the displayed blob decoded successfully."
+  }
+}

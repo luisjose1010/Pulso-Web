@@ -115,3 +115,27 @@ Las imágenes del catálogo y player usan la variante CDN600x600bb únicamente p
 659/659unitarias y lint PASS. Chromium main literal final6/6PASS sobre snapshot: alias fullcredit con display distinto y embedded omitted→lookup exacto/imagen600 decodificada; play/pausa/favorito con transacción retenida no pierden URL; hidden manual/local ready; respuesta tardía tras cambiar a alias ambiguo descartada y huella de alias alterada sin portada; resultado y hero de álbum600 decodificados. Primeros intentos fallaron por fixture de SWbloqueado sin remover Navigator.serviceWorker y por selector de cierre del arnés; preservados sin declararlos defectos de producto. No se cambió main ni lifecycle por hipótesis no reproducidas. Imagen pública SAMSA600 con JPEGheader600x600/HTTP200/límitebytes verificados separadamente; ese probe no realizó decode completo ni guardó imagen. No Telegram ni audio real.
 
 Build aislado03f80776e1154d43 y auditoría3763miembros/193runtime PASS. ProducciónChromium154/WebKit27.2 con catálogo/audio propios sintéticos y updatebdca→03f8 PASS; audioantiguo continúa, nueva pausada, SWesperacierre/restorepausado. Entrega38archivos y326inmutablesanteriores byteexactos, HTTPSlauncher/latest/entrada/main/worker/SW/configprivada y relay metadata/imagen PASS al cierre. Rootdist se sustituye intencionalmente por candidato aceptado; sin reiniciar servidor, nuevos servicios/cuentas, commit/push ni cambios de sesión. Evidencia .local/player-artwork-repair y docs/evidence-player-artwork-repair-web.json. iPhone físico y aceptaciónP0 global pendientes; Engram15 sync y readonly independiente al cierre.
+
+
+## 2026-11-16 · MusicBrainz como respaldo de álbumes
+
+Se mantiene iTunes como principal. Ante un fallo o resultado vacío, y sólo cuando la instalación ofrece el relay, se consulta MusicBrainz desde Cloudflare. No hay una repetición automática contra el proveedor que limitó la consulta. Cancelar o salir del ámbito corta el resultado y no inicia el respaldo. Si ambos fallan, no se inventa un álbum completo.
+
+Al fallar el detalle de una edición de iTunes se buscan alternativas con título, crédito completo y conteo compatible cuando se conoce. Si quedan varias, se presentan para elegir; no se declara que dos ediciones son equivalentes. Los IDs MusicBrainz usan un namespace distinto, sin cambiar los IDs anteriores ni reescribir Biblioteca, archivos o sesión. Las copias sólo se reutilizan bajo las verificaciones de identidad/compatibilidad e integridad existentes; diferencias de crédito o versiones no se ocultan.
+
+MusicBrainz no entrega audio en este recorrido. Abrir un álbum no consulta bots; elegir una pista o añadir el álbum conserva el flujo musical existente. Cover Art Archive aporta la portada de la edición cuando existe, mediante una ruta cerrada del mismo origen. El relay admite sólo el ID, limita tamaño/MIME/firma, y sigue un número acotado de redirecciones HTTPS a la entrega de Archive. No acepta URLs arbitrarias.
+
+La [API de MusicBrainz](https://musicbrainz.org/doc/MusicBrainz_API) es gratuita para uso no comercial sin API key. Se identifica Pulso mediante User-Agent con el repositorio de contacto, se comparten límites de 1,1 segundos en el coordinador y se respetan cooldowns. No se crean cuentas, recursos de pago ni un nuevo almacenamiento de usuarios. iTunes conserva su cola y cuota separadas. El catálogo puede tener información incompleta o indisponibilidad; no se promete cobertura universal.
+
+Evidencia local:718/718 unidades,13/13 servidor,20/20 de respaldo Chromium/WebKit y36/36 interfaz general/playlist. Metadata sintética; archivos propios con IDB/Audio nativos para comprobar reutilización sin una nueva sesión SDK. Sin aceptación física de iPhone. La disponibilidad pública del incremento se registra por separado en [la evidencia](evidence-album-backup-web.json).
+
+
+## Descarga de álbum al navegar · 2026-11-16
+
+Añadir álbum conserva el trabajo al ir a Inicio, Biblioteca, Configuración o volver a los resultados. El progreso y «Detener descarga de álbum» quedan visibles fuera del detalle. La lista del álbum recupera sus recibos y vuelve a verificar las copias cuando se abre de nuevo.
+
+La incorporación usa una captura propia para descargar y organizar; pausar la música no la cancela y el lote no puede iniciar Play. Se conservan las guardas de cuenta, proveedor, control exclusivo, almacenamiento, recuperación y transacción. Cancelar explícitamente o detener Telegram sí interrumpe la operación; una copia cuyo commit ya ganó puede conservarse como caché sin añadirse tarde a Biblioteca. Las pistas verificadas se reutilizan y las ocurrencias repetidas comparten archivo.
+
+Esta continuidad cubre la navegación dentro del documento abierto. No añade una cola persistente para recuperar el lote tras cerrar o recargar Pulso y no acredita ejecución mientras el sistema suspende el navegador. Los casos inciertos conservan las restricciones de revisión existentes.
+
+Aceptación local:15/15 casos musicales de main con SDK TESTONLY y archivos propios,36/36 de interfaz Chromium/WebKit y724/724 unitarias. El archivo físico purgado sólo fue un fixture negativo de chunks IDB; no se convierte en aceptación de retirada por UI. [Evidencia y estado de publicación](evidence-album-background-web.json). iPhone físico y cuenta real siguen separados.

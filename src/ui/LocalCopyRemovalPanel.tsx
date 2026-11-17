@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import type { Ref } from 'react';
 import './local-copy-removal.css';
 
@@ -92,7 +93,7 @@ export function LocalCopyRemovalPanel(props: LocalCopyRemovalPanelProps) {
     <p>Se quitará el audio de este navegador. Las fichas, favoritos y listas se conservan. Para volver a escucharla necesitarás conseguir una copia de nuevo; el bot podría dejar de ofrecerla.</p>
     <p>Este archivo puede ser tu único original. Preparar o descargar una exportación no demuestra que tengas otra copia fuera de este navegador.</p>
     <dl className="copy-removal-panel__summary">
-      <div><dt>Tamaño en bytes</dt><dd>{count(summary?.bytes ?? null)}</dd></div>
+      <div><dt>Tamaño</dt><dd>{formatStorageMB(summary?.bytes)}</dd></div>
       <div><dt>Fichas</dt><dd>{count(summary?.tracks ?? null)}</dd></div>
       <div><dt>Favoritos</dt><dd>{count(summary?.favorites ?? null)}</dd></div>
       <div><dt>Listas</dt><dd>{count(summary?.playlists ?? null)}</dd></div>

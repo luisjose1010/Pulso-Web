@@ -1,0 +1,70 @@
+{
+  "status": "LOCAL_VALIDATED_PENDING_PRODUCTION_AUTH",
+  "scope": "HEAD plus account-owned files only; concurrent singles excluded",
+  "base": "cfee1e106c399476917037cbfd54c5c5d471ba72",
+  "runtimeFiles": 260,
+  "unit": {
+    "pass": 739,
+    "total": 739
+  },
+  "server": {
+    "pass": 22,
+    "total": 22
+  },
+  "accounts": {
+    "pass": 18,
+    "total": 18,
+    "engines": [
+      "Chromium 154",
+      "WebKit 27.2"
+    ],
+    "API": "TESTONLY",
+    "SDK": "official Neon auth",
+    "JSerrors": 0,
+    "externalRequests": 0,
+    "scriptOrElementCSP": 0,
+    "styleAttributeCSP": 21,
+    "cleanup": true
+  },
+  "interface": {
+    "pass": 38,
+    "total": 38,
+    "JSerrors": 0,
+    "externalRequests": 0,
+    "recordedCSP": 108,
+    "cleanup": true,
+    "sameNativeAudioAndSource": true,
+    "audioTimeAdvances": true,
+    "tracksAssetsChunksPlaylistsUnchanged": true
+  },
+  "lint": true,
+  "build": true,
+  "workerDryRun": {
+    "pass": true,
+    "KiB": 288.49,
+    "gzipKiB": 60.4
+  },
+  "neonProjectPrepared": true,
+  "neonPlan": "Free",
+  "realNeonAnonymousSession": {
+    "status": 200,
+    "anonymous": true,
+    "noStore": true,
+    "userCreated": false,
+    "emailSent": false
+  },
+  "productionAuthEnabled": false,
+  "published": false,
+  "googleConfigured": false,
+  "productionEmailConfigured": false,
+  "realAccountSignupTested": false,
+  "realGoogleTested": false,
+  "physicalDeviceTested": false,
+  "notes": [
+    "Accounts API is synthetic; actual Neon check was anonymous only.",
+    "The public application has not enabled this account increment.",
+    "WebKit style-src-attr notices remain; no claim of global CSP zero.",
+    "No shared profile, Telegram authority, real music or email recipient was accessed.",
+    "Google OAuth client and production SMTP are still required."
+  ]
+}

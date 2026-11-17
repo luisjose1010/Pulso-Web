@@ -1,0 +1,75 @@
+{
+  "date": "2026-11-17",
+  "purpose": "Habilitar prueba pública de correo/contraseña y Google sin cambios de código ni assets",
+  "provider": "MCP oficial Cloudflare",
+  "plan": "Workers Free; USD 0",
+  "worker": "pulso-web",
+  "version": {
+    "previous": "48d6ae7f-980a-4b73-b0fd-1a52876b80a7",
+    "activeAfterSecretUpdate": "366ff225-7228-4722-a44d-e3451c49fd53",
+    "trafficPercent": 100,
+    "moduleBytesBeforeAndAfter": 295037,
+    "moduleSha256BeforeAndAfter": "935fd0440f7a6ef49760c0ae669ed00bb1c790d24c28f4afdfb3914ac5244f15",
+    "moduleIdentical": true,
+    "compatibilityDate": "2026-11-13"
+  },
+  "secretBindings": {
+    "added": [
+      "PULSO_NEON_AUTH_URL",
+      "PULSO_AUTH_COOKIE_SECRET",
+      "PULSO_AUTH_GOOGLE_ENABLED"
+    ],
+    "preserved": ["TELEGRAM_API_IDENTITY"],
+    "valuesReadOrRecorded": false,
+    "write": "one atomic bulk patch"
+  },
+  "bindingsAfter": [
+    { "name": "ASSETS", "type": "assets" },
+    { "name": "CATALOG", "type": "durable_object_namespace", "class": "CatalogCoordinator" },
+    { "name": "PULSO_AUTH_COOKIE_SECRET", "type": "secret_text" },
+    { "name": "PULSO_AUTH_GOOGLE_ENABLED", "type": "secret_text" },
+    { "name": "PULSO_NEON_AUTH_URL", "type": "secret_text" },
+    { "name": "TELEGRAM_API_IDENTITY", "type": "secret_text" }
+  ],
+  "workersDev": { "enabled": true, "previewsEnabled": false },
+  "publicChecks": {
+    "accountConfig": { "status": 200, "cacheControl": "no-store", "enabled": true, "google": true },
+    "anonymousGetSession": { "status": 200, "cacheControl": "no-store", "session": null, "setCookie": false },
+    "googleSocialStart": { "sameOriginPostStatus": 200, "neonInitFollowedOnce": true },
+    "googleRedirect": {
+      "status": 302,
+      "host": "accounts.google.com",
+      "clientIdPresent": true,
+      "callbackPresent": true,
+      "callbackHostMatchesConfiguredAuthHost": true,
+      "scopes": ["email", "openid", "profile"],
+      "googleVisited": false,
+      "consentGranted": false
+    },
+    "usersCreated": 0,
+    "emailsSent": 0
+  },
+  "assets": {
+    "staticRoutesExpected": 136,
+    "staticRoutesVerifiedUnchanged": 136,
+    "allStaticRouteBytesAndSha256MatchBaseline": true,
+    "root": { "status": 200, "bytes": 1570, "sha256": "c27ab00feec84ab9fc2a7fdf4e09b6a6111143018e133d6ed4a3cdcc829d5464" },
+    "latestJson": { "status": 200, "bytes": 56, "sha256": "df1e0b921d4f1e62830eb933efb973c1ad6e3eed37a67eda569caa85c33a605b" },
+    "releaseEntry": { "status": 200, "bytes": 1570, "sha256": "c27ab00feec84ab9fc2a7fdf4e09b6a6111143018e133d6ed4a3cdcc829d5464" },
+    "serviceWorker": { "status": 200, "bytes": 49974, "sha256": "b9fdac61b1ead56bd1e8185cb3610641c1941c1bfe7163dc2c460ef9bf09f16e" },
+    "rootLatestReleaseServiceWorkerUnchanged": true,
+    "assetsUploaded": false,
+    "codeBuiltOrUploaded": false
+  },
+  "acceptance": {
+    "publicTrialEnabled": true,
+    "realGoogleLogin": "PENDING",
+    "GoogleConsent": "PENDING",
+    "emailPasswordSignupAndOtp": "PENDING",
+    "recovery": "PENDING",
+    "realSessionPersistenceAndRestore": "PENDING",
+    "productionAccepted": false,
+    "physicalDeviceAcceptance": "PENDING",
+    "p0wComplete": false
+  }
+}

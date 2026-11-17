@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import { useId, useLayoutEffect, useRef } from 'react'
 import type React from 'react'
 
@@ -20,7 +21,7 @@ export interface CollectionRemovalPanelProps {
   headingRef?: React.Ref<HTMLHeadingElement>
 }
 
-const mib = (bytes: number) => (bytes / (1024 * 1024)).toLocaleString('es', { maximumFractionDigits: 2 })
+
 
 export function CollectionRemovalPanel(props: CollectionRemovalPanelProps) {
   const headingId = useId()
@@ -50,7 +51,7 @@ export function CollectionRemovalPanel(props: CollectionRemovalPanelProps) {
       {summary && <dl className="collection-removal__summary">
         <div><dt>{cache ? 'Canciones en caché' : 'Canciones de la colección'}</dt><dd>{summary.tracks}</dd></div>
         <div><dt>Copias elegibles</dt><dd>{summary.eligibleCopies}</dd></div>
-        <div><dt>Audio estimado</dt><dd>{mib(summary.estimatedBytes)} MiB</dd></div>
+        <div><dt>Audio estimado</dt><dd>{formatStorageMB(summary.estimatedBytes)}</dd></div>
         <div><dt>Copias compartidas protegidas</dt><dd>{summary.retainedShared}</dd></div>
       </dl>}
       {state === 'ready' && <label className="collection-removal__consent">
@@ -65,7 +66,7 @@ export function CollectionRemovalPanel(props: CollectionRemovalPanelProps) {
         {cache ? <p>{result.metadata === 'committed' ? 'La biblioteca y tus playlists se conservan.' : result.metadata === 'not-committed' ? 'No se inició la limpieza de caché.' : 'No se pudo confirmar la limpieza de caché.'}</p> : result.metadata === 'committed' ? <p>La colección se eliminó.</p> : result.metadata === 'not-committed' ? <p>No se eliminó la colección.</p> : <p>No se pudo confirmar si se eliminó la colección.</p>}
         {result.freedBytes === null ? <p>No se puede confirmar el número total de copias retiradas.</p> : <p>Copias retiradas: {result.removed}. Copias conservadas o no retiradas: {result.skipped}.</p>}
         {result.freedBytes !== null && result.skipped > 0 && <p>Las copias compartidas se conservan para sus otros usos.</p>}
-        {result.freedBytes !== null && <p>MiB de audio retirados: {mib(result.freedBytes)}</p>}
+        {result.freedBytes !== null && <p>Audio retirado: {formatStorageMB(result.freedBytes)}</p>}
         {result.cleanup === 'stopped' && <p>La retirada de copias se detuvo.</p>}
         {result.cleanup === 'not-started' && <p>La retirada de copias no comenzó.</p>}
       </div>}

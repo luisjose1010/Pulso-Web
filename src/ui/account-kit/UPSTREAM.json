@@ -1,0 +1,209 @@
+{
+  "repository": "https://github.com/better-auth-ui/better-auth-ui",
+  "commit": "19ae93cc9dafce31038be3cb3f351468ded79051",
+  "files": [
+    {
+      "file": "components/auth/auth-form.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/auth-form.tsx",
+      "upstreamSHA256": "5f246361aa5bb366af551354fd2c2966c72ba69ae8202359be718489eb702971",
+      "adaptedSHA256": "fd70e8c8929ffad645e92b0164ccc69a86d3afbf73d437daeb4f53917dc506f0"
+    },
+    {
+      "file": "components/auth/email-otp/verify-email-otp.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/email-otp/verify-email-otp.tsx",
+      "upstreamSHA256": "c4ac992dc54ddc21ae3972b6e6d5263fb2d5daeb4edb05e42170aca3941be6d3",
+      "adaptedSHA256": "33bf14d9e2fab105da1a5e35854702ee654323c1aea69a5223254ce49bdbe876"
+    },
+    {
+      "file": "components/auth/forgot-password.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/forgot-password.tsx",
+      "upstreamSHA256": "76ceeaac58abb6a083a9e56360f54dc0991c7c4a8addc18d3e867d8c4c0deeeb",
+      "adaptedSHA256": "71937e0180ede5b3188a99cd665e62b2580cacac5831a529cc13158a77d33b13"
+    },
+    {
+      "file": "components/auth/last-login-method/last-used-badge.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/last-login-method/last-used-badge.tsx",
+      "upstreamSHA256": "1e9f774fd726a4acd6087936ff3c0c3d20257a41683ff5fbd4ca4febb54347bf",
+      "adaptedSHA256": "16a84d44f1d347c2a553f655ac627c3898a6f8904da538c83b99da9638ba87f8"
+    },
+    {
+      "file": "components/auth/open-email-button.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/open-email-button.tsx",
+      "upstreamSHA256": "29fabcb948cf55af7e9aefb2ecc0e8fa3010bec128f8e35128ae7aabafae98d9",
+      "adaptedSHA256": "c47819220e1a0a912e188bdc9c7aa16d5288a21ddbb676da74868e64f65ecd77"
+    },
+    {
+      "file": "components/auth/otp-field.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/otp-field.tsx",
+      "upstreamSHA256": "c3d79c8cd3ba46b8539f39cfe11fa7eca47a69092a471e5fe2aa241b97968259",
+      "adaptedSHA256": "01faa7cd4709f0ef86f14e66e4e34affc28d71754b6d9480f2e7b6328619d814"
+    },
+    {
+      "file": "components/auth/password-strength-meter.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/password-strength-meter.tsx",
+      "upstreamSHA256": "b9b1050312e59f776136d5df6b1e376a6060da8b2ee7bd31dbb8076e35fa3e37",
+      "adaptedSHA256": "351ff525b9c21f3e1f23a2fc30bffab97cc14a1878096c80288fdf0f6a578f5a"
+    },
+    {
+      "file": "components/auth/provider-button.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/provider-button.tsx",
+      "upstreamSHA256": "9d7c346500c47db7d8c97111715602323b41502a59401bb372cc05172ba78787",
+      "adaptedSHA256": "09a603582b12e38746349315f0f9582f2c32ff90deefe732bab263bab6ee1d74"
+    },
+    {
+      "file": "components/auth/provider-buttons.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/provider-buttons.tsx",
+      "upstreamSHA256": "1f5f0ac71f49b585363858c2fe7d1290a1ee72da340e91e1f780c85326ff913b",
+      "adaptedSHA256": "637184823a05c2637ead43efe8ce7dc8b00efc2431b1fb041dc89a600d1653f3"
+    },
+    {
+      "file": "components/auth/reauthentication.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/reauthentication.tsx",
+      "upstreamSHA256": "86750376547a57a974db47cdbc1be6b482e2318b01f644face12dd1300bcfdb8",
+      "adaptedSHA256": "948a5973146f03659e75676ae0698ae1c3c195a25ee8e54b3d4c78801bbd9c9f"
+    },
+    {
+      "file": "components/auth/reset-link-sent.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/reset-link-sent.tsx",
+      "upstreamSHA256": "4a60a018c674cd7f4f27488c252b249a818a44a5222921e5a349aa582b1417d0",
+      "adaptedSHA256": "850dd81815c004dae236d00ca3ff7ae35ed045843815bdca6d09a07adfdb5498"
+    },
+    {
+      "file": "components/auth/reset-password.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/reset-password.tsx",
+      "upstreamSHA256": "ceeca7bb65720651363ca20e754a5f9cfb9d18ff7bf8d155e6c27d065b4c92ce",
+      "adaptedSHA256": "bda9b49b5903cbd0079a800b339c0bc8f6338c6ac261d09f05faace777f959d5"
+    },
+    {
+      "file": "components/auth/sign-in.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/sign-in.tsx",
+      "upstreamSHA256": "d0679d910e0984552eedfb2e0f6bcbc34b7bdb4d5c32027f6e2424331b0e9de8",
+      "adaptedSHA256": "f4c8bf5acfc7e7a160d6d321afc4414f547fcea21de88c43b0a4a2c22eaea0ef"
+    },
+    {
+      "file": "components/auth/sign-up.tsx",
+      "source": "examples/start-shadcn-example/src/components/auth/sign-up.tsx",
+      "upstreamSHA256": "97c5688798bd6a09d398311dd0454ca22d51074ada5b8ad9889924fb76fc7464",
+      "adaptedSHA256": "9e24d43f6c8e25b135a20bf560a343eb7078a59de87088bcf414ba4800df97f4"
+    },
+    {
+      "file": "components/auth/use-is-hydrated.ts",
+      "source": "examples/start-shadcn-example/src/components/auth/use-is-hydrated.ts",
+      "upstreamSHA256": "0971afe4a526fda01f93004bb7b29acae021213db56c8c9b1ad2e2e135b626c5",
+      "adaptedSHA256": "f983edb3a40ba418263801b08c0bbb3207554934a1e0cacad41493f8fe97f938"
+    },
+    {
+      "file": "components/ui/alert.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/alert.tsx",
+      "upstreamSHA256": "fe29742cef2ce503c1de44b76e03f62567d1e8c202f5e39389c24cae1cf08017",
+      "adaptedSHA256": "e331403a807cd1f17e5da37a0a1e98e63f85c78e05b465bc8ea715fc0585790c"
+    },
+    {
+      "file": "components/ui/badge.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/badge.tsx",
+      "upstreamSHA256": "c7dcfe8850aacc31a183a4320173ee391d6ba081c773d3749fe5a3cdeca5d00b",
+      "adaptedSHA256": "432d5cd39183d836385282df94f8ef5f687fcf532a2d169781cacb9e6b507aa9"
+    },
+    {
+      "file": "components/ui/button.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/button.tsx",
+      "upstreamSHA256": "fc4e9f0f0655f7555115f824da230b3deb88a9246b378763a8b870b66a470726",
+      "adaptedSHA256": "2050305bb4b7d72f042133d6aae0068b866a8373b22c8ae2612a3f4c62c2c9b1"
+    },
+    {
+      "file": "components/ui/card.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/card.tsx",
+      "upstreamSHA256": "5a4ddf2a08920119adf955a248a4034f9d8f0c06e9465236702b2ce909af8243",
+      "adaptedSHA256": "2c46d60c3d50ea51c5e0460983bafd914ce05b9e3c1f087c0c0cdabfb65744f5"
+    },
+    {
+      "file": "components/ui/checkbox.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/checkbox.tsx",
+      "upstreamSHA256": "cf43bbe115abd04096e53ab12f7aa3b380d725b2a45b57c586ec024fe85b0937",
+      "adaptedSHA256": "6302e4908bb2e1ebfe8b696e1cab0c476fd7a332ee7c6c37456ec3ca1b430781"
+    },
+    {
+      "file": "components/ui/field.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/field.tsx",
+      "upstreamSHA256": "7a64faec18d2fc559e9fef95958e10d8da820147ca636f519ef22ddad456d3c0",
+      "adaptedSHA256": "0b1c291eeff3d866d63dbdd3a0a47d369070a411f98ed7b07e0459c2d6e3cfe6"
+    },
+    {
+      "file": "components/ui/input-group.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/input-group.tsx",
+      "upstreamSHA256": "ba9a0842e710fc3f0e3a634f0a811a93d9b042fa41362615e5c73f2b78690577",
+      "adaptedSHA256": "c451f47759fe8560553650cd80b20f099190f3a587207560ef82f4a83026bb74"
+    },
+    {
+      "file": "components/ui/input-otp.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/input-otp.tsx",
+      "upstreamSHA256": "3356cc05684f44cf49c64c77fc1acf04117e76669b8389147c99c8e6a4b24373",
+      "adaptedSHA256": "dbda55ec2ca48260b738a9340087a94a8db771dbba194920b1b16fab838deb12"
+    },
+    {
+      "file": "components/ui/input.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/input.tsx",
+      "upstreamSHA256": "6a4f1cad3db41a7dab412085c816357f361068c1f5884a994b18b739491f5aec",
+      "adaptedSHA256": "1487cb2009cd0f61b139e07987dacf1906e71f1d834e2243f83f8100e498719e"
+    },
+    {
+      "file": "components/ui/label.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/label.tsx",
+      "upstreamSHA256": "91fb35a0bbdbe5128fdb12d743e88d3d15408c1a385559920a0d176d16c1574d",
+      "adaptedSHA256": "ca712ec5a2985257dd4b3f5166f908017076e1bde5e1b0d3c3c0cabc3a2e4cc3"
+    },
+    {
+      "file": "components/ui/separator.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/separator.tsx",
+      "upstreamSHA256": "1fc66f9a1d2ddc82285fb076e95169d1b3234995d679f865dd0562307315dc0f",
+      "adaptedSHA256": "41a2786e4ed65f8e7cc16adc481738b5b4539dbbbd95a3caccc5dea75c78d998"
+    },
+    {
+      "file": "components/ui/spinner.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/spinner.tsx",
+      "upstreamSHA256": "653f4fe1c4ec669fbedfcd323f24c835588b80b5e1d8977e28db853c23494b81",
+      "adaptedSHA256": "de003b83f4d7ea1a5903947a71f1cfbf53e26af647f2247bc92844b53177ce7b"
+    },
+    {
+      "file": "components/ui/textarea.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/textarea.tsx",
+      "upstreamSHA256": "96d97c64bc9c76babde74d64c13911161503eb3a6bee536a37855048dfad1cc3",
+      "adaptedSHA256": "b4e701c726e6d96bfda7b20ed970c9dcb4fc2e9756e4d71c0141292743e6c75c"
+    },
+    {
+      "file": "components/ui/tooltip.tsx",
+      "source": "examples/start-shadcn-example/src/components/ui/tooltip.tsx",
+      "upstreamSHA256": "31512c1949191fe7a9fde02563e516c96fc8853044f7e24eee498ee4e9c0b670",
+      "adaptedSHA256": "95f60817a1dc2bca53d7187ed8c5df2d4a45e111c305d6d40adcdd1a9e78873b"
+    },
+    {
+      "file": "lib/auth/two-factor-methods.ts",
+      "source": "examples/start-shadcn-example/src/lib/auth/two-factor-methods.ts",
+      "upstreamSHA256": "cea20535fdc28be9db2d327cdc49165822c483ec7acfc42b3662d0862a948bc9",
+      "adaptedSHA256": "7e68a85acac5bb0326cb8b63dbf7e2adbe7f9737ac392d092969472561429a69"
+    },
+    {
+      "file": "lib/auth/use-resend-cooldown.ts",
+      "source": "examples/start-shadcn-example/src/lib/auth/use-resend-cooldown.ts",
+      "upstreamSHA256": "f4a7fba443c240a5b4e6042b60608607e7e7fa894022c7382c701b86280bb640",
+      "adaptedSHA256": "2448df0749134e24a6bf6f85fc43b460c7885b2e64f36173797338f2b94af651"
+    },
+    {
+      "file": "lib/auth/use-sign-in-continuation.ts",
+      "source": "examples/start-shadcn-example/src/lib/auth/use-sign-in-continuation.ts",
+      "upstreamSHA256": "8dd57f5b84b3d4b53791434e17ce9d9e50fdafc507dc294e4e85996820119eea",
+      "adaptedSHA256": "a59aa78a007b45738ce08847b0990d74a72467351edd1c1d169f69f71cdd462a"
+    }
+  ],
+  "adaptations": [
+    "Relative imports only; Pulso localized wrapper and scoped CSS.",
+    "Only name/email/password and Google; optional custom signup fields omitted.",
+    "Reset token comes from in-memory prop after URL scrubbing.",
+    "Pending addresses are held in dialog memory.",
+    "Closed Spanish server error mapping; credential fields wiped after submission.",
+    "Notifications render inside the native account dialog; no injected toast styles.",
+    "Card titles use semantic headings; tooltips stay inside the dialog.",
+    "Credential fields reset after the request; error codes map to closed Spanish text.",
+    "input-otp CSS is a static same-origin stylesheet; no injected style or noscript fallback in this JavaScript application."
+  ]
+}

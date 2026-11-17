@@ -59,6 +59,7 @@
 .pulso-app .settings-view>button { float:inline-end;border:0;background:transparent;font-size:.8rem;padding-inline:.5rem; }
 .settings-intro { clear:both;color:var(--pulso-muted);font-size:.85rem;padding-block:.5rem 1rem;margin:0; }
 .settings-groups,.settings-secondary { max-inline-size:76rem;margin-inline:auto; }
+.settings-app-update>h3,.settings-app-install>h3 { padding:1rem 1.25rem 0;margin:0;font-size:1rem; }
 .settings-group { margin:0 0 .75rem;border:1px solid var(--pulso-border);border-radius:1rem;background:var(--pulso-surface);min-inline-size:0; }
 .settings-group>summary { position:relative;display:flex;flex-direction:column;justify-content:center;min-block-size:72px;padding:1rem 3rem 1rem 1.25rem;list-style:none;cursor:pointer;font-size:.95rem;font-weight:600; }
 .settings-group>summary::-webkit-details-marker { display:none; }
@@ -73,6 +74,23 @@
 .settings-group__body label { font-size:.85rem; }
 .settings-group__body button { font-size:.85rem; }
 .settings-group__body input,.settings-group__body select { font-size:max(1rem,16px); }
+.storage-summary,.storage-estimate { min-inline-size:0;max-inline-size:100%;margin-block:1rem;padding:1rem;border:1px solid var(--pulso-border,rgba(127,127,127,.25));border-radius:1rem; }
+.storage-summary__segments { display:flex;inline-size:100%;block-size:1rem;overflow:hidden;border-radius:999px;background:color-mix(in srgb,currentColor 10%,transparent); }
+.storage-summary__saved { background:#6558d3;fill:#6558d3; }
+.storage-summary__cache { background:#d88c32;fill:#d88c32; }
+.storage-summary__legend { display:grid;gap:.5rem;margin:.75rem 0 0;padding:0;list-style:none; }
+.storage-summary__legend li { display:grid;grid-template-columns:.7rem minmax(0,1fr);align-items:center;gap:.5rem;min-inline-size:0;overflow-wrap:anywhere; }
+.storage-summary__legend strong { grid-column:2;min-inline-size:0;white-space:normal;overflow-wrap:anywhere; }
+.storage-summary__swatch { inline-size:.7rem;block-size:.7rem;flex:none;border-radius:50%; }
+.storage-estimate progress { display:block;inline-size:100%;max-inline-size:100%;block-size:.8rem;accent-color:#6558d3; }
+@media (max-width:480px) {
+ .settings-group__body:has(>section[aria-label="Almacenamiento"]) { padding-inline:min(1.25rem,4vw); }
+ .storage-summary,.storage-estimate { padding:clamp(.5rem,3vw,1rem); }
+ .storage-summary__legend li { display:block; }
+ .storage-summary__legend .storage-summary__swatch { display:inline-block;margin-inline-end:.5rem; }
+ .storage-summary__legend strong { display:block;margin-block-start:.2rem; }
+}
+@media (prefers-reduced-motion:reduce) { .storage-summary *, .storage-estimate * { scroll-behavior:auto;animation:none;transition:none; } }
 .settings-help { margin-block:0; }
 .settings-help>summary { color:var(--pulso-muted);font-size:.8rem; }
 .settings-secondary>.settings-group>p,.settings-secondary>.settings-group>label,.settings-secondary>.settings-group>.diagnostics-panel { margin-inline:1.25rem; }

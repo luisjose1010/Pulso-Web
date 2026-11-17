@@ -1,0 +1,109 @@
+{
+  "project": "Pulso-Web",
+  "status": "PUBLISHED_AND_VERIFIED",
+  "entry": "/releases/b5ae0e6ae5450b43.html",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "problem": "Owner confirmed that the interrupted album was caused by navigating to Inicio or Biblioteca within Pulso. Album acquisition was bound to route visibility and aborted when the album detail unmounted.",
+  "behavior": [
+    "The explicit album action owns the page-local task across Inicio, Biblioteca, Configuración, player views and Back to search; viewing metadata can be cancelled separately.",
+    "Capture a download-only root attempt, preserving storage, account, provider revision, owner, recovery and original transaction guards. It cannot invoke Play and is independent of playback intent cancellation.",
+    "Global album status shows committed progress and offers an explicit stop action. A remounted detail restores the shared progress and verifies actual copies.",
+    "Transfers stay sequential; repeated recordings and verified cached files reuse their copies. Confirmed membership comes from the existing guarded transaction.",
+    "Explicit stop and Telegram revocation still abort the original operation and await settlement; commit winners can retain a cache copy without a late Library addition or Play.",
+    "Automatic update blockers retain the running album flag even when the album view is unmounted."
+  ],
+  "validation": {
+    "unit": {
+      "pass": 724,
+      "fail": 0
+    },
+    "server": {
+      "pass": 14,
+      "fail": 0
+    },
+    "native": {
+      "pass": 15,
+      "fail": 0,
+      "selectedCaseIds": [
+        1,
+        2,
+        4,
+        8,
+        9,
+        15,
+        17,
+        18,
+        19,
+        20,
+        21,
+        37,
+        38,
+        39,
+        40
+      ],
+      "browser": "154.0.8037.57",
+      "scope": "Full main with real browser Audio, IndexedDB, OPFS, workers and Web Locks; one TESTONLY SDK factory supplies synthetic Telegram responses and own audio files.",
+      "sdkFactoryInjections": 1,
+      "errors": 0,
+      "networkViolations": 0,
+      "cspViolations": 0,
+      "serverErrors": 0,
+      "cleanup": true,
+      "sourceUnchanged": true,
+      "reportSHA256": "1717d4b9918b87004cab1f7f44f783e996af060f96bb6f0dfbe10fd76f60e45a"
+    },
+    "main": {
+      "pass": 36,
+      "fail": 0,
+      "engines": [
+        "Chromium154",
+        "WebKit27.2"
+      ],
+      "runtimeBefore": 212,
+      "runtimeAfter": 212,
+      "errors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "lint": "PASS",
+    "build": "PASS",
+    "workerDryRun": "PASS",
+    "candidate": {
+      "inputs": 290,
+      "runtime": 212,
+      "sourceMatchesBuild": true,
+      "assets": 91,
+      "entry": "/releases/b5ae0e6ae5450b43.html",
+      "workerSHA256": "76d57a098e23b1a03d6573d972a9e8d99ed6296adda83f07c1f04584474815fe",
+      "rootDistSHA256": "03f80776e1154d4373101adc63a413b58a9cd0611e255a5606ad1667122a62af"
+    }
+  },
+  "limits": [
+    "This increment covers navigation inside a running Pulso document. It does not implement a persistent job queue across page closure, reload or OS process termination, or guarantee downloads while iOS suspends a browser.",
+    "No real Telegram account, public bot, private chat or user music was accessed; no physical iPhone or Android acceptance was performed.",
+    "The native full-main musical selection covers 15 named cases, not the full 40-group historical harness.",
+    "An introduced initial inspection abort race was fixed before publication; copy badges and post-purge state are covered. Other negative attempts include MCP initialization timeout, multipart barriers held after the first chunk, duplicate case IDs, missing fixture config/pointer routes, Cancel selecting the search control and a collapsed account section. Original reports remain preserved.",
+    "Stopping a session can close the held native HTTP request before the fixture releases it; the final test handles either order while retaining zero-file, zero-late-Play assertions."
+  ],
+  "publication": {
+    "status": "PUBLISHED_AND_VERIFIED",
+    "provider": "Cloudflare official MCP",
+    "plan": "Workers Free, USD 0",
+    "deploymentId": "d710fb1fc4484f52b2caa599c6aefc3e",
+    "entry": "/releases/b5ae0e6ae5450b43.html",
+    "previousDeploymentId": "4c9ed0261c81431796048d6c1bee0f34",
+    "workerSHA256": "76d57a098e23b1a03d6573d972a9e8d99ed6296adda83f07c1f04584474815fe",
+    "bindingsPreserved": ["ASSETS", "CATALOG", "TELEGRAM_API_IDENTITY"],
+    "subdomain": "pruebassoftware",
+    "enabled": true,
+    "previewsEnabled": false,
+    "publicRoutes": {"verifiedByBytesAndSHA256": 89, "failures": 0},
+    "https": {
+      "root": {"status": 200, "cacheControl": "no-store"},
+      "latest": {"status": 200, "cacheControl": "no-cache", "entry": "/releases/b5ae0e6ae5450b43.html"},
+      "serviceWorker": {"status": 200, "cacheControl": "no-cache", "serviceWorkerAllowed": "/"}
+    },
+    "publicBrowserNavigation": "NOT_RUN_PREVIEW_UNAVAILABLE",
+    "receipts": ".local/album-background-repair/release/"
+  }
+}

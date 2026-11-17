@@ -1,0 +1,61 @@
+{
+  "project": "Pulso-Web",
+  "request": "Mantener Recargar app visible al iniciar sesión",
+  "status": "PUBLISHED",
+  "change": "Tarjeta abierta al principio de Configuración, fuera de los desplegables y de settings-secondary. Sin condición de autenticación. Handler y guardas de recarga existentes conservados.",
+  "entry": "/releases/d87da0091a3ec082.html",
+  "validation": {
+    "focused": {
+      "pass": 12,
+      "engines": [
+        "Chromium 154",
+        "WebKit 27.2"
+      ],
+      "syntheticSDK": true,
+      "factoryReplacements": 1,
+      "pageErrors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "main": {
+      "pass": 36,
+      "pageErrors": 0,
+      "externalAttempts": 0,
+      "cleanup": true
+    },
+    "unit": {
+      "pass": 712,
+      "fail": 0
+    },
+    "lint": "PASS",
+    "build": "PASS",
+    "sourceMatchesBuild": true,
+    "inputs": 279,
+    "runtime": 202
+  },
+  "limits": [
+    "Captura del propietario, sin reproducción independiente de su sesión de Safari.",
+    "Inicio de sesión del test sintético; no acredita restauración real de Telegram.",
+    "iPhone físico y P0 global pendientes.",
+    "No se cambió autenticación, almacenamiento, música, servicio de actualización ni política de espera."
+  ],
+  "publication": {
+    "provider": "Cloudflare official MCP",
+    "worker": "pulso-web",
+    "deploymentId": "befb19a4e01a41f6b75909a923a3c068",
+    "previousDeploymentId": "9a3c36e13ae64f5b8f2b7a3d2aaa8c07",
+    "subdomain": "pruebassoftware",
+    "entry": "/releases/d87da0091a3ec082.html",
+    "workerSHA256": "9c50fc3c90392730ad835af5de570b3cd1b532630be263504917a18edc07f393",
+    "rootDistSHA256": "03f80776e1154d4373101adc63a413b58a9cd0611e255a5606ad1667122a62af",
+    "publicRoutesVerified": 75,
+    "allPublicRouteBytesAndSHA256Match": true,
+    "bindings": [
+      "ASSETS",
+      "CATALOG",
+      "TELEGRAM_API_IDENTITY"
+    ],
+    "previewsEnabled": false,
+    "workersFreeUSD": 0
+  }
+}

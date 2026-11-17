@@ -1,0 +1,61 @@
+{
+  "date": "2026-11-15",
+  "release": "/releases/9006dcecc26d4049.html",
+  "url": "https://pulso-web.pruebassoftware.workers.dev",
+  "defect": {
+    "engine": "WebKit mobile Safari profile",
+    "albumTracksBefore": 0,
+    "searchImagesBefore": 0,
+    "error": "album-search · direct · network",
+    "requestFailure": "media=music search was redirected to musics:// native scheme"
+  },
+  "change": "Omit only redundant media=music on direct searches with explicit album/song/musicArtist entity; keep redirect:error, country, query, limits, cadence and cancellation. No JSONP or remote scripts.",
+  "publishedWebKit": {
+    "version": "27.2",
+    "isolatedUnauthenticatedProfile": true,
+    "networkOverrides": false,
+    "groupsPassed": 4,
+    "groupsTotal": 4,
+    "moscaTracks": 17,
+    "moscaCoverWidth": 600,
+    "displayedSearchImagesLoaded": true,
+    "searchRows": 19,
+    "artistPublications": 62,
+    "catalogFailures": 0,
+    "telegramWebsockets": 0,
+    "cleanup": true,
+    "physicalIPhone": false
+  },
+  "persistentChromiumReadback": {
+    "pass": 62,
+    "total": 62,
+    "failures": [],
+    "waiting": false,
+    "connected": true,
+    "bothBots": true,
+    "playlist": true,
+    "paused": true
+  },
+  "supportingChecks": {
+    "unitPass": 691,
+    "lint": "PASS",
+    "buildAndAudit": "PASS",
+    "frozenInputs": 272,
+    "sourceEqualsBuild": true,
+    "rootDistUnchanged": true
+  },
+  "limits": {
+    "physicalIPhoneStillRequired": true,
+    "audioDownloadRetested": false,
+    "previousMOSCAAudioResult": "14/17, unchanged",
+    "P0Complete": false,
+    "freeAlternativeIntegrated": false
+  },
+  "alternatives": {
+    "candidate": "MusicBrainz + Cover Art Archive",
+    "document": "docs/CATALOG-ALTERNATIVES.md",
+    "musicbrainzMOSCAHas17Tracks": true,
+    "noncommercialFree": true
+  },
+  "credentialsSessionKeysOrPrivateChatsExported": false
+}

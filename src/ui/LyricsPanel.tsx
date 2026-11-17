@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import type {Activity} from '../playback/ownership';
 import {useEffect, useRef, useState} from 'react';
 import {LYRICS_LIMITS, LyricsError, lyricsDraft, parseLyrics, readLyrics, setManualLyrics, type LyricsFormat, type LyricsRead} from '../library/lyrics';
@@ -166,7 +167,7 @@ export function LyricsPanel({activity, trackId, title, timeSeconds, canEdit, cap
         {result?.state === 'ready' && lyricsDraft(result.lyrics).warning && <p>{lyricsDraft(result.lyrics).warning}</p>}
         <p>El texto es un borrador y no se aplica hasta que pulses Guardar. Usa solo archivos propios o autorizados.</p>
         <label>Formato <select aria-label="Formato de letras" value={format} onChange={event => setFormat(event.currentTarget.value as LyricsFormat)}><option value="plain">Texto sin sincronización</option><option value="lrc">LRC sincronizado</option></select></label>
-        <label>Importar archivo .txt o .lrc (máximo 128 KiB) <input type="file" accept=".txt,.lrc" onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void importFile(file); }} /></label>
+        <label>Importar archivo .txt o .lrc (máximo {formatStorageMB(LYRICS_LIMITS.bytes)}) <input type="file" accept=".txt,.lrc" onChange={event => { const file = event.currentTarget.files?.[0]; event.currentTarget.value = ''; if (file) void importFile(file); }} /></label>
         <label>Texto del borrador <textarea aria-label="Texto del borrador" maxLength={LYRICS_LIMITS.bytes} value={draft} onChange={event => setDraft(event.currentTarget.value)} /></label>
         <button type="button" onClick={() => void save(draft)}>Guardar letras</button>{' '}
         <button type="button" onClick={() => void save(null)}>Sin letras</button>

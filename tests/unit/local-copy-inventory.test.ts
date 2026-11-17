@@ -35,6 +35,6 @@ test('context and UI mapping never inspect hostile errors',()=>{
 test('cancellation guard precedes user current callback',()=>{
  const ac=new AbortController();ac.abort();let calls=0;assert.throws(()=>checkCopyContext({signal:ac.signal,current:()=>{calls++;return true;}}),e=>issuedFailure(e)?.code==='cancelled');assert.equal(calls,0);
 });
-test('export limit has an explicit safe 8 MiB reason',()=>{
- const error=AppFailure.create(makeFailure('validate','internal','limit-exceeded','idb'));assert.match(localCopyFailureReason(error),/8 MiB/);assert.match(localCopyFailureReason(error),/original/);
+test('export limit displays its real size in MB and keeps the safe original-file guidance',()=>{
+ const error=AppFailure.create(makeFailure('validate','internal','limit-exceeded','idb'));assert.match(localCopyFailureReason(error),/8,39 MB/);assert.match(localCopyFailureReason(error),/original/);
 });

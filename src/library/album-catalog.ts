@@ -1,14 +1,17 @@
-import {catalogFetch} from './catalog-fetch'
+import type {CatalogId} from './catalog-id'
+import {musicBrainzId} from './catalog-id'
+import {MusicBrainzCatalog} from './musicbrainz-catalog'
+import {musicBrainzEnabled,catalogFetch} from './catalog-fetch'
 import {artworkUrl} from './player-artwork-provider'
 /** Public iTunes Store metadata, US market. Completeness refers to declared metadata only. */
 export type AlbumFailure = 'cancelled' | 'timeout' | 'network' | 'http' | 'rate-limited' | 'invalid' | 'incomplete' | 'too-large'
 export type AlbumStage = 'album-search' | 'artist-search' | 'artist-albums' | 'album-detail'
 export type AlbumResult<T> = { ok: true; value: T } | { ok: false; reason: AlbumFailure; stage?: AlbumStage; httpStatus?: number }
-export interface CatalogArtist { id: number; name: string }
+export interface CatalogArtist { id: CatalogId; name: string }
 export interface CatalogSongHint { releaseId:number; trackId:number; disc:number; position:number; title:string; artist:string; primaryArtist?:string; album:string; durationMs:number; artworkUrl?:string }
 export interface AlbumHint { id: number; title: string; artist: string | null; artworkUrl?: string }
-export interface AlbumEdition { id: number; title: string; artist: string; trackCount: number; releaseDate: string | null; artworkUrl?: string }
-export interface AlbumTrack { releaseId: number; trackId: number; disc: number; position: number; title: string; artist: string; durationMs: number | null; primaryArtist?: string; /** Playlist import only: the track's own album, when not the synthetic edition's. */ album?: string; /** Playlist import only: no catalogue entry; searched by artist + title with no album or duration. */ direct?: true }
+export interface AlbumEdition { id: CatalogId; title: string; artist: string; trackCount: number; releaseDate: string | null; artworkUrl?: string }
+export interface AlbumTrack { releaseId: CatalogId; trackId: CatalogId; disc: number; position: number; title: string; artist: string; durationMs: number | null; primaryArtist?: string; /** Playlist import only: the track's own album, when not the synthetic edition's. */ album?: string; /** Playlist import only: no catalogue entry; searched by artist + title with no album or duration. */ direct?: true }
 export interface AlbumDetail { edition: AlbumEdition; tracks: AlbumTrack[] }
 export interface AlbumRequest { signal: AbortSignal; current: () => boolean }
 type Row = Record<string, unknown>
@@ -28,7 +31,7 @@ function edition(row: Row): AlbumEdition | null {
   return Object.freeze({ id: row.collectionId, title: row.collectionName, artist: row.artistName, trackCount: row.trackCount, releaseDate: Object.hasOwn(row, 'releaseDate') && text(row.releaseDate) ? row.releaseDate : null, ...(artwork ? { artworkUrl: artwork } : {}) })
 }
 // Inspect descriptors before reading any value: reject accessors, exotic prototypes, cycles and large graphs.
-function bounded(value: unknown): boolean {
+export function bounded(value: unknown): boolean {
   const stack: { value: unknown; depth: number }[] = [{ value, depth: 0 }]
   const seen = new Set<object>()
   let nodes = 0
@@ -136,7 +139,7 @@ export function parseAlbumDetail(data: unknown, id: number): AlbumResult<AlbumDe
 }
 
 /** No network or timers until search/load is called. Caller chooses an edition explicitly. */
-export class AlbumCatalog {
+class ITunesAlbumCatalog {
   private readonly cache = new Map<string, { expires: number; value: unknown }>()
   constructor(private readonly fetcher: typeof fetch = fetch) {}
   async search(title: string, artist: string | null, request: AlbumRequest): Promise<AlbumResult<AlbumEdition[]>> {
@@ -177,7 +180,7 @@ export class AlbumCatalog {
       if (artists.length !== 1 || !owns(artists[0], ['artistId', 'artistName']) || artists[0].artistId !== id || !text(artists[0].artistName)) return fail('invalid')
       const albums = all.filter(row => row.wrapperType === 'collection')
       if (all.length !== albums.length + 1) return fail('invalid')
-      const ids = new Set<number>(), result: AlbumEdition[] = []
+      const ids = new Set<CatalogId>(), result: AlbumEdition[] = []
       for (const row of albums) {
         const item = edition(row)
         // Artist lookups also return associated releases credited to a different
@@ -281,4 +284,32 @@ export class AlbumCatalog {
     request.signal.removeEventListener('abort', abort)
     return result
   }
+}
+
+/** iTunes remains primary. Only an unsuccessful/empty result uses the independent
+ * same-origin backup. Cancellation never starts another provider. */
+export class AlbumCatalog extends ITunesAlbumCatalog {
+ private readonly backup:MusicBrainzCatalog;
+ constructor(fetcher:typeof fetch=fetch){super(fetcher);this.backup=new MusicBrainzCatalog(fetcher);}
+ private async enabled(request:AlbumRequest):Promise<boolean>{try{return !request.signal.aborted&&request.current()&&await musicBrainzEnabled(request.signal)&&!request.signal.aborted&&request.current();}catch{return false;}}
+ override async search(title:string,artist:string|null,request:AlbumRequest):Promise<AlbumResult<AlbumEdition[]>>{
+  const primary=await super.search(title,artist,request);
+  if(primary.ok&&primary.value.length||!primary.ok&&primary.reason==='cancelled'||!await this.enabled(request))return primary;
+  const secondary=await this.backup.search(title,artist,request);return secondary.ok||primary.ok?secondary:primary;
+ }
+ override async searchArtists(term:string,request:AlbumRequest):Promise<AlbumResult<CatalogArtist[]>>{
+  const primary=await super.searchArtists(term,request);
+  if(primary.ok&&primary.value.length||!primary.ok&&primary.reason==='cancelled'||!await this.enabled(request))return primary;
+  const secondary=await this.backup.searchArtists(term,request);return secondary.ok||primary.ok?secondary:primary;
+ }
+ override async artistAlbums(id:CatalogId,request:AlbumRequest,name?:string):Promise<AlbumResult<AlbumEdition[]>>{
+  if(musicBrainzId(id))return this.backup.artistAlbums(id,request);
+  const primary=await super.artistAlbums(id,request);
+  if(primary.ok&&primary.value.length||!primary.ok&&primary.reason==='cancelled'||!name||!await this.enabled(request))return primary;
+  const people=await this.backup.searchArtists(name,request);
+  const exact=people.ok?people.value.filter(p=>p.name.normalize('NFKC').toLocaleLowerCase()===name.normalize('NFKC').toLocaleLowerCase()):[];
+  return exact.length===1?this.backup.artistAlbums(exact[0].id,request):primary;
+ }
+ override async load(id:CatalogId,request:AlbumRequest):Promise<AlbumResult<AlbumDetail>>{return musicBrainzId(id)?this.backup.load(id,request):super.load(id,request);}
+ async alternatives(title:string,artist:string|null,request:AlbumRequest):Promise<AlbumResult<AlbumEdition[]>>{return await this.enabled(request)?this.backup.search(title,artist,request):{ok:false,reason:'network'};}
 }

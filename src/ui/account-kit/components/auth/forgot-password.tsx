@@ -1,0 +1,163 @@
+/* Adapted from Better Auth UI, MIT; see LICENSE and UPSTREAM.json. */
+import { flowMemory } from "../../flow-memory"
+"use client"
+
+import { validateEmailAddress } from "@better-auth-ui/core"
+import {useRequestPasswordResetOtp} from '@better-auth-ui/react/plugins/email-otp'
+import type {EmailOtpAuthClient} from '@better-auth-ui/core/plugins/email-otp'
+import {
+  useAuth,
+  useFetchOptions
+} from "@better-auth-ui/react"
+import { useId } from "react"
+
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card"
+import {
+  Field,
+  FieldDescription,
+  FieldGroup,
+  FieldLabel
+} from "../ui/field"
+import { Input } from "../ui/input"
+import { cn } from "cn"
+import { isAuthFormFieldInvalid, useAuthForm } from "./auth-form"
+import { RESET_LINK_SENT_STORAGE_KEY } from "./reset-link-sent"
+
+export type ForgotPasswordProps = {
+  className?: string
+}
+
+/**
+ * Render a card-based "Forgot Password" form that sends a password-reset email.
+ *
+ * The form displays an email input, submit button, and a link back to sign-in.
+ * After a successful request the submitted email is stored in `sessionStorage`
+ * and the user is redirected to the reset-link-sent view, which offers to open
+ * their email provider.
+ *
+ * @param className - Optional additional CSS class names applied to the card
+ * @returns The forgot-password form UI as a JSX element
+ */
+export function ForgotPassword({ className }: ForgotPasswordProps) {
+  const emailErrorId = useId()
+  const {
+    authClient,
+    basePaths,
+    localization,
+    navigate,
+    plugins,
+    viewPaths,
+    Link
+  } = useAuth<EmailOtpAuthClient>()
+
+  const { fetchOptions, resetFetchOptions } = useFetchOptions()
+
+  const { mutateAsync: requestPasswordReset, isPending } =
+    useRequestPasswordResetOtp(authClient, {
+      meta: { errorPresentation: "inline" },
+      onError: () => {
+        resetFetchOptions()
+      },
+      onSuccess: (_data, { email }) => {
+        flowMemory.setItem(RESET_LINK_SENT_STORAGE_KEY, email)
+        navigate({ to: `${basePaths.auth}/reset-password-otp` })
+      }
+    })
+
+  const form = useAuthForm({
+    defaultValues: { email: "" },
+    onSubmit: async ({ value }) =>
+      await requestPasswordReset({
+        email: value.email,
+        fetchOptions
+      })
+  })
+
+  const Captcha = plugins.find(
+    (plugin) => plugin.captchaComponent
+  )?.captchaComponent
+
+  return (
+    <Card className={cn("w-full max-w-sm", className)}>
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold">
+          {localization.auth.forgotPassword}
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent>
+        <form.AppForm>
+          <form.AuthFormRoot
+            noValidate
+            serverErrorMessage={localization.errors.generic}
+          >
+            <FieldGroup>
+              <form.AppField
+                name="email"
+                validators={{
+                  onChange: ({ value }) =>
+                    validateEmailAddress(value, {
+                      invalidMessage: localization.auth.invalidEmail,
+                      requiredMessage: localization.auth.fieldRequired
+                    })
+                }}
+              >
+                {(field) => {
+                  const isInvalid = isAuthFormFieldInvalid(field.state.meta)
+                  return (
+                    <Field data-invalid={isInvalid}>
+                      <FieldLabel htmlFor="email">
+                        {localization.auth.email}
+                      </FieldLabel>
+                      <Input
+                        id="email"
+                        aria-describedby={isInvalid ? emailErrorId : undefined}
+                        name={field.name}
+                        type="email"
+                        autoComplete="email"
+                        placeholder={localization.auth.emailPlaceholder}
+                        required
+                        disabled={isPending}
+                        value={field.state.value}
+                        onBlur={field.handleBlur}
+                        onChange={(event) =>
+                          field.handleChange(event.target.value)
+                        }
+                        aria-invalid={isInvalid}
+                      />
+                      <field.AuthFormFieldError id={emailErrorId} />
+                    </Field>
+                  )
+                }}
+              </form.AppField>
+
+              {Captcha && <div className="flex justify-center">{Captcha}</div>}
+
+              <div className="flex flex-col gap-3">
+                <form.AuthFormSubmitButton
+                  isPending={isPending}
+                  disabled={isPending}
+                >
+                  Enviar código
+                </form.AuthFormSubmitButton>
+              </div>
+              <form.AuthFormServerError />
+            </FieldGroup>
+          </form.AuthFormRoot>
+        </form.AppForm>
+
+        <div className="flex flex-col gap-3 items-center w-full mt-4">
+          <FieldDescription className="text-center">
+            {localization.auth.rememberYourPassword}{" "}
+            <Link
+              href={`${basePaths.auth}/${viewPaths.auth.signIn}`}
+              className="underline underline-offset-4"
+            >
+              {localization.auth.signIn}
+            </Link>
+          </FieldDescription>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}

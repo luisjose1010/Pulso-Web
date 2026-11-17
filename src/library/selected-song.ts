@@ -1,3 +1,4 @@
+import {MB_UUID} from './catalog-id';
 import type {PlayerArtworkQuery} from './player-artwork-provider';
 import {AUDIO_FILE_MAX_BYTES} from '../storage/audio-limits';
 import type {MusicCatalogChoice} from './music-search-catalog';
@@ -25,15 +26,36 @@ export function songChoiceKey(choice:SongChoice):string|null {
  if(choice.source==='local'&&choice.id.startsWith('local:')&&isUuid(choice.id.slice(6)))return choice.id;
  if(!choice.artist||!choice.title||choice.title.length>300||choice.artist.length>300||choice.album&&choice.album.length>300)return null;
  const itunes=choice.source==='itunes'&&/^itunes:(?:[1-9][0-9]*:){3}[1-9][0-9]*$/.test(choice.id)&&choice.id.slice(7).split(':').every(n=>Number.isSafeInteger(Number(n)));
- if(!(choice.source==='lrclib'&&/^lrclib:[1-9][0-9]{0,14}$/.test(choice.id)||itunes)||choice.duration!==null&&(!Number.isFinite(choice.duration)||choice.duration<0||choice.duration>86400))return null;
+ const mbParts=choice.id.split(':');const musicbrainz=choice.source==='musicbrainz'&&mbParts.length===5&&mbParts[0]==='musicbrainz'&&MB_UUID.test(mbParts[1])&&MB_UUID.test(mbParts[4])&&mbParts.slice(2,4).every(v=>/^[1-9][0-9]{0,2}$/.test(v)&&Number(v)<=200);
+ if(!(choice.source==='lrclib'&&/^lrclib:[1-9][0-9]{0,14}$/.test(choice.id)||itunes||musicbrainz)||choice.duration!==null&&(!Number.isFinite(choice.duration)||choice.duration<0||choice.duration>86400))return null;
  // Exact public catalogue id AND version-bearing metadata: never title alone.
  return JSON.stringify([choice.id,choice.title.normalize('NFC'),choice.artist.normalize('NFC'),choice.album?.normalize('NFC')??null,choice.duration]);
+}
+/** Coalesce only pending cross-catalog selections with the same full credit,
+ * version-bearing title and near-identical duration. This is not persistence identity. */
+export function samePendingSong(a:SongChoice,b:SongChoice):boolean {
+ if(!a.artist||!b.artist||a.duration===null||b.duration===null||!Number.isFinite(a.duration)||!Number.isFinite(b.duration)||a.duration<=0||b.duration<=0||Math.abs(a.duration-b.duration)>5)return false;
+ const words=(value:string)=>value.normalize('NFD').replace(/\p{M}/gu,'').toLocaleLowerCase('es').replace(/[^\p{L}\p{N}]+/gu,' ').trim().split(/\s+/u).filter(Boolean).join(' ');
+ const title=(value:string)=>words(value.replace(/\s+\((?:visualizer|official video|official audio)\)\s*$/iu,''));
+ const edition=(value:string|null)=>{const all=words(value??'').split(' ');return all.filter(x=>['live','studio','acoustic','remix','demo','instrumental','karaoke'].includes(x)).sort().join(' ');};
+ // A different collection name alone is not a recording conflict; version
+ // qualifiers in the title and complete performer credit remain significant.
+ return !!title(a.title)&&title(a.title)===title(b.title)&&words(a.artist)===words(b.artist)&&(!edition(a.album)&&!edition(b.album)||edition(a.album)===edition(b.album));
 }
 const aliasKey=(key:string)=>['music-catalog-alias',1,key];
 interface Alias {version:1;key:string;trackId:string;sha256:string;bytes:number;displayArtist?:string}
 function alias(value:unknown,key:string):Alias|null {
  const r=dataRecord(value);if(!r||!['version','key','trackId','sha256','bytes'].every(k=>Object.hasOwn(r,k))||Object.keys(r).some(k=>!['version','key','trackId','sha256','bytes','displayArtist'].includes(k)))return null;
  return r.version===1&&r.key===key&&isUuid(r.trackId)&&typeof r.sha256==='string'&&/^[a-f0-9]{64}$/.test(r.sha256)&&Number.isSafeInteger(r.bytes)&&Number(r.bytes)>0&&Number(r.bytes)<=AUDIO_FILE_MAX_BYTES&&(!Object.hasOwn(r,'displayArtist')||typeof r.displayArtist==='string'&&!!r.displayArtist.trim()&&r.displayArtist.length<=300)?r as unknown as Alias:null;
+}
+/** Read exact catalogue keys bound to the currently playing fingerprint. This
+ * is a bounded, read-only indicator aid; it does not verify or hash audio. */
+export async function readSongAliasKeys(track:Track,current:()=>boolean):Promise<ReadonlySet<string>> {
+ if(!current()||!validAudioFingerprint(track.audioFingerprint))return new Set();const db=await openExistingDatabase();
+ try{if(!current())return new Set();const tx=admittedTransaction(db,['settings'],'readonly'),done=transactionDone(tx),store=tx.objectStore('settings'),range=IDBKeyRange.bound(['music-catalog-alias',1],['music-catalog-alias',1,[]]);
+  const [keys,values]=await Promise.all([request<IDBValidKey[]>(store.getAllKeys(range,2001)),request<unknown[]>(store.getAll(range,2001))]);await done;if(!current()||keys.length>2000||keys.length!==values.length)return new Set();const out=new Set<string>();
+  for(let i=0;i<keys.length;i++){const k=keys[i];if(!Array.isArray(k)||k.length!==3||typeof k[2]!=='string')continue;const a=alias(values[i],k[2]);if(a&&a.trackId===track.id&&a.sha256===track.audioFingerprint.sha256&&a.bytes===track.audioFingerprint.bytes)out.add(a.key);}return out;
+ }finally{closeDatabase(db);}
 }
 /** Presentation only: accept an unambiguous catalogue artist for these exact bytes. */
 export async function readSongDisplayArtist(track:Track,current:()=>boolean):Promise<string|null> {
@@ -51,7 +73,7 @@ export async function readSongDisplayArtist(track:Track,current:()=>boolean):Pro
    const a=alias(values[i],k[2]);if(!a||a.trackId!==track.id||a.sha256!==track.audioFingerprint.sha256||a.bytes!==track.audioFingerprint.bytes)continue;
    try{
     const parts:unknown=JSON.parse(a.key);if(!Array.isArray(parts)||parts.length!==5||typeof parts[0]!=='string'||typeof parts[1]!=='string'||typeof parts[2]!=='string'||!(parts[3]===null||typeof parts[3]==='string')||!(parts[4]===null||typeof parts[4]==='number'))continue;
-    const source=parts[0].startsWith('lrclib:')?'lrclib':parts[0].startsWith('itunes:')?'itunes':null;if(!source)continue;
+    const source=parts[0].startsWith('lrclib:')?'lrclib':parts[0].startsWith('itunes:')?'itunes':parts[0].startsWith('musicbrainz:')?'musicbrainz':null;if(!source)continue;
     const choice:SongChoice={source,id:parts[0],title:parts[1],artist:parts[2],album:parts[3],duration:parts[4]};
     if(songChoiceKey(choice)!==a.key)continue;
     const name=a.displayArtist??choice.artist;if(name?.trim())names.add(name.trim().normalize('NFC'));
@@ -77,11 +99,12 @@ export async function readSongArtworkIdentity(track:Track,current:()=>boolean):P
    const a=alias(values[i],key[2]);if(!a||a.trackId!==track.id||a.sha256!==track.audioFingerprint.sha256||a.bytes!==track.audioFingerprint.bytes)continue;
    try{
     const parts:unknown=JSON.parse(a.key);if(!Array.isArray(parts)||parts.length!==5||typeof parts[0]!=='string'||typeof parts[1]!=='string'||typeof parts[2]!=='string'||!(parts[3]===null||typeof parts[3]==='string')||typeof parts[4]!=='number'||!Number.isFinite(parts[4])||parts[4]<=0||Math.abs(parts[4]-track.duration)>5)continue;
-    const choice:SongChoice={source:'itunes',id:parts[0],title:parts[1],artist:parts[2],album:parts[3],duration:parts[4]};
+    const source=parts[0].startsWith('musicbrainz:')?'musicbrainz':'itunes';
+    const choice:SongChoice={source,id:parts[0],title:parts[1],artist:parts[2],album:parts[3],duration:parts[4]};
     if(songChoiceKey(choice)!==a.key)continue;
     const [editionId,,,trackId]=parts[0].slice(7).split(':').map(Number);
-    const q:PlayerArtworkQuery={title:choice.title,artist:choice.artist!,album:choice.album,durationSeconds:choice.duration!,editionId,trackId};
-    matches.set(JSON.stringify([editionId,trackId,q.title,q.artist,q.album]),q);
+    const q:PlayerArtworkQuery={title:choice.title,artist:choice.artist!,album:choice.album,durationSeconds:choice.duration!,...(source==='musicbrainz'?{musicbrainzReleaseId:parts[0].split(':')[1]}:{editionId,trackId})};
+    matches.set(JSON.stringify([source,source==='musicbrainz'?q.musicbrainzReleaseId:editionId,trackId,q.title,q.artist,q.album]),q);
    }catch{/* Malformed aliases do not supply catalogue identity. */}
   }
   return matches.size===1?[...matches.values()][0]:null;
@@ -94,7 +117,7 @@ export async function readSongAlias(choice:SongChoice,current:()=>boolean,allowC
  try{
   if(!current())throw Error('cancelled');const tx=admittedTransaction(db,['settings','tracks'],'readonly'),done=transactionDone(tx);
   const raw=await request<unknown>(tx.objectStore('settings').get(aliasKey(key)));
-  if(raw===undefined){await done;return allowCompatible&&choice.source==='itunes'?await compatibleLocalSong(db,choice,current):null;}const a=alias(raw,key);if(!a){await done;throw Error('Alias musical inválido; revisa el almacenamiento.');}
+  if(raw===undefined){await done;return allowCompatible?await compatibleLocalSong(db,choice,current):null;}const a=alias(raw,key);if(!a){await done;throw Error('Alias musical inválido; revisa el almacenamiento.');}
   const track=await request<Track|undefined>(tx.objectStore('tracks').get(a.trackId));await done;
   if(!current())throw Error('cancelled');
   if(!track)return null;
@@ -132,7 +155,7 @@ export async function rememberSongAlias(choice:SongChoice,trackId:string,sha256:
    const track=await request<Track|undefined>(tx.objectStore('tracks').get(trackId));
    const asset=track?.assetId?await request<LocalAsset|undefined>(tx.objectStore('assets').get(track.assetId)):undefined;
    if(!current()||!track||track.id!==trackId||!validAsset(asset)||asset.sha256!==sha256||asset.bytes!==bytes||track.audioFingerprint?.sha256!==sha256)throw Error('conflict');
-   const displayArtist=choice.source==='itunes'?choice.searchArtist:choice.source==='lrclib'?choice.artist:undefined;
+   const displayArtist=(choice.source==='itunes'||choice.source==='musicbrainz')?choice.searchArtist:choice.source==='lrclib'?choice.artist:undefined;
    tx.objectStore('settings').put({version:1,key,trackId,sha256,bytes,...(displayArtist?.trim()&&displayArtist.length<=300?{displayArtist:displayArtist.trim()}: {})} satisfies Alias,aliasKey(key));
    if(!current())throw Error('cancelled');await done;
   }catch(error){try{tx.abort();}catch{/* commit winner */}await done.catch(()=>{});throw error;}

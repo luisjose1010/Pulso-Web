@@ -3,3 +3,5 @@ vendor/telegram-wasm/** -text -whitespace
 vendor/phone-countries/** -text -whitespace
 vendor/qr-code/** -text -whitespace
 scripts/license-packages.json -text
+vendor/licenses/** -text -whitespace
+src/ui/account-kit/LICENSE -text -whitespace

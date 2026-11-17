@@ -10,3 +10,6 @@
 .player-lyrics-preview p { margin:.5rem 0;font-weight:650; }
 .player-lyrics-options { margin-top:2rem;border-top:1px solid var(--pulso-border);padding-top:.5rem; }
 .player-lyrics-options summary { cursor:pointer; }
+
+.pulso-app .player-lyrics-preview button { display:block;inline-size:100%;padding:.35rem 0;margin:.5rem 0;text-align:start;border:0;background:transparent;color:inherit;font:inherit;font-size:clamp(1.4rem,4vw,1.8rem);font-weight:700;line-height:1.35;letter-spacing:-.035em;overflow-wrap:anywhere;white-space:pre-wrap;touch-action:manipulation; }
+.pulso-app .player-lyrics-preview button:focus-visible,.pulso-app .player-lyrics-lines button:focus-visible { outline:3px solid var(--pulso-accent);outline-offset:4px; }

@@ -1,0 +1,162 @@
+{
+  "date": "2026-11-15",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "status": "published-native-pass",
+  "existingEntry": "/releases/d586ee3e549273ac.html",
+  "change": "Legacy cache-first app documents gain a CSP-hashed navigation launcher with exact offline fallback; future app navigations use network first; opening an obsolete release navigationally serves the current app. No skipWaiting or active-client navigation.",
+  "unit": {
+    "pass": 712,
+    "fail": 0
+  },
+  "server": {
+    "pass": 9,
+    "fail": 0
+  },
+  "localNative": {
+    "pass": 16,
+    "fail": 0,
+    "report": ".local/legacy-update-repair/browser-report.json",
+    "sameOtherTabAudioAndController": true,
+    "offlineLegacyAndCurrent": true,
+    "storageUnchanged": true,
+    "cleanup": true,
+    "reproducibleSeed": "tests/integration/legacy-shell-fixture.ts"
+  },
+  "regression": {
+    "pass": 36,
+    "fail": 0,
+    "report": "/data/home/Proyectos/Pulso-Web/.local/interface-browser-validation/2026-11-15T08-33-59-819Z/report.json",
+    "runtimeHashes": 202
+  },
+  "build": {
+    "inputs": 279,
+    "runtime": 202,
+    "sourceMatchesBuild": true,
+    "assets": 74,
+    "workerSHA256": "9c50fc3c90392730ad835af5de570b3cd1b532630be263504917a18edc07f393",
+    "rootDistSHA256": "03f80776e1154d4373101adc63a413b58a9cd0611e255a5606ad1667122a62af"
+  },
+  "published": {
+    "deploymentId": "9a3c36e13ae64f5b8f2b7a3d2aaa8c07",
+    "assets": {
+      "expected": 72,
+      "passed": 72,
+      "checksPath": ".local/legacy-update-repair/candidate/http-verification.json"
+    },
+    "mcpReadback": {
+      "workerMatches": true,
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CATALOG",
+          "type": "durable_object_namespace"
+        },
+        {
+          "name": "TELEGRAM_API_IDENTITY",
+          "type": "secret_text"
+        }
+      ],
+      "subdomain": "pruebassoftware",
+      "enabled": true,
+      "previewsEnabled": false
+    },
+    "edgeNavigation": [
+      {
+        "path": "/releases/9006dcecc26d4049.html",
+        "navigation": true,
+        "status": 200,
+        "location": null,
+        "cacheControl": "no-store",
+        "sha256": "d586ee3e549273acce01e021a497be9bdf44d4fdf0c234a0f2313c362f7b49d8"
+      },
+      {
+        "path": "/releases/9006dcecc26d4049.html",
+        "navigation": false,
+        "status": 307,
+        "location": "/releases/9006dcecc26d4049",
+        "cacheControl": "no-cache",
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      },
+      {
+        "path": "/releases/9006dcecc26d4049",
+        "navigation": true,
+        "status": 200,
+        "location": null,
+        "cacheControl": "no-store",
+        "sha256": "d586ee3e549273acce01e021a497be9bdf44d4fdf0c234a0f2313c362f7b49d8"
+      },
+      {
+        "path": "/releases/9006dcecc26d4049",
+        "navigation": false,
+        "status": 200,
+        "location": null,
+        "cacheControl": "no-store",
+        "sha256": "9006dcecc26d40493eafa769f2aeae3e3cd262688c43ec042b007664cb49b6ed"
+      }
+    ],
+    "native": {
+      "edgeNavigation": {
+        "path": "/releases/9006dcecc26d4049.html",
+        "module": "/assets/index-CUPDvTs9.js",
+        "reloadButton": true,
+        "navigationStatus": 200
+      },
+      "before": {
+        "timeOrigin": 1794728532572.7,
+        "audio": [
+          {
+            "paused": false,
+            "time": 116.787979,
+            "error": null
+          }
+        ],
+        "authenticated": true
+      },
+      "after": {
+        "timeOrigin": 1794728532572.7,
+        "sameController": true,
+        "audio": [
+          {
+            "paused": false,
+            "time": 160.077864,
+            "ended": false,
+            "error": null
+          }
+        ],
+        "authenticated": true,
+        "playlistPresent": true
+      },
+      "oldRootAfterReload": {
+        "path": "/releases/d586ee3e549273ac.html",
+        "module": "/assets/index-CUPDvTs9.js",
+        "reloadButton": true,
+        "navigationStatus": 200,
+        "otherTabOwnsControl": true
+      }
+    },
+    "firstDelegateHTTPException": "Preserved. Node fetch sets sec-fetch-mode:cors; real browser navigation and raw HTTPS preserving navigation headers both serve the current HTML. Not an Assets-before-Worker failure.",
+    "nodeFetchProbe": {
+      "localOnWireSecFetchMode": "cors",
+      "requestedSecFetchMode": "navigate",
+      "rawHTTPSPreservesNavigate": true
+    }
+  },
+  "limits": {
+    "alreadyRunningLegacyCodeNotReplacedInMemory": true,
+    "migrationBecomesAvailableWhenBrowserInstallsUpdatedWorker": true,
+    "noOwnerStorageClear": true,
+    "noRealBotCalls": true,
+    "physicalIPhone": false
+  },
+  "finalBrowserRestoration": {"path":"/releases/d586ee3e549273ac.html","module":"/assets/index-CUPDvTs9.js","authenticated":true,"paused":true,"playlistPresent":true,"position":160.2,"waiting":true,"installing":false,"probeRemoved":true},
+  "memory": {
+    "project": "Pulso-Web",
+    "initialFullVerified": 15,
+    "syncFullVerified": 15,
+    "independentFinalReadOnlyVerified": 15,
+    "bytesAndSHA256MatchCurrent": true
+  }
+}

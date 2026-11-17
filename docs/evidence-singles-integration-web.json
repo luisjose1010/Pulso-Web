@@ -1,0 +1,50 @@
+{
+  "date": "2026-11-16",
+  "status": "VERIFIED_LOCAL_SYNTHETIC_ACCEPTANCE",
+  "freeze": {
+    "files": 262,
+    "sha256": "88b9ffd391deba2b357c6804bd3666094fe0424bec533fec76b1db0c28d31839",
+    "runtimeMatches": true
+  },
+  "behavior": {
+    "singleSelection": "one row; preserves song identity and playlist membership",
+    "existingLocalCopy": "reused without another bot command",
+    "newSelection": "one send, one callback, one import, one Play",
+    "cancelEditHidePauseIntent": "does not leave stale pending metadata work",
+    "metadataReadiness": "genuine update blocker observes pending single attempt and clears after cancellation/edit/hide",
+    "player": "same current track/source; no restart or handoff",
+    "catalogNavigationRpc": "none added"
+  },
+  "localBrowserAcceptance": {
+    "chromiumMainSyntheticSdk": "9/9 PASS",
+    "webkitPersistentMainSyntheticSdk": "5/5 PASS",
+    "webkitEphemeralFailClosed": "1/1 PASS",
+    "webkitIndexedDb": "1/1 PASS",
+    "widthsCssPixels": [320, 390, 1280],
+    "cleanup": true
+  },
+  "validation": {
+    "fullUnitSuite": "752/752 PASS (prior source validation)",
+    "focalUnits": "49/49 PASS, including update blocker",
+    "automaticUpdateUnits": "12/12 PASS",
+    "lint": "PASS",
+    "typecheck": "PASS"
+  },
+  "csp": {
+    "webkitShellBaselineSeparated": true,
+    "globalZeroClaim": false
+  },
+  "accounts": {
+    "publicAccountConfig": {"enabled": false, "google": false},
+    "realAccountsClaimed": false,
+    "authActivation": false
+  },
+  "limits": [
+    "Synthetic SDK and metadata; no real Telegram, bot, account, chat or musical data.",
+    "No physical iPhone or iOS background acceptance.",
+    "The update fixture returns 503; no forced navigation during pending single metadata is claimed.",
+    "WebKit routing fixture omits Service Worker; this is not production Safari acceptance.",
+    "Not global CSP-zero, P0-W completion, or account acceptance."
+  ],
+  "privateReceipts": ".local/singles-integration-acceptance/"
+}

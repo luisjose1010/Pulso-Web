@@ -71,7 +71,7 @@ export interface ResolveResult {readonly matches:readonly PlaylistMatch[];readon
 
 /** Sequential on purpose: the shared catalogue transport already spaces requests. */
 export async function resolvePlaylist(entries:readonly PlaylistEntry[],o:ResolveOptions):Promise<ResolveResult> {
- const matches:PlaylistMatch[]=[],used=new Set<number>();
+ const matches:PlaylistMatch[]=[],used=new Set<number|string>();
  for(let i=0;i<entries.length;i++){
   if(o.signal.aborted||!o.current())return {matches,complete:false};
   const entry=entries[i];

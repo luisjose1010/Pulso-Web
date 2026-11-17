@@ -15,3 +15,8 @@ Leer PULSO-WEB-README.md, doc/SPEC.md y la tarea ODD aplicable antes de trabajar
 ## Alcance y evidencia
 
 USD 0. Trabajar solo en este proyecto; no modificar servicios ajenos. Pruebas locales pueden usar loopback temporal. Publicacion HTTPS, cuentas reales y permisos sensibles requieren autorizacion aplicable. Local, navegador e iPhone fisico se registran separados. No convertir un pendiente en PASS ni declarar P0-W completo por un piloto o build.
+
+## Entregas y colaboración
+
+- Preferencia del propietario: usar un agente económico para las publicaciones en Cloudflare y las actualizaciones de Git al cerrar cambios verificados.
+- Entregar los cambios de Git en una rama y una PR con problema, comportamiento resultante, validación y pendientes, para que los colaboradores puedan revisarlos.

@@ -1,0 +1,208 @@
+{
+  "date": "2026-11-15",
+  "origin": "https://pulso-web.pruebassoftware.workers.dev",
+  "release": "/releases/d586ee3e549273ac.html",
+  "unit": {
+    "pass": 708,
+    "fail": 0,
+    "log": ".local/automatic-update/unit-all-final.log"
+  },
+  "browser": {
+    "pass": 36,
+    "fail": 0,
+    "report": ".local/interface-browser-validation/2026-11-15T07-36-11-034Z/report.json",
+    "runtimeHashesBefore": 201,
+    "runtimeHashesAfter": 201,
+    "errors": 0,
+    "external": 0,
+    "cleanup": true
+  },
+  "build": {
+    "inputs": 277,
+    "sourceMatchesBuild": true,
+    "rootDistUnchanged": true
+  },
+  "published": {
+    "before": {
+      "latest": {
+        "version": 1,
+        "entry": "/releases/e12756b183df05fc.html"
+      },
+      "authenticated": true,
+      "release": "/releases/e12756b183df05fc",
+      "timeOrigin": 1794727744695.6,
+      "audio": [
+        {
+          "paused": false,
+          "time": 100.950263,
+          "error": null
+        }
+      ]
+    },
+    "playingAfterNewPublication": {
+      "release": "/releases/e12756b183df05fc",
+      "timeOrigin": 1794727744695.6,
+      "available": true,
+      "banner": true,
+      "audio": [
+        {
+          "paused": false,
+          "time": 62.489821,
+          "error": null
+        }
+      ],
+      "authenticated": true
+    },
+    "afterAutomaticUpdateOnPause": {
+      "release": "/releases/d586ee3e549273ac",
+      "timeOrigin": 1794728346252.1,
+      "authenticated": true,
+      "playing": false,
+      "position": 75.7,
+      "updated": true
+    },
+    "manualReloadPaused": {
+      "release": "/releases/d586ee3e549273ac",
+      "timeOrigin": 1794728468430.9,
+      "authenticated": true,
+      "playing": false,
+      "position": 75.7,
+      "updated": true,
+      "playlistPresent": true
+    },
+    "storage": {
+      "release": "/releases/d586ee3e549273ac",
+      "local": {
+        "status": "Inventario consultado. Encontrar el archivo no confirma su integridad ni la disponibilidad offline.",
+        "summary": [
+          "56,52 MB",
+          "56,52 MB",
+          "126,71 MB",
+          "10.864,12 MB"
+        ],
+        "rows": 15,
+        "legacyUnits": false,
+        "sizeDisplays": 35
+      },
+      "storage": {
+        "downloads": 15,
+        "legacyUnits": false,
+        "sizeDisplays": 19
+      },
+      "timeOrigin": 1794728346252.1,
+      "authenticated": true
+    },
+    "freshBrowserStatic": {
+      "release": "/releases/d586ee3e549273ac",
+      "count": 72,
+      "failed": [],
+      "controller": true
+    },
+    "controlledOldShellStatic": {
+      "release": "/releases/d586ee3e549273ac",
+      "count": 72,
+      "failed": [
+        {
+          "path": "index.html",
+          "status": 200,
+          "bytes": 1325,
+          "hashMatches": false
+        },
+        {
+          "path": "listen.html",
+          "status": 200,
+          "bytes": 1325,
+          "hashMatches": false
+        },
+        {
+          "path": "pilot.html",
+          "status": 200,
+          "bytes": 703,
+          "hashMatches": false
+        },
+        {
+          "path": "samples.html",
+          "status": 200,
+          "bytes": 656,
+          "hashMatches": false
+        },
+        {
+          "path": "third-party-licenses.json",
+          "status": 200,
+          "bytes": 8245,
+          "hashMatches": false
+        },
+        {
+          "path": "try.html",
+          "status": 200,
+          "bytes": 1325,
+          "hashMatches": false
+        },
+        {
+          "path": "web.html",
+          "status": 200,
+          "bytes": 1325,
+          "hashMatches": false
+        }
+      ]
+    }
+  },
+  "manualReloadWhilePlaying": {
+    "before": {
+      "timeOrigin": 1794728468430.9,
+      "playing": true,
+      "position": 75.8,
+      "updated": true
+    },
+    "after": {
+      "release": "/releases/d586ee3e549273ac",
+      "timeOrigin": 1794728532572.7,
+      "authenticated": true,
+      "playing": false,
+      "position": 106.1,
+      "updated": true,
+      "playlistPresent": true
+    }
+  },
+  "idleSecondary": {
+    "from": "/releases/e12756b183df05fc",
+    "to": "/releases/d586ee3e549273ac",
+    "controlInOtherTab": true
+  },
+  "limits": {
+    "physicalIPhone": false,
+    "newBotSearches": false,
+    "newBotDownloads": false,
+    "clearedOwnerStorage": false,
+    "exportedOwnerSession": false,
+    "forcedServiceWorkerActivation": false
+  },
+  "publishedLyricsProbe": {
+    "source": ".local/verse-playback-review/published-audio.json",
+    "isolatedIncognito": true,
+    "accountUsed": false,
+    "originalSyntheticMP3": true,
+    "preview": {
+      "seekedSeconds": 5,
+      "playing": true,
+      "frequencyHz": 441.4306640625,
+      "error": null
+    },
+    "reader": {
+      "seekedSeconds": 9,
+      "playing": true,
+      "frequencyHz": 877.47802734375,
+      "error": null
+    },
+    "observerRemoved": true,
+    "ownTabClosed": true
+  },
+  "memory": {
+    "project": "Pulso-Web",
+    "initialFullVerified": 15,
+    "syncFullVerified": 15,
+    "independentFinalReadOnlyVerified": 15,
+    "bytesAndSHA256MatchCurrent": true,
+    "initialSyncTimeoutPreserved": true
+  }
+}

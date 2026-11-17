@@ -29,6 +29,7 @@ export class Player {
   private listeners: [string, EventListener][] = [];
   private subscribers = new Set<(change:PlayerChange) => void>();
   private suspended = false;
+  private endedConsumed = false;
   constructor(readonly audio: Media, private admitted: () => boolean = () => true, private failureObserver?:FailureObserver) {}
   private observe(phase:'play'|'read') {
     let notify:((code:PlayerFailureCode)=>void)|undefined;try{notify=this.failureObserver?.(phase);}catch{/* optional observer */}
@@ -95,7 +96,7 @@ export class Player {
     if (!this.allowed) return;
     const entry = this.entries[index]; if (!entry) return;
     this.invalidate(); this.audio.pause(); this.index = index; this.error = '';this.lastFailure=null;
-    const generation = this.generation; let consumed = false; const failed=this.observe('read');
+    const generation = this.generation; this.endedConsumed = false; const failed=this.observe('read');
     const on = (type: string, fn: () => void) => {
       const guarded: EventListener = () => { if (this.allowed && generation === this.generation && this.audio.src === entry.src) fn(); };
       this.listeners.push([type, guarded]); this.audio.addEventListener(type, guarded);
@@ -107,7 +108,7 @@ export class Player {
     on('loadedmetadata', () => { if (restorePosition > 0) { this.seek(restorePosition); restorePosition = 0; } if (this.state === 'loading') this.state = 'paused'; this.emit(); });
     on('error', () => { let code:PlayerFailureCode='media-unknown';try{switch(this.audio.error?.code){case 1:code='media-aborted';break;case 2:code='media-network';break;case 3:code='media-decode';break;case 4:code='media-unsupported';break;}}catch{/* unknown */}failed(code);this.lastFailure=code; this.state = 'error'; this.error = 'No se pudo leer el audio. Puedes reintentar o elegir la siguiente pista.'; this.emit(); });
     on('ended', () => {
-      if (consumed || !this.audio.ended) return; consumed = true;
+      if (this.endedConsumed || !this.audio.ended) return; this.endedConsumed = true;
       if(this.repeat==='one')this.select(this.index,true);
       else if(this.following()>=0)this.select(this.following(),true);
       else { this.state = 'ended'; this.emit(); }
@@ -115,12 +116,17 @@ export class Player {
     this.audio.src = entry.src; this.audio.load(); this.state = 'loading'; this.emit();
     if (autoplay) void this.play();
   }
-  async play() {
+  async play(fromSeconds?: number) {
     if (!this.allowed) return;
-    if (!this.current) { this.select(0, true); return; }
-    if (this.audio.ended || this.state === 'ended') { this.audio.currentTime = 0; this.select(this.index); }
+    if (fromSeconds !== undefined) {
+      // A lyric is an explicit play-at gesture; never run the replay-at-zero path.
+      if (!this.current || !Number.isFinite(fromSeconds) || fromSeconds < 0 || !Number.isFinite(this.audio.duration) || this.audio.duration <= 0 || fromSeconds >= this.audio.duration) return;
+    } else {
+      if (!this.current) { this.select(0, true); return; }
+      if (this.audio.ended || this.state === 'ended') { this.audio.currentTime = 0; this.select(this.index); }
+    }
     const generation = this.generation,src=this.audio.src,failed=this.observe('play');
-    try { await this.audio.play(); if (generation !== this.generation && !this.allowed) this.audio.pause(); }
+    try { if (fromSeconds !== undefined) { this.audio.currentTime = fromSeconds; this.endedConsumed = false; } await this.audio.play(); if (generation !== this.generation && !this.allowed) this.audio.pause(); }
     catch (error) { if (this.allowed && generation === this.generation && this.audio.src===src) { let denied=false;try{denied=error instanceof Error&&error.name==='NotAllowedError';}catch{/* unknown */}failed(denied?'autoplay-denied':'unknown');this.lastFailure=denied?'autoplay-denied':'unknown';this.state = 'error'; this.error = denied ? 'Toca Reproducir para continuar; el navegador requiere una interacción.' : 'El navegador no pudo abrir este audio. Prueba otra pista o vuelve a preparar la cola.'; this.emit(); } }
   }
   pause() { if(this.inserting)return; this.audio.pause(); this.state = 'paused'; this.emit(); }

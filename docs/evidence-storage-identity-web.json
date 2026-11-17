@@ -1,0 +1,135 @@
+{
+  "date": "2026-11-16",
+  "status": "PUBLISHED_WITH_LIMITS",
+  "release": {
+    "entry": "/releases/4cd47cf811d15d61.html",
+    "entryBytes": 1494,
+    "entrySha256": "4cd47cf811d15d61ce5fc73143797d81fe6c843ba2f3dcc5c491b7c954e5505d",
+    "worker": "pulso-web",
+    "deploymentId": "fdc5a3fe3a3e4523b0d370d43c5d4ec0",
+    "workerSha256": "935fd0440f7a6ef49760c0ae669ed00bb1c790d24c28f4afdfb3914ac5244f15",
+    "provider": "official Cloudflare MCP",
+    "plan": "Workers Free, owner confirmed, USD 0",
+    "publicOrigin": "https://pulso-web.pruebassoftware.workers.dev",
+    "immutableRoutesVerified": 63,
+    "staticRoutesVerifiedByStatusBytesSha256": 100,
+    "root": {
+      "status": 200,
+      "bytes": 1494,
+      "sha256": "4cd47cf811d15d61ce5fc73143797d81fe6c843ba2f3dcc5c491b7c954e5505d",
+      "cacheControl": "no-store"
+    },
+    "latest": {
+      "status": 200,
+      "bytes": 56,
+      "sha256": "830de61e28281ead0a6ab41173c2e7b1df9f3c442ac403bc488ba9ba3d2f9163",
+      "entry": "/releases/4cd47cf811d15d61.html",
+      "cacheControl": "no-cache"
+    },
+    "serviceWorker": {
+      "status": 200,
+      "bytes": 49825,
+      "sha256": "e5fd40640754e26199c979d438df6c860368e5e00efd404199c748fa5360111c",
+      "cacheControl": "no-cache",
+      "serviceWorkerAllowed": "/"
+    },
+    "dynamicAccountConfig": {
+      "status": 200,
+      "bytes": 44,
+      "sha256": "16817ac0561d284d87888d10c73264b54d1530e9d33b06908e5fe0e585f96210",
+      "config": {
+        "version": 1,
+        "enabled": false,
+        "google": false
+      },
+      "cacheControl": "no-store"
+    },
+    "accountGetSession": {
+      "status": 503,
+      "body": {
+        "code": "DISABLED"
+      },
+      "cacheControl": "no-store"
+    },
+    "workerReadback": {
+      "matchesBuild": true,
+      "sha256": "935fd0440f7a6ef49760c0ae669ed00bb1c790d24c28f4afdfb3914ac5244f15",
+      "bindings": [
+        "ASSETS",
+        "CATALOG",
+        "TELEGRAM_API_IDENTITY"
+      ],
+      "secretValueRead": false,
+      "workersDevEnabled": true,
+      "previewsEnabled": false,
+      "subdomain": "pruebassoftware"
+    }
+  },
+  "buildAudit": {
+    "status": "PASS",
+    "candidateFiles": 103,
+    "runtimeSources": 221,
+    "runtimeSourceFreezeExact": true,
+    "releaseEntryMatchesRoot": true,
+    "publishedImmutableAssetsRetained": 63,
+    "licenseNoticeHashMatches": true,
+    "accountConfigDisabled": true
+  },
+  "localStorageAcceptance": {
+    "status": "PASS_LOCAL_SYNTHETIC",
+    "engines": [
+      "Chromium",
+      "WebKit"
+    ],
+    "backends": [
+      "IndexedDB",
+      "OPFS"
+    ],
+    "uniqueCopyAfterConcurrentImports": {
+      "bytes": 160044,
+      "copies": 1
+    },
+    "eligibleCleanupBytes": 160044,
+    "usageBeforeBytes": 1280352,
+    "usageAfterBytes": 1120308,
+    "protectedHashesIntact": true,
+    "uiChecks": 22,
+    "viewportsCssPixels": [
+      320,
+      390,
+      1280
+    ],
+    "textScalePercent": 200
+  },
+  "localSdkAcceptance": {
+    "status": "PASS_LOCAL_MAIN_SYNTHETIC_SDK_ONLY",
+    "cases": "4/4",
+    "secondTabExtraSearchOrDownloadCalls": 0,
+    "leaderTabCalls": {
+      "send": 1,
+      "callback": 1,
+      "getFile": 6
+    },
+    "sameTrackIdAndHash": true
+  },
+  "tests": {
+    "cloudflareServerTests": "22/22 PASS",
+    "lintTypecheckUnit": "738 unit tests PASS; lint and typecheck PASS (provided run)",
+    "productionBuild": "PASS",
+    "wranglerDryRun": "PASS"
+  },
+  "cspBaseline": {
+    "knownShellPlaywrightEvents": 90,
+    "knownWebKitStyleSrcAttrEvents": 6,
+    "globalCspZeroClaim": false
+  },
+  "previewBrowserNavigation": "NOT_RUN_PREVIEW_UNAVAILABLE",
+  "limits": [
+    "No physical iPhone, iOS Safari, background playback or offline-on-iPhone acceptance.",
+    "No real Telegram account, bot, chat, music or personal data was accessed.",
+    "No Neon or Google account was connected; accounts remain disabled and are not launched.",
+    "No user browser storage, session, cache or previous-origin data was cleared or migrated.",
+    "HTTPS asset verification is not a substitute for browser UI navigation."
+  ],
+  "privateReceipts": ".local/storage-identity-release/"
+}

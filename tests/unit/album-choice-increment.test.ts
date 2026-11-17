@@ -12,6 +12,7 @@ test('iTunes occurrence keys require four positive safe integers and preserve me
 });
 test('album matching permits title plus performer but rejects unrelated query words',()=>{
  const rows=[{id:1,trackName:'Primera',artistName:'Artista Propio',albumName:'Noche Azul',duration:120}];
- assert.equal(musicSearchCatalog('noche azul artista propio',[],rows).filter(x=>x.kind==='album').length,1);
+ assert.equal(musicSearchCatalog('noche azul artista propio',[],rows).filter(x=>x.kind==='album').length,0);
  assert.equal(musicSearchCatalog('noche azul desconocido',[],rows).filter(x=>x.kind==='album').length,0);
+ assert.equal(musicSearchCatalog('noche azul artista propio',[],[],[{id:9,title:'Noche Azul',artist:'Artista Propio',trackCount:2,releaseDate:null}]).filter(x=>x.kind==='album').length,1);
 });

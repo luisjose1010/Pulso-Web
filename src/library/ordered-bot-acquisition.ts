@@ -1,3 +1,4 @@
+import {formatStorageMB} from './storage-format';
 import {AUDIO_FILE_MAX_BYTES} from '../storage/audio-limits';
 import {matchingSongRows} from './selected-song';
 import type {BotSearchTarget,BotDownloadedAudio} from '../telegram/bot-search-protocol';
@@ -15,7 +16,7 @@ export function acquisitionFailureText(reasons:readonly AcquisitionFailureReason
  const messages:Record<AcquisitionFailureReason,string>={
   'no-compatible-row':'Las opciones del bot no pudieron vincularse con el título y artista elegidos. [D01]',
   'returned-audio-mismatch':'Se recibió audio, pero sus metadatos no coinciden con la canción elegida (título, artista, versión o duración). [D02]',
-  'file-too-large':`El bot entregó un archivo que supera el límite actual de ${AUDIO_FILE_MAX_BYTES/1048576} MiB de Pulso. No se descargó. [D03]`,
+  'file-too-large':`El bot entregó un archivo que supera el límite actual de ${formatStorageMB(AUDIO_FILE_MAX_BYTES)} de Pulso. No se descargó. [D03]`,
   'file-invalid':'El archivo recibido está incompleto o su formato no es compatible. No se guardó. [D04]',
   'selection-changed':'La opción del bot cambió antes de confirmar la descarga. [D05]',
  };

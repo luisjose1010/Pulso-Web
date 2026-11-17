@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import React from 'react';
 import {fieldSets,projectReview,serializeReviewed,type Capabilities,type Dataset,type Review,type Selection} from '../diagnostics/export';
 import type {DiagnosticSession} from '../diagnostics/session';
@@ -43,14 +44,14 @@ export function DiagnosticsPanel({session,capabilities}:{session:DiagnosticSessi
  <label><input type="checkbox" checked={snapshot.enabled} onChange={e=>session.setEnabled(e.target.checked)}/>Activar diagnóstico de esta sesión</label>
  <button onClick={()=>session.setEnabled(false)} disabled={!snapshot.enabled}>Desactivar y borrar diagnóstico</button>
  <button onClick={()=>session.clear()}>Borrar registros (mantiene activación)</button>
- <p>{snapshot.events.length} registros de hasta 100 / 64 KiB. Descartados: {snapshot.droppedRecords}. Rechazados: {snapshot.rejectedRecords}.</p>
+ <p>{snapshot.events.length} registros de hasta 100 / {formatStorageMB(64*1024)}. Descartados: {snapshot.droppedRecords}. Rechazados: {snapshot.rejectedRecords}.</p>
  <p>Modo local; SDK Telegram no integrado. Evidencia web parcial; iPhone físico pendiente. La presencia de una API no confirma permisos, persistencia ni funcionamiento offline.</p>
  <dl>{Object.entries(capabilities).map(([key,value])=><React.Fragment key={key}><dt>{key}</dt><dd>{value}</dd></React.Fragment>)}</dl>
  <p>Selecciona los campos que deseas revisar. Todos comienzan desmarcados.</p>
  {(Object.keys(fieldSets) as Dataset[]).map(dataset=><fieldset key={dataset}><legend>{labels[dataset]}</legend>{fieldSets[dataset].map(field=><label key={field}><input type="checkbox" checked={selection[dataset].includes(field)} onChange={()=>toggle(dataset,field)}/>{labels[field]??field}</label>)}</fieldset>)}
  <button ref={opener} disabled={!Object.values(selection).some(a=>a.length)} onClick={prepare}>Revisar selección</button>
  {review&&<div ref={reviewBox} className="diagnostics-review" onKeyDown={e=>{if(e.key==='Escape'){e.preventDefault();e.stopPropagation();cancel();}}}>
- <h3 ref={heading} tabIndex={-1}>Revisión exacta del diagnóstico</h3><p>{review.bytes} bytes UTF-8. Los registros posteriores no cambian este archivo. Guardarlo o compartirlo es voluntario.</p>
+ <h3 ref={heading} tabIndex={-1}>Revisión exacta del diagnóstico</h3><p>{formatStorageMB(review.bytes)} de texto UTF-8. Los registros posteriores no cambian este archivo. Guardarlo o compartirlo es voluntario.</p>
  <pre aria-label="JSON revisado">{review.json}</pre><button onClick={download}>Descargar diagnóstico revisado</button><button onClick={cancel}>Cancelar revisión</button></div>}
  <p role="status">{feedback}</p></section>;
 }

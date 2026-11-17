@@ -1,3 +1,4 @@
+import {formatStorageMB} from '../library/storage-format';
 import type {BeginPanelDiagnostic,PanelDiagnosticAttempt,PanelOperation} from '../diagnostics/panel-mapping';
 import type {Activity} from '../playback/ownership';
 import {useEffect, useRef, useState} from 'react';
@@ -212,7 +213,7 @@ export function OrganizationPanel({activity, canWrite, captureWriteCurrent, onSt
       const selected = event.currentTarget.files?.[0] ?? null; currentFile.current = selected; ++generation.current;
       setFile(selected); setPreview(null); setChoices({}); setPhase('draft'); setError('');
       if (!selected) return;
-      if (selected.size > maxBytes) { report('El archivo supera el límite de 8 MiB.'); return; }
+      if (selected.size > maxBytes) { report(`El archivo supera el límite de ${formatStorageMB(maxBytes)}.`); return; }
       void makePreview(selected, {});
     }} /></label>
     {file && !preview && !blocked && file.size <= maxBytes && <button type="button" disabled={!canWrite} onClick={() => void makePreview(file, {})}>Crear nueva vista previa</button>}

@@ -1,0 +1,7 @@
+{
+  "name": "@pulso-vendor/better-auth-ui",
+  "version": "1.7.34",
+  "private": true,
+  "type": "module",
+  "license": "MIT"
+}

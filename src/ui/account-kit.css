@@ -1,0 +1,44 @@
+@layer account-theme, account-utilities;
+@import 'tailwindcss/theme.css' layer(account-theme);
+@source './account-kit';
+@theme inline {
+ --color-background: var(--pulso-surface);
+ --color-foreground: var(--pulso-foreground);
+ --color-card: var(--pulso-surface);
+ --color-card-foreground: var(--pulso-foreground);
+ --color-primary: var(--pulso-accent);
+ --color-primary-foreground: var(--pulso-canvas);
+ --color-secondary: var(--pulso-soft);
+ --color-secondary-foreground: var(--pulso-foreground);
+ --color-muted: var(--pulso-soft);
+ --color-muted-foreground: var(--pulso-muted);
+ --color-border: var(--pulso-border);
+ --color-input: var(--pulso-border);
+ --color-ring: var(--pulso-accent);
+ --color-destructive: #ffb4b4;
+ --radius-lg: .85rem;
+ --radius-md: .7rem;
+ --radius-sm: .5rem;
+ --radius-xl: 1rem;
+}
+@layer account-utilities {
+ .account-kit { @tailwind utilities source(none); }
+}
+.account-kit{color:var(--pulso-foreground);font-family:inherit;min-inline-size:0}
+.account-kit *{box-sizing:border-box}
+.account-kit [data-slot=card]{inline-size:100%;max-inline-size:none;background:transparent;border:0;box-shadow:none;padding:0;gap:1.5rem}
+.account-kit [data-slot=card-header],.account-kit [data-slot=card-content]{padding-inline:0}
+.account-kit [data-slot=card-title]{font-size:1.7rem;line-height:1.2;font-weight:750;letter-spacing:-.04em;margin:0}
+.account-kit [data-slot=field]{min-inline-size:0}
+.account-kit input{font-family:inherit;font-size:max(1rem,16px);min-inline-size:0}
+.account-kit [data-slot=input],.account-kit [data-slot=input-group]{min-block-size:48px;background:var(--pulso-canvas);border:1px solid var(--pulso-border)}
+.account-kit [data-slot=input-group-control]{min-block-size:46px;border:0;background:transparent;padding-block:.7rem}
+.account-kit [data-slot=button]{min-block-size:44px;font-family:inherit;line-height:1.35;white-space:normal;touch-action:manipulation;transition:background-color .15s,color .15s,opacity .15s}
+.account-kit [data-slot=button][data-variant=default]{background:var(--pulso-accent);color:var(--pulso-canvas);font-weight:700}
+.account-kit [data-slot=input-group-button]{padding:.4rem;min-inline-size:44px;background:transparent;border:0}
+.account-kit a{color:var(--pulso-accent);overflow-wrap:anywhere;touch-action:manipulation}
+.account-kit [data-slot=field-error]{font-size:.9rem;line-height:1.5;color:var(--pulso-foreground);border-inline-start:3px solid var(--pulso-accent);padding-inline-start:.75rem}
+.account-kit [data-slot=input-otp-group]{flex-wrap:wrap;justify-content:center;gap:.3rem}
+.account-kit [data-slot=input-otp-slot]{inline-size:2.25rem;block-size:3rem;border:1px solid var(--pulso-border);border-radius:.45rem;background:var(--pulso-canvas)}
+.account-kit :focus-visible{outline:2px solid var(--pulso-accent);outline-offset:3px}
+@media(prefers-reduced-motion:reduce){.account-kit *{animation:none!important;transition:none!important}}

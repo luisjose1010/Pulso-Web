@@ -1,3 +1,4 @@
+import {musicBrainzArtworkUrl} from './catalog-id';
 import {catalogFetch} from './catalog-fetch';
 import {MAX_ARTWORK_BYTES,validateArtwork} from '../imports/artwork';
 import {artworkImageUrl,selectPlayerArtwork,type PlayerArtworkQuery} from './player-artwork-provider';
@@ -45,7 +46,7 @@ async function acquire(){if(running>=4){await new Promise<void>(resolve=>queue.p
 function release(){const next=queue.shift();if(next)next();else running--;}
 /** Shared, bounded, anonymous image transport. Only decoded validated blobs leave it. */
 export async function catalogArtwork(url:string):Promise<Blob|null>{
- const safe=artworkImageUrl(url);if(!safe)return null;
+ const safe=musicBrainzArtworkUrl(url)??artworkImageUrl(url);if(!safe)return null;
  const hit=cache.get(safe);if(hit&&hit.expires>Date.now())return hit.blob;if(hit)cache.delete(safe);
  const existing=pending.get(safe);if(existing)return existing;if(pending.size>=80)return null;
  const task=(async()=>{await acquire();const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),15000);try{

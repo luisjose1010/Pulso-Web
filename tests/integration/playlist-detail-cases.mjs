@@ -1,3 +1,4 @@
+import {installRequiredAccountFixture} from './required-account-fixture.mjs';
 import assert from 'node:assert/strict';
 import {webkit} from 'playwright-core';
 
@@ -9,7 +10,8 @@ export async function runPlaylistDetail({browser,origin,engine,check,report,run}
   context=engine==='webkit'?await webkit.launchPersistentContext(`${run}/webkit-playlist-profile`,{headless:true,viewport:{width:390,height:844},serviceWorkers:'block'}):await browser.newContext({viewport:{width:390,height:844},serviceWorkers:'block'});context.setDefaultTimeout(8000);
   report.playlistContexts??=[];report.playlistContexts.push({engine,persistentTestProfile:engine==='webkit',realProfile:false});
   await context.route('**/*',route=>{const u=new URL(route.request().url());if(u.origin===origin||['blob:','data:'].includes(u.protocol))return route.continue();if(['https://itunes.apple.com','https://lrclib.net'].includes(u.origin))return route.fulfill({status:200,headers:{'access-control-allow-origin':'*','content-type':'application/json'},body:JSON.stringify(u.origin==='https://lrclib.net'?[]:{resultCount:0,results:[]})});report.external.push({engine,origin:u.origin});return route.abort();});
-  await context.addInitScript(()=>{try{delete Navigator.prototype.serviceWorker}catch{};window.__audio=[];window.__playCalls=0;const A=window.Audio;window.Audio=class extends A{constructor(...args){super(...args);window.__audio.push(this)}play(){window.__playCalls++;return super.play()}};});
+  await installRequiredAccountFixture(context,origin);
+   await context.addInitScript(()=>{try{delete Navigator.prototype.serviceWorker}catch{};window.__audio=[];window.__playCalls=0;const A=window.Audio;window.Audio=class extends A{constructor(...args){super(...args);window.__audio.push(this)}play(){window.__playCalls++;return super.play()}};});
   const page=await context.newPage();page.on('pageerror',error=>report.errors.push({engine,error:String(error)}));
   await page.goto(origin+'/tests/integration/collection-removal-final-main-fixture.html');await page.waitForFunction(()=>!!window.setupPlaylistDesignFixture);await page.evaluate(()=>window.setupPlaylistDesignFixture());await page.goto(origin);await page.locator('.shell-nav').waitFor();
   const nav=name=>page.locator('.shell-nav').getByRole('button',{name,exact:true}).click();
