@@ -5,5 +5,5 @@ export default function handler(req, res) {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Content-Type', 'application/json');
   if (req.method !== 'GET') return res.status(503).send('{"code":"PROFILE_UNAVAILABLE"}');
-  return res.status(200).send(JSON.stringify({accountId: 'local-profile', telegramPhone: null, revision: null}));
+  return res.status(200).send(JSON.stringify({accountId: '00000000-0000-4000-8000-00000000c0de', telegramPhone: null, revision: null}));
 }

@@ -29,7 +29,8 @@ export function accountError(error:unknown):string {
  return 'No pudimos completar la conexión. Comprueba tu conexión e inténtalo de nuevo.';
 }
 /** `local`: a deployment without an account service (e.g. Vercel) runs as one fixed local profile. */
-export const LOCAL_ACCOUNT:AccountUser=Object.freeze({id:'local-profile',name:'Este navegador',email:'',verified:true});
+/** Fixed UUID: account-scoped storage (library ownership) requires a UUID account id. */
+export const LOCAL_ACCOUNT:AccountUser=Object.freeze({id:'00000000-0000-4000-8000-00000000c0de',name:'Este navegador',email:'',verified:true});
 export interface AccountHost {config():Promise<{enabled:boolean;google:boolean;local?:boolean}>;provider():Promise<AccountProvider>;offlineSession?():AccountUser|null;confirmed?(user:AccountUser|null):void}
 /** Only public profile data lives here. Passwords, codes and tokens are never
  * persisted, logged or passed to the music/Telegram controllers. */
