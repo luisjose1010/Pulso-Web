@@ -21,10 +21,10 @@ test('all confirmed failures exhaust providers once',async()=>{const f=await run
 test('exhaustion retains the actual failure per provider without exposing rows or notice text',async()=>{
  for(const [scenario,reason] of [['empty','no-compatible-row'],['mismatch','returned-audio-mismatch'],['large','file-too-large'],['invalid','file-invalid'],['conflict-before','selection-changed']] as const){
   const f=await run([scenario,scenario]);
-  assert.deepEqual(f.result,{state:'known-failure',reasons:[reason,reason]});
+  assert.deepEqual(f.result,{state:'known-failure',reasons:scenario==='mismatch'?[reason,'audio-title-version-mismatch',reason,'audio-title-version-mismatch']:[reason,reason]});
  }
  const mixed=await run(['large','mismatch']);
- assert.deepEqual(mixed.result,{state:'known-failure',reasons:['file-too-large','returned-audio-mismatch']});
+ assert.deepEqual(mixed.result,{state:'known-failure',reasons:['file-too-large','returned-audio-mismatch','audio-title-version-mismatch']});
 });
 for(const first of ['conflict-after','conflict-uncertain','uncertain','rate-limit','timeout','busy','network','session-expired','identity-changed','wrong-provider','wrong-query','wrong-target','revoked'] as const)test(`${first} stops without trying a second provider`,async()=>{const f=await run([first,'success']);assert.equal(f.result.state,'uncertain');assert.deepEqual(f.searches,['one']);});
 test('album uses the real coordinator, tries ordered bots and retains full credit during save',async()=>{
@@ -103,4 +103,12 @@ test('pre-callback conflict with a changed query never advances to another provi
  f.client.downloadBot=async(...args)=>{await download(...args);const snapshot=f.client.searchSnapshot();f.client.searchSnapshot=()=>({...snapshot,queryId:'foreign'});return null;};
  const result=await acquireFromOrderedBots({client:f.client,providers,revision:4,target,signal:new AbortController().signal,current:()=>true,networkCurrent:f.client.captureBotsCurrent(),progress:()=>{}});
  assert.equal(result.state,'uncertain');assert.deepEqual(f.searches,['one']);
+});
+
+test('acknowledged incompatible full credit reports artist only and never returns audio',async()=>{
+ const f=fixture(['mismatch']),download=f.client.downloadBot.bind(f.client);
+ f.client.downloadBot=async(...args)=>{await download(...args);const state=f.client.searchSnapshot();f.client.searchSnapshot=()=>({...state,rows:[{kind:'audio',rowRef:'synthetic',correlation:'reply',title:target.title,performer:'Other',durationSeconds:target.durationSeconds,mimeType:'audio/wav',bytes:1}]});return null;};
+ const result=await acquireFromOrderedBots({client:f.client,providers:providers.slice(0,1),revision:4,target,signal:new AbortController().signal,current:()=>true,networkCurrent:()=>true,progress:()=>{}});
+ assert.deepEqual(result,{state:'known-failure',reasons:['returned-audio-mismatch','audio-artist-mismatch']});
+ assert.deepEqual(f.downloads,['row0']);assert.deepEqual(f.searches,['one']);
 });

@@ -1,4 +1,5 @@
-import {expectedAudioTagMismatch,type ExpectedAudioMetadata} from './expected-audio-metadata';
+import {expectedAudioTagMismatch,expectedAudioDurationMismatch,type ExpectedAudioMetadata} from './expected-audio-metadata';
+import {activeLibraryAccount} from '../accounts/library-local';
 import {extractLocalAlbumMetadata,type Mp4AlbumTag} from './album-metadata';
 import {assertDatabaseUse} from '../storage/database';
 import {admittedTransaction,closeDatabase} from '../storage/database';
@@ -59,6 +60,7 @@ async function importFileCore(file:File,signal:AbortSignal,progress:(bytes:numbe
  return outcome;
 }
 async function performImport(file:File,signal:AbortSignal,progress:(bytes:number)=>void,options:ImportOptions,attempt:Attempt):Promise<ImportResult & {artworkWarning?:ArtworkFailure}>{
+ const accountId=await activeLibraryAccount();checkCancelled(signal);
  if(options.libraryMode!==undefined&&options.libraryMode!=='cache')fail('validate','internal','input-invalid','none');
  const operationId=options.operationId??crypto.randomUUID();
  if(!/^[a-f0-9-]{36}$/.test(operationId))fail('validate','internal','input-invalid','none');
@@ -82,6 +84,7 @@ async function performImport(file:File,signal:AbortSignal,progress:(bytes:number
   try{metadata=await parseBlob(await atBoundary('read','none',()=>metadataView(file,mime,true,omitted)),parserOptions);}
   catch(error){if(isMetadataLimit(error))fail('parse','internal','limit-exceeded','none');if(issuedFailure(error)||nativeDOMName(error))throw AppFailure.create(fromKnownError(error,{phase:'parse',backend:'none'}));throw AppFailure.create(fromKnownError(error,{phase:'parse',backend:'none'}));}
  }
+ if(options.expected&&expectedAudioDurationMismatch(options.expected,metadata.format.duration))fail('parse','integrity','metadata-duration-mismatch','none');
  const tagMismatch=options.expected?expectedAudioTagMismatch(metadata.common,options.expected,metadata.format.duration):null;
  if(tagMismatch)fail('parse','integrity',tagMismatch==='title'?'metadata-title-mismatch':'metadata-artist-mismatch','none');
  checkCancelled(signal); const duration=metadata.format.duration;
@@ -91,7 +94,7 @@ async function performImport(file:File,signal:AbortSignal,progress:(bytes:number
  const available=typeof navigator.storage?.getDirectory==='function'&&typeof FileSystemFileHandle!=='undefined'&&typeof FileSystemFileHandle.prototype.createWritable==='function';
  const backend=options.backend==='idb'?'idb':available?'opfs':'idb';attempt.backend=backend;attempt.closeState=backend==='opfs'?'not-attempted':'not-applicable';
  if(options.backend==='opfs'&&!available)fail('open','storage-unavailable','storage-unavailable','opfs');
- let job:ImportOperation={version:1,operationId,owner:crypto.randomUUID(),revision:1,state:'writing',backend,storageKey:crypto.randomUUID(),bytes:0,expectedBytes:file.size,...(options.libraryMode==='cache'?{libraryMode:'cache' as const}:{})};
+ let job:ImportOperation={version:1,operationId,owner:crypto.randomUUID(),revision:1,state:'writing',backend,storageKey:crypto.randomUUID(),bytes:0,expectedBytes:file.size,...(accountId?{accountId}:{}),...(options.libraryMode==='cache'?{libraryMode:'cache' as const}:{})};
  // Resolve a key collision before recording ownership, so cleanup can never claim an old file.
  assertDatabaseUse('write');const directory=backend==='opfs'?await writeDirectory():undefined;assertDatabaseUse('write');
  if(directory)try{await directory.getFileHandle(job.storageKey);fail('open','internal','conflict','opfs');}catch(error){if(nativeDOMName(error)!=='NotFoundError')throw AppFailure.create(fromKnownError(error,{phase:'open',backend:'opfs'}));}
@@ -120,7 +123,7 @@ async function performImport(file:File,signal:AbortSignal,progress:(bytes:number
  const text=(s:string|undefined)=>s?.trim().slice(0,300)||null;
  const asset:LocalAsset={id:existing?.id??crypto.randomUUID(),namespace:'local',storageKey:job.storageKey,bytes:file.size,sha256:digest,mime,chunks:count,state:'complete',revision:(existing?.revision??0)+1,backend,chunkSize:CHUNK,retention:'kept'};
  const localAlbum=extractLocalAlbumMetadata(metadata.native,mime,albumTags,retried?'not-inspected':metadataWarning?(metadataWarning==='tag-size'?'omitted':metadataWarning==='tag-unsupported'?'not-inspected':'invalid'):null);
- const track:LinkedTrack={localAlbum,id:crypto.randomUUID(),assetId:asset.id,audioFingerprint:{algorithm:'sha256',sha256:digest,bytes:file.size},title:text(metadata.common.title)||file.name.replace(/\.[^.]+$/,'').slice(0,300)||'Sin título',artist:text(metadata.common.artist),album:text(metadata.common.album),duration,favorite:false,revision:1,createdAt:new Date().toISOString(),manualOverrides:{}};
+ const track:LinkedTrack={...(accountId?{accountId}:{}),localAlbum,id:crypto.randomUUID(),assetId:asset.id,audioFingerprint:{algorithm:'sha256',sha256:digest,bytes:file.size},title:text(metadata.common.title)||file.name.replace(/\.[^.]+$/,'').slice(0,300)||'Sin título',artist:text(metadata.common.artist),album:text(metadata.common.album),duration,favorite:false,revision:1,createdAt:new Date().toISOString(),manualOverrides:{}};
  job=await updateOperation(job,{state:'verifying',asset,track,expectedAssetRevision:existing?.revision??0});
  if(writer){assertDatabaseUse('write');closeAttempted=true;attempt.closeState='unknown';await atBoundary('close','opfs',()=>writer!.close());closed=true;attempt.closeState='acknowledged';}
  const reader=await openAssetReader(asset,false);try{const verified=await reader.verifyDetailed();if(verified.state!=='valid')throw AppFailure.create(verified.failure);}finally{reader.release();}

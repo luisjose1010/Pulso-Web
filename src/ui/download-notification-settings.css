@@ -1,0 +1,4 @@
+.pulso-app .settings-notifications { padding:min(1rem,4vw); }
+.pulso-app .settings-notifications>h3 { margin:0 0 .75rem;font-size:1.05rem;line-height:1.35; }
+.pulso-app .settings-notifications>.settings-group__body { padding:0; }
+.settings-notifications .controls { gap:.5rem; }.settings-notifications .controls button { flex:1 1 10rem;min-block-size:44px; }

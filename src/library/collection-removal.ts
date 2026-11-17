@@ -1,3 +1,4 @@
+import {ACTIVE_LIBRARY_ACCOUNT} from '../accounts/library-local';
 /** Collection metadata CAS and explicit retirement of unreferenced copies.
  * The host supplies real reservations and fresh runtime-bound contexts. */
 import {admittedTransaction, closeDatabase, openExistingDatabase, request} from '../storage/database';
@@ -22,7 +23,7 @@ export interface CollectionOutcome {readonly metadata:'committed'|'not-committed
 /** Host must create a fresh context AFTER reservation; release settles its resources. */
 export interface CollectionCleanupHost {readContext():RemovalReadContext;settlementReadContext?():RemovalReadContext;reserve(target:Readonly<LocalAsset>):Promise<{kind:'reserved';context:RemovalContext;release():Promise<void>}|{kind:'blocked';reason:string}>;record(tracking:RemovalTracking):Promise<boolean>;forget(tracking:RemovalTracking):Promise<boolean>}
 type Row={key:IDBValidKey; value:unknown};
-type Snapshot={tracks:Track[]; playlists:Playlist[]; assets:LocalAsset[]; membership:Map<string,boolean>; queued:Set<string>; canonical:string};
+type Snapshot={accountId?:string;tracks:Track[]; playlists:Playlist[]; assets:LocalAsset[]; membership:Map<string,boolean>; queued:Set<string>; canonical:string};
 type Data={selection:CollectionSelection; snapshot:Snapshot; affected:string[]; context:CollectionContext};
 const previews=new WeakMap<CollectionPreviewToken,Data>();
 const uuid=(v:unknown):v is string=>typeof v==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/.test(v);
@@ -47,17 +48,17 @@ async function snapshot(tx:IDBTransaction,c:CollectionContext):Promise<Snapshot>
  const store=tx.objectStore('settings');const relevant=(await Promise.all(tracks.map(async t=>{const key=libraryMembershipKey(t.id);const [value,present]=await Promise.all([request(store.get(key)),request(store.getKey(key))]);return present===undefined?null:{key,value};}))).filter(r=>r!==null);
  for(const r of relevant){const key=r.key as [string,number,string];const m=copyLibraryMembership(r.value,key[2]);if(!m)throw new Error('collection-invalid');membership.set(m.trackId,m.added);}
  const rawQueue=await request(store.get('library-playback'));const queued=new Set<string>();if(rawQueue!==undefined){const q=normalizeSnapshot(rawQueue);if(!q||q.warnings.length||describeRemovalData(rawQueue)!==describeRemovalData(q.snapshot)||q.snapshot.entries.some(e=>!ids.has(e.trackId)))throw new Error('collection-invalid');for(const entry of q.snapshot.entries)queued.add(entry.trackId);}
- const canonical=describeRemovalData([tr,pl,as,relevant,rawQueue]);return {tracks,playlists,assets,membership,queued,canonical};
+ const accountId=await request<string|undefined>(store.get(ACTIVE_LIBRARY_ACCOUNT));const canonical=describeRemovalData([tr,pl,as,relevant,rawQueue,accountId]);return {accountId,tracks,playlists,assets,membership,queued,canonical};
 }
 function affectedFor(s:Snapshot,selection:CollectionSelection):string[] {
- if(selection.kind==='playlist') {const p=s.playlists.find(p=>p.id===selection.id&&p.revision===selection.revision);if(!p)throw new Error('collection-changed');return [...new Set(p.entries.map(e=>e.trackId))];}
+ if(selection.kind==='playlist') {const p=s.playlists.find(p=>p.id===selection.id&&p.revision===selection.revision&&p.accountId===s.accountId);if(!p)throw new Error('collection-changed');return [...new Set(p.entries.map(e=>e.trackId))];}
  if(selection.kind==='cache'){
   if(selection.scope!=='global-listening-cache')throw new Error('collection-invalid');
   const assets=listeningCacheAssets({tracks:s.tracks,assets:s.assets,libraryTrackIds:new Set([...s.membership].filter(([,added])=>added).map(([id])=>id)),playlists:s.playlists});
   const ids=new Set(assets.map(a=>a.id));return s.tracks.filter(t=>t.assetId!==null&&ids.has(t.assetId)).map(t=>t.id);
  }
  if(selection.scope!=='global-library')throw new Error('collection-invalid');
- const group=groupAlbums(s.tracks.filter(t=>s.membership.get(t.id))).find(g=>g.key===selection.key);
+ const group=groupAlbums(s.tracks.filter(t=>s.membership.get(t.id)&&t.accountId===s.accountId)).find(g=>g.key===selection.key);
  if(!group||group.unknown)throw new Error('collection-changed');return [...new Set(group.trackIds)];
 }
 async function read(c:CollectionContext):Promise<Snapshot>{check(c);const db=await openExistingDatabase();try{check(c);const tx=admittedTransaction(db,['tracks','playlists','assets','settings']);const done=transactionDone(tx);try{const s=await snapshot(tx,c);await done;check(c);return s;}catch(e){try{tx.abort();}catch{}await done.catch(()=>{});throw e;}}finally{closeDatabase(db);}}

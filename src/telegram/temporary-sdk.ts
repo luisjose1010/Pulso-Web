@@ -13,6 +13,7 @@ import {isUuid} from './sources-protocol';
 import type {TelegramApiIdentity} from './api-identity';
 import type {Delivery,CodeResend} from './session-protocol';
 import {createQrLoginDriver} from './qr-login-driver';
+import {prepareDefaultBotSelection} from './default-bot-selection';
 import type {QrLoginChallenge} from './qr-login-protocol';
 import {openCrypto} from './crypto-provider';
 import {sessionLease,saveTelegramSession,loadTelegramSession,telegramSessionLeaseCurrent,clearTelegramSessionLease,loadTelegramBotSelection,saveTelegramBots,type SavedBot} from './saved-session';
@@ -34,6 +35,7 @@ export interface TemporaryTelegramDriver {
  close():Promise<void>;
  getAccountBinding():AccountBinding|null;
  getAccountCooldown?():TelegramAccountCooldown|null;
+ prepareBotProviders?(sessionId:string,signal:AbortSignal):Promise<void>;
  createSources(sessionId:string):SourcesDriver;
  createBotProviders(sessionId:string):BotProvidersDriver;
  createBotSearch?(sessionId:string):BotSearchDriver;
@@ -124,6 +126,18 @@ export async function openTemporaryTelegram(identity:TelegramApiIdentity,signal:
   async logout(abort:AbortSignal){current(abort);await clearTelegramSessionLease(lease);persisted=false;current(abort);if(botSearch){const settled=await botSearch.quiesce();current(abort);if(!settled)throw Error('logout-unconfirmed');}if(botProviders){const settled=await botProviders.quiesce();current(abort);if(!settled)throw Error('logout-unconfirmed');}if(sources){const settled=await sources.quiesce();current(abort);if(!settled)throw Error('logout-unconfirmed');}await client.call({_: 'auth.logOut'},{abortSignal:abort});current(abort);await close();},
   getAccountBinding(){return closed||signal.aborted?null:binding;},
   getAccountCooldown,
+  async prepareBotProviders(sessionId:string,abort:AbortSignal){
+   current(abort);if(!binding||!isUuid(sessionId))throw Error('unsupported');
+   const selection=await loadTelegramBotSelection(lease);current(abort);
+   const result=await prepareDefaultBotSelection(binding,sessionId,selection,{
+    async resolveIdentity(username,requestAbort){current(requestAbort);const result=await accountRead({_: 'contacts.resolveUsername',username},{abortSignal:requestAbort,timeout:7000,floodSleepThreshold:0,maxRetryCount:0});current(requestAbort);return result;},
+    invalidateSession(){/* A lost preference CAS does not revoke the authorization. */},
+    async saveSelection(bots){current(abort);return saveTelegramBots(lease,bots,selection.bots,selection.revision);},
+   },abort,()=>!closed&&!signal.aborted&&!abort.aborted&&!!binding);
+   current(abort);if(!result.settled){await close();throw Error('cancelled');}
+   const latest=await loadTelegramBotSelection(lease);current(abort);
+   savedBots=latest.bots;confirmedBotRevision=latest.revision;
+  },
   createSources(sessionId:string){
    current(signal);if(!binding||!isUuid(sessionId)||botProvidersSession&&botProvidersSession!==sessionId||botSearchSession&&botSearchSession!==sessionId)throw Error('unsupported');
    if(sources){if(sourcesSession!==sessionId)throw Error('unsupported');return sources;}

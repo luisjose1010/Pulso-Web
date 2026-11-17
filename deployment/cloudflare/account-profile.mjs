@@ -3,7 +3,7 @@ import {accountAuth} from './accounts.mjs';
 const headers={'Cache-Control':'no-store','Pragma':'no-cache','Content-Type':'application/json','X-Content-Type-Options':'nosniff','Referrer-Policy':'no-referrer'};
 const phone=value=>value===null||typeof value==='string'&&/^\+[1-9][0-9]{5,14}$/.test(value);
 const uuid=value=>typeof value==='string'&&/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
-async function readJson(response,max=16384,signal){
+export async function readJson(response,max=16384,signal){
  if(!response.body)throw Error('body');
  const reader=response.body.getReader(),parts=[];let length=0,stop;
  const cancelled=new Promise((_,reject)=>{stop=()=>{void reader.cancel().catch(()=>{});reject(Error('aborted'));};signal?.addEventListener('abort',stop,{once:true});});
@@ -11,10 +11,11 @@ async function readJson(response,max=16384,signal){
  catch(error){void reader.cancel().catch(()=>{});throw error;}finally{signal?.removeEventListener('abort',stop);try{reader.releaseLock();}catch{/* Cancellation may still be settling. */}}
  const bytes=new Uint8Array(length);let at=0;for(const part of parts){bytes.set(part,at);at+=part.length;}return JSON.parse(new TextDecoder('utf-8',{fatal:true}).decode(bytes));
 }
-function endpoint(env){
+export function dataApiEndpoint(env,table='pulso_account_preferences'){
  const url=new URL(env.PULSO_NEON_DATA_API_URL);
  if(url.protocol!=='https:'||url.username||url.password||url.search||url.hash||!/^ep-[a-z0-9-]+\.apirest\.[a-z0-9.-]+\.neon\.(tech|build)$/.test(url.hostname)||url.pathname!=='/pulso/rest/v1')throw Error('config');
- return new URL(url.href+'/pulso_account_preferences');
+ if(!['pulso_account_preferences','pulso_account_library'].includes(table))throw Error('table');
+ return new URL(url.href+'/'+table);
 }
 /** The auth service issues the JWT; the Data API verifies it and enforces RLS.
  * Visitors cannot choose a subject, table, URL, authorization header or SQL. */
@@ -24,7 +25,7 @@ export function createAccountProfileRouter({auth=accountAuth,fetcher=fetch,timeo
   const respond=(body,status=200,cookies=[])=>{const h=new Headers(headers);for(const cookie of cookies)h.append('Set-Cookie',cookie);return new Response(JSON.stringify(body),{status,headers:h});};
   if(!['GET','PUT'].includes(request.method))return respond({},405);
   if(url.search||request.headers.get('Sec-Fetch-Site')==='cross-site'||request.headers.has('Origin')&&request.headers.get('Origin')!==url.origin||request.method==='PUT'&&request.headers.get('Origin')!==url.origin)return respond({},403);
-  let target;try{target=endpoint(env);}catch{return respond({code:'PROFILE_UNAVAILABLE'},503);}
+  let target;try{target=dataApiEndpoint(env);}catch{return respond({code:'PROFILE_UNAVAILABLE'},503);}
   const abort=new AbortController();let timer;
   try{
    const work=(async()=>{

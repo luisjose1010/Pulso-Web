@@ -50,16 +50,34 @@ try{
     await reset();
    });
    await check(`${engine}: long mixed rows, text 200%, short keyboard viewport and themes`,async()=>{
-    await input.fill('Luna Norte');await host('set',{suggestions:[{id:'long',kind:'track',title:'Título sin espacios '+('Música'.repeat(70)),subtitle:'Intérprete 日本語 العربية '+('Autor'.repeat(50)),source:'lrclib'},{id:'missing',kind:'album',title:'Sin intérprete',subtitle:null,source:'itunes'}]});
+    const longRows=[{id:'long',kind:'track',title:'Título sin espacios '+('Música'.repeat(70)),subtitle:'Intérprete 日本語 العربية '+('Autor'.repeat(50)),source:'lrclib'},{id:'missing',kind:'album',title:'Sin intérprete',subtitle:null,source:'itunes'}];
+    // Mobile WebKit can retain the previous layout viewport after setViewportSize
+    // even on a blank HTML page. Navigate at each target size so these cases
+    // measure that actual mobile viewport, not an inconsistent emulation state.
+    // Live resize is covered separately by the integrated non-mobile matrix.
+    const mobileDocument=async(width,height,font)=>{
+     await page.setViewportSize({width,height});await page.reload();await page.waitForFunction(()=>window.searchUI);
+     await input.fill('Luna Norte');await host('set',{suggestions:longRows});
+     await page.evaluate(font=>document.documentElement.style.fontSize=`${font}%`,font);
+     assert.equal(await page.evaluate(()=>document.documentElement.clientWidth),width,'Target mobile layout viewport must match requested width');
+    };
     for(const [width,height,font] of [[320,568,100],[320,480,200],[390,330,100],[844,390,200],[1366,768,100]]){
-     await page.setViewportSize({width,height});await page.evaluate(font=>document.documentElement.style.fontSize=`${font}%`,font);
-     const g=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,input:document.querySelector('input').getBoundingClientRect().width,targets:[...document.querySelectorAll('.catalog-clear,.catalog-cancel,[data-suggestion-id]')].map(e=>{const r=e.getBoundingClientRect();return [r.width,r.height];})}));assert.equal(g.overflow,false);assert.ok(g.input>=40,JSON.stringify({width,height,font,...g}));for(const [w,h] of g.targets)assert.ok(w>=44&&h>=44,JSON.stringify(g));
+     await mobileDocument(width,height,font);
+     const g=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,input:document.querySelector('input').getBoundingClientRect().width,targets:[...document.querySelectorAll('.catalog-clear,.catalog-cancel,[data-suggestion-id]')].map(e=>{const r=e.getBoundingClientRect();return [r.width,r.height];})}));assert.equal(g.overflow,false,JSON.stringify({width,height,font,...g,offenders:await page.evaluate(()=>[...document.querySelectorAll('body *')].filter(e=>e.getBoundingClientRect().right>innerWidth+1).map(e=>({tag:e.tagName,cls:e.className,right:e.getBoundingClientRect().right})).slice(0,12))}));assert.ok(g.input>=40,JSON.stringify({width,height,font,...g}));for(const [w,h] of g.targets)assert.ok(w>=44&&h>=44,JSON.stringify(g));
      await input.focus();assert.equal(await input.evaluate(e=>document.activeElement===e),true);
     }
-    await page.setViewportSize({width:390,height:664});await page.evaluate(()=>{document.documentElement.style.fontSize='100%';document.documentElement.dataset.theme='dark';});await page.screenshot({path:`${dir}/${engine}-dark-long.png`});await page.evaluate(()=>document.documentElement.dataset.theme='light');await reset();
+    await mobileDocument(390,664,100);await page.evaluate(()=>document.documentElement.dataset.theme='dark');await page.screenshot({path:`${dir}/${engine}-dark-long.png`});await page.evaluate(()=>document.documentElement.dataset.theme='light');await reset();
    });
    await check(`${engine}: optional fields and zero side effects`,async()=>{
-    await reset();await input.fill('Luna Norte');await host('set',{suggestions:[]});await page.locator('.catalog-empty').waitFor();await page.getByRole('button',{name:'Cancelar',exact:true}).click();await page.setViewportSize({width:320,height:480});await page.evaluate(()=>document.documentElement.style.fontSize='200%');assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(await page.evaluate(()=>window.uiIO),[]);
+    await reset();await input.fill('Luna Norte');
+    await host('set',{suggestions:[{id:'only-artist',kind:'artist',title:'Luna Norte',subtitle:null,source:'itunes'}]});
+    await page.getByRole('button',{name:'Álbumes',exact:true}).click();await page.getByRole('button',{name:'Ver todos los resultados'}).click();assert.equal(await page.locator('[data-suggestion-id=only-artist]').count(),1);
+    await host('set',{suggestionsNotice:'No hay sugerencias para este nombre.'});assert.equal(await page.locator('.catalog-search-status').innerText(),'');
+    await host('set',{suggestions:[],suggestionsPending:true});assert.equal(await page.locator('.catalog-empty').count(),0);
+    await host('set',{suggestionsPending:false,suggestionsError:'Error sintético'});assert.equal(await page.locator('.catalog-empty').count(),0);
+    await host('set',{suggestionsError:null,suggestionsNotice:'Escribe entre 3 y 160 caracteres para obtener sugerencias.'});assert.equal(await page.locator('.catalog-empty').count(),0);
+    await host('set',{suggestionsNotice:null});await page.locator('.catalog-empty').waitFor();await page.getByRole('button',{name:'Cancelar',exact:true}).click();assert.deepEqual(await page.evaluate(()=>window.uiIO),[]);
+    await page.setViewportSize({width:320,height:480});await page.reload();await page.waitForFunction(()=>window.searchUI);await page.evaluate(()=>document.documentElement.style.fontSize='200%');assert.equal(await page.evaluate(()=>document.documentElement.clientWidth),320);assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth),false);assert.deepEqual(await page.evaluate(()=>window.uiIO),[]);
    });
    report[engine]={version:browser.version()};
   }finally{await context?.close();await browser.close();}

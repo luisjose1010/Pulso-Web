@@ -151,6 +151,7 @@ self.onmessage=event=>{
    else if(command.type==='password')await client!.password(command.value,abort.signal);
    if(!parseAccountBinding(client!.getAccountBinding())){phase='error';reply(command,'protocol');closeLocal();return;}
    sources=client!.createSources(session);if(!parseSaved(sources.getSaved())){phase='error';reply(command,'protocol');closeLocal();return;}
+   await client!.prepareBotProviders?.(session,abort.signal);if(abort.signal.aborted)return;
    bots=client!.createBotProviders?.(session);if(bots&&!bots.getSnapshot())throw Error('session-storage');
    phase='connected';phone='';qrChallenge=null;reply(command);
   }catch(error){

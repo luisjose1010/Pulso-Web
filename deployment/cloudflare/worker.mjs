@@ -1,6 +1,7 @@
 import {DurableObject} from 'cloudflare:workers';
 import {accountAuth} from './accounts.mjs';
 import {accountProfile} from './account-profile.mjs';
+import {accountLibrary} from './account-library.mjs';
 import {createMusicBrainzRelay} from './musicbrainz-relay.mjs';
 import {CatalogRelay,RelayError} from './relay.mjs';
 import {decodeTelegramApiIdentity} from '../../src/telegram/api-identity.ts';
@@ -20,6 +21,7 @@ export default {
   const url=new URL(request.url),path=url.pathname;
   if(path==='/account-config.json'||path.startsWith('/api/account-auth/'))return accountAuth(request,env);
   if(path==='/api/account-profile')return accountProfile(request,env);
+  if(path==='/api/account-library')return accountLibrary(request,env);
   if(!['GET','HEAD'].includes(request.method))return response('{}',405);
   // Public iTunes metadata works from the browser; this edge egress is rate-limited.
   // Keep the bounded image relay and older metadata endpoints for existing tabs.

@@ -1,4 +1,5 @@
 import {AUDIO_FILE_MAX_BYTES} from '../storage/audio-limits';
+import {activeLibraryAccount} from '../accounts/library-local';
 import {readSongAlias,songChoiceKey,type SongChoice} from './selected-song';
 import {readLibraryTrackIds} from './library-membership';
 import {expectedAudioTagMismatch} from '../imports/expected-audio-metadata';
@@ -21,11 +22,12 @@ const live=(current:()=>boolean)=>{try{return current()===true;}catch{return fal
  * from the view after removing audio. Ambiguous recordings are never selected. */
 export function compatibleSongMetadata(track:Track,choice:SongChoice):boolean {
  const artist=choice.artist;
- return !!artist&&choice.duration!==null&&!!track&&isUuid(track.id)&&typeof track.title==='string'&&typeof track.artist==='string'&&!!track.artist.trim()&&validAudioFingerprint(track.audioFingerprint)&&
+ return !!artist&&choice.duration!==null&&!!track&&isUuid(track.id)&&typeof track.title==='string'&&typeof track.artist==='string'&&!!track.artist.trim()&&(validAudioFingerprint(track.audioFingerprint)||!!track.accountId&&track.assetId===null)&&
   typeof track.duration==='number'&&Number.isFinite(track.duration)&&track.duration>0&&Math.abs(track.duration-choice.duration)<=5&&
   recordingTitlesEquivalent(track.title,choice.title,{actualAlbum:track.album,expectedAlbum:choice.album,actualDurationSeconds:track.duration,expectedDurationSeconds:choice.duration})&&!expectedAudioTagMismatch({title:track.title,artist:track.artist,album:track.album??undefined},{title:choice.title,artist,...(musicIdentityText(track.title)!==musicIdentityText(choice.title)&&choice.album&&choice.duration!==null?{recordingTitle:track.title,album:choice.album,durationSeconds:choice.duration}:{})},track.duration);
 }
 async function knownTrack(choice:SongChoice,current:()=>boolean):Promise<string|null>{
+ const accountId=await activeLibraryAccount();
  // A direct catalogue binding can identify its exact fingerprint. Otherwise
  // inspect the full compatible set, including detached tracks, before choosing.
  const exact=await readSongAlias(choice,current,false);if(!live(current))throw Error('cancelled');if(exact)return exact;
@@ -35,7 +37,7 @@ async function knownTrack(choice:SongChoice,current:()=>boolean):Promise<string|
   const tx=admittedTransaction(db,'tracks','readonly'),done=transactionDone(tx);
   const rows=await request<Track[]>(tx.objectStore('tracks').getAll(undefined,2001));await done;
   if(!live(current)||rows.length>2000)throw Error('unavailable');
-  const matches=rows.filter(t=>compatibleSongMetadata(t,choice));
+  const matches=rows.filter(t=>t.accountId===accountId&&compatibleSongMetadata(t,choice));
   if(matches.length>1)throw Error('ambiguous');return matches[0]?.id??null;
  }finally{closeDatabase(db);}
 }

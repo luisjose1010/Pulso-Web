@@ -130,6 +130,7 @@ function BotProvidersPanelScope(props: BotProvidersPanelProps) {
   return <section ref={section} className="bot-providers" aria-label="Bots de música" aria-busy={pending}>
     <h3>Bots de música</h3>
     <p>Elige hasta 5 bots, en el orden de búsqueda. No necesitas canales.</p>
+    <p>Pulso prepara KD y Deezer al conectar Telegram por primera vez. Puedes quitarlos, cambiar el orden o añadir otros; se conserva tu elección.</p>
     {rows.length === 0 && <p>Aún no has añadido bots. Escribe un @usuario o elige una sugerencia para empezar.</p>}
     <ol className="bot-providers-list" aria-label="Orden de búsqueda de bots">
       {rows.map((row, index) => <li key={row.id} data-bot-row={row.id}>

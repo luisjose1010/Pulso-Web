@@ -187,3 +187,45 @@ El propietario rechaza por captura la barra inferior de escritorio. Incremento a
 Lint/build aislado/auditoría PASS;197runtime exactas antes/después. Chromium20/20 y WebKit20/20 en ejecuciones finales por motor: geometría320/390/844/1024/1366/1864 y200%, texto largo, foco, volumen teclado, seek, Play/Pausa/expandir con Audio único, continuidad y playlists. Datos/audio/catálogo sintéticos, perfiles aislados, cero pageerrors/externos observados, cleanuptrue. Primer runner conjunto terminó143 sin reporte final, no se suma comoPASS. Primera selección WebKit19/20 falló por igualdad exacta de volumen0.6 contra floatnativo0.6000000238418579; tolerancia1e-6 corrige el arnés, fuente intacta. WebKit registra92style-src-attr y20style-src-elem durante matriz; no se afirma CSP0 ni causa nueva. No se repiten unidades completas por este cambio de presentación.
 
 Publicación autorizada continúa vía MCP al mismo WorkerFree; entrada788efa107893a433,48rutas públicas por bytes/SHA y23inmutables previos, bindings/secret/namespace conservados, sin migración ni pagos. Dist raíz03f8 y sesión/música ajenas intactas; no se usa cuentaTelegram ni se abre pestaña real. Evidencia docs/evidence-mini-player-layout-web.json y .local/mini-player-layout; diseño design/MINI-PLAYER.md. Sin commit/push, iPhone físico ni cierreP0. Engram15 se sincroniza y verifica por lectura independiente, bytes/SHA actuales.
+
+
+## Botones de regreso reconocibles · 2026-11-17
+
+Petición IMG_6774 del propietario: mejorar visualmente los botones Volver con skillsUI/UX. Se aplican emil-design-eng y mobile-native. BackButton comparte chevronSVG decorativo, etiqueta del destino, forma redondeada, borde/superficie y tokens de tema, área mínima44px, ajuste a texto ampliado, foco3px y pulsación120ms sólo puntero; sin movimiento con reduced-motion. Se retiran cuatro reglas antiguas que imponían texto sin fondo y anulaban los estados.
+
+Se reutiliza en álbum/artista, detalle Biblioteca, descargas/resumen almacenamiento, retorno Letra/Cola y pasos secundarios de organización. Conserva cada handler, guard, disabled y restauración de foco, sin tocar datos, red ni reproducción. Cerrar reproductor mantiene su chevron inferior; reintentos «Volver a cargar/verificar» no son navegación. El delta main se conserva como dos hunks propios; integración Spotify concurrente y su backend/configuración quedan fuera del snapshot de publicación.
+
+Lint/build/dryrun aislados PASS, backend318422/SHAe73c6acf…1ca6f conservado. Fuente822inputs congelados; validación final Chromium/WebKit en curso. Primeras ejecuciones del arnés musical histórico fallaron antes de llegar al cambio por onboarding obligatorio y perfiles nuevos sin semilla/marker; la adaptación es TESTONLY y no desactiva el gate en producción. Un caso detectó reduced-motion anulado por especificidad CSS; se corrigió retirando reglas antiguas. Otros negativos de preparación/selector asíncrono quedan preservados. No aceptación de cuenta/Telegram real ni iPhone físico/P0global. Diseño: design/BACK-NAVIGATION.md; evidencia en .local/test-evidence/back-buttons-1b9dPe/ y reportes interface-main de cada ejecución, con finally/cleanup. Publicación aún en preparación y serializada tras almacenamiento.
+
+Cierre local: selección final única44/44PASS Chromium154/WebKit27.2,822hashes antes/después exactos,0JS/externos,cleanuptrue. Incluye interacción previa/audio/cola/playlists y botones claros/oscuros,44px,320/390/1366/texto200%,foco/reduced-motion.108avisosCSPestilosWebKit históricos separados. Capturas móviles inspeccionadas. Primer sync MCPinitialize dioTimeout; retry en curso, no se anuncia sincronización hasta readback independiente. Publicación serializada tras almacenamiento y antes deSpotify.
+
+
+## Cierre de publicación · 2026-11-17
+
+UIBackButton quedó publicada después de la aprobación local y de la entrega de
+almacenamiento, antes de cualquier publicación de Spotify. Se usó el Worker
+existente `pulso-web` en Workers Free / USD 0. Se creó la versión
+`26a6441e-1b21-484e-a66e-8134a96d6cbd`, activa al 100%; entrada
+`/releases/5715374fd4a96362.html`. El upload adjuntó los assets congelados al
+Worker sin alterar runtime/backend: readback exacto del módulo (318422 bytes,
+SHA-256 `e73c6acf441d48a39dc92ed76153d49281a39f404e2cebf1cf0fac5e8121ca6f`),
+siete bindings conservados, mismo Durable Object namespace y sin migración;
+fecha/modelo conservados, preview URLs, observabilidad y logpush apagados. No se
+leyeron ni grabaron valores de secretos.
+
+Readback independiente MCP: versión/configuración/bindings y bytes/SHA del
+módulo exactos. Readback HTTPS: 188/188 rutas estáticas con longitud/SHA
+coincidentes, root y latest alineados con la entrada
+`/releases/5715374fd4a96362.html`, SW exacto; `/account-config.json` devuelve
+`enabled=true`, `google=true`, `no-store`; perfil y biblioteca anónimos devuelven
+401 y PUT cross-origin de biblioteca devuelve 403. No se usó navegador, cuenta,
+Telegram ni audio real. La validación de UI sigue siendo solo Chromium/WebKit;
+iPhone físico y P0 global permanecen pendientes.
+
+Recibos: `docs/evidence-back-navigation-web.json` y
+`.local/test-evidence/back-buttons-1b9dPe/publication/`. La prueba inicial del
+puente de upload terminó antes de stdin (sin cambio Worker); el primer lote fue
+aceptado con HTTP 202 y el cliente se detuvo por exigir erróneamente el JWT final
+en cada lote. Se ajustó a la secuencia oficial 202→201; el segundo readback de
+sesión identificó solo los assets faltantes y la publicación final pasó. Sin
+429/403 ni reintento de escritura.

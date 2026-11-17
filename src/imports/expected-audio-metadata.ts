@@ -4,6 +4,13 @@ import {recordingTitleCandidate,recordingTitlesEquivalent} from '../library/reco
 export interface ExpectedAudioMetadata {sha256:string;title:string;artist:string|null;recordingTitle?:string;album?:string;durationSeconds?:number}
 const normalized=musicIdentityText;
 const fullText=(s:string)=>s.normalize('NFC').trim().replace(/\s+/gu,' ').toLocaleLowerCase('es');
+/** Compare parsed audio duration before creating staging or publishing an asset.
+ * Normal recordings keep five seconds; the album-version alias keeps one. */
+export function expectedAudioDurationMismatch(expected:Pick<ExpectedAudioMetadata,'title'|'recordingTitle'|'durationSeconds'>,actual:number|undefined):boolean {
+ if(expected.durationSeconds===undefined)return false;
+ const tolerance=expected.recordingTitle&&normalized(expected.recordingTitle)!==normalized(expected.title)?1:5;
+ return !Number.isFinite(expected.durationSeconds)||expected.durationSeconds<=0||!Number.isFinite(actual)||actual!<=0||Math.abs(actual!-expected.durationSeconds)>tolerance;
+}
 export function expectedAudioTagMismatch(tags:{title?:string;artist?:string;artists?:readonly string[];album?:string},expected:{title:string;artist:string|null;recordingTitle?:string;album?:string;durationSeconds?:number},durationSeconds?:number):'title'|'artist'|null {
  const contextual=expected.recordingTitle!==undefined&&expected.album!==undefined&&expected.durationSeconds!==undefined;
  if(!contextual&&(expected.recordingTitle!==undefined||expected.album!==undefined||expected.durationSeconds!==undefined))return 'title';

@@ -1,3 +1,4 @@
+import {BackButton} from './BackButton';
 import {useLayoutEffect, useRef, useState, type ReactNode, type Ref} from 'react';
 import './now-playing.css';
 
@@ -110,7 +111,7 @@ export function NowPlayingView(props:NowPlayingViewProps) {
         <div className="np-lyrics-card"><div className="np-lyrics-card__heading"><h3>Vista previa de la letra</h3></div><div className="np-lyrics-preview">{props.lyricsPreview??<p>Abre la letra para ver el contenido disponible de esta canción.</p>}</div><button type="button" onClick={event=>openView('lyrics',event.currentTarget)}>Mostrar letra</button></div>
       </div>
     </div>
-    <div className="np-detail" hidden={view==='player'}><button type="button" className="np-back" onClick={()=>setView('player')}>← Volver al reproductor</button><h2 ref={detailHeading} tabIndex={-1}>{view==='lyrics'?'Letra':'Cola de reproducción'}</h2><p className="np-detail-track">{props.title} · {props.artist}</p>
+    <div className="np-detail" hidden={view==='player'}><BackButton className="np-back" onClick={()=>setView('player')}>Volver al reproductor</BackButton><h2 ref={detailHeading} tabIndex={-1}>{view==='lyrics'?'Letra':'Cola de reproducción'}</h2><p className="np-detail-track">{props.title} · {props.artist}</p>
       <div hidden={view!=='lyrics'} className="np-lyrics-content">{props.lyrics}</div><div hidden={view!=='queue'} className="np-queue-content">{props.queue}</div>
       {(view==='lyrics'||view==='queue')&&transport()}
     </div>

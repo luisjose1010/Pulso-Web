@@ -104,3 +104,7 @@ HTTPS confirmó 140/140 rutas estáticas por bytes/SHA; `/latest.json` dirige a 
 Se conserva el primer fallo HTTP 500 del upload de assets; no hizo PUT. El éxito del retry no identifica por sí solo cuál de sus correcciones resolvió ese error. No se repitieron suites ni build; resultados candidatos previos: 759 unidades, 28 servidor, 26 cuentas y 38 interfaz, lint/build/dry-run PASS. No se declara aceptación real: JWT válido para GET/PUT de perfil, Safari/iPhone físico, instalación/lanzamiento PWA y cierre durante importación ocupada/operación incierta siguen pendientes. Safari y PWA instalada conservan almacenamiento independiente; P0-W global sigue incompleto.
 
 Recibos saneados: `docs/evidence-account-context-web.json`; operativos privados `.local/pulso-account-context/publication/{deployment-retry-1,mcp-readback-retry-1,https-readback-retry-1}.json`. Los recibos del primer intento permanecen intactos.
+
+## Observación real durante pruebas musicales · 2026-11-17
+
+La cuenta Pulso real permitió conectar Telegram y descargar dos pistas mediante Deezer en la pestaña compartida. El GET autenticado de /api/account-profile respondió 503 y el guardado del teléfono mostró un fallo no bloqueante. La preferencia de teléfono no está aceptada y requiere diagnóstico posterior. No se leyó ni guardó JWT, teléfono, cookie o identidad personal. Este incidente no impidió las pruebas musicales y no se declara resuelto por la reparación de duración cero.

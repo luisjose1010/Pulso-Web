@@ -47,6 +47,7 @@ export function MiniPlayer(props: MiniPlayerProps) {
         {props.onVolume&&<label className="desktop-volume"><svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="m11 5-6 4H2v6h3l6 4ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg><span className="mini-player__range"><progress aria-hidden="true" max="1" value={props.volume??1}/><input aria-label="Volumen" type="range" min="0" max="1" step="0.01" value={props.volume??1} onChange={event=>props.onVolume?.(Number(event.target.value))}/></span></label>}
         <button type="button" className="mini-player__expand" aria-label="Abrir reproductor desde minirreproductor" onClick={(event) => props.onOpenPlayer(event.currentTarget)}><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m6 15 6-6 6 6" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"/></svg></button>
       </div>
+      {duration>0&&<progress className="mini-player__mobile-progress" aria-hidden="true" max={duration} value={position}/>}
     </section>
   );
 }

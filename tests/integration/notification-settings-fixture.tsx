@@ -1,0 +1,11 @@
+import {createRoot} from 'react-dom/client';
+import {DownloadNotificationSettings} from '../../src/ui/DownloadNotificationSettings';
+import {downloadNotifications} from '../../src/pwa/download-notifications';
+import '../../src/style.css';
+import '../../src/ui/shell.css';
+import '../../src/ui/design-tokens.css';
+import '../../src/ui/responsive-shell.css';
+import '../../src/ui/app-polish.css';
+import '../../src/ui/design-fidelity.css';
+createRoot(document.getElementById('root')!).render(<main className="pulso-app"><DownloadNotificationSettings/></main>);
+Object.assign(window,{notificationTest:downloadNotifications});

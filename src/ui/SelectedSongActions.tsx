@@ -31,12 +31,13 @@ export function SelectedSongActions(props:SelectedSongActionsProps){
   {props.artist&&<p><bdi dir="auto">{props.artist}</bdi></p>}
   <div className="selected-song-feedback" role="status" aria-live="polite" aria-atomic="true">{feedback}</div>
   {props.error&&<p role="alert">{props.error}</p>}
-  {validProgress&&<progress aria-label="Progreso de la canción" value={Math.min(progress.bytes,progress.total)} max={progress.total}/>}
-  <div className="selected-song-buttons">
+  {(props.pending||validProgress)&&<progress aria-label={`Carga de ${props.title}`} value={validProgress?Math.min(progress.bytes,progress.total):undefined} max={validProgress?progress.total:undefined}/>}
+  {props.pending&&<button className="song-load-cancel" type="button" onClick={()=>{if(active())props.onCancel();}}>Cancelar carga</button>}
+  <details className="selected-song-more"><summary>Opciones de la canción</summary><div className="selected-song-buttons">
    <button type="button" disabled={props.inLibrary||!props.canAdd} onClick={()=>{if(active()&&!props.inLibrary&&props.canAdd)props.onAdd();}}>{props.inLibrary?'En tu biblioteca':'Agregar canción'}</button>
    {props.canPlay&&<button type="button" onClick={()=>{if(active()&&props.canPlay)props.onPlay();}}>Reproducir</button>}
    <button ref={trigger} type="button" disabled={!props.canAddToPlaylist} aria-expanded={open} aria-controls={open?`${id}-playlist`:undefined} onClick={()=>{if(active()&&props.canAddToPlaylist){if(open)close();else{setChosen('');setOpen(true);}}}}>Añadir a playlist</button>
-   {props.pending&&<button type="button" onClick={()=>{if(active()&&props.pending)props.onCancel();}}>Cancelar</button>}
+
   </div>
   {open&&<div id={`${id}-playlist`} className="selected-song-playlist" onKeyDown={event=>{if(event.key==='Escape'){event.preventDefault();close();}}}>
    {props.playlists.length===0?<p>No hay playlists disponibles.</p>:<form onSubmit={event=>{event.preventDefault();if(active()&&props.canAddToPlaylist&&chosen&&props.playlists.some(list=>list.id===chosen)){props.onAddToPlaylist(chosen);close();}}}>
@@ -45,5 +46,6 @@ export function SelectedSongActions(props:SelectedSongActionsProps){
    </form>}
    <button type="button" onClick={close}>Cerrar</button>
   </div>}
+  </details>
  </section>;
 }

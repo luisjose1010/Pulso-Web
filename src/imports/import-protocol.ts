@@ -1,3 +1,4 @@
+import {copyAccountCatalog} from '../accounts/library-document.mjs';
 import {recordingTitleCandidate} from '../library/recording-title';
 import type {ExpectedAudioMetadata} from './expected-audio-metadata';
 export type {ExpectedAudioMetadata} from './expected-audio-metadata';
@@ -29,8 +30,9 @@ function array(value:unknown,max:number):unknown[]|null{
  }catch{return null;}
 }
 function trackCopy(value:unknown){
- const t=optionalRecord(value,['id','assetId','title','artist','album','duration','favorite','revision','createdAt','manualOverrides'],['audioFingerprint','organizationRef','localAlbum']);if(!t)return null;
+ const t=optionalRecord(value,['id','assetId','title','artist','album','duration','favorite','revision','createdAt','manualOverrides'],['audioFingerprint','organizationRef','localAlbum','accountId','catalogChoice']);if(!t)return null;
  if(!uuid(t.id)||!uuid(t.assetId)||!text(t.title,300,1)||![t.artist,t.album].every(v=>v===null||text(v,300))||typeof t.duration!=='number'||!Number.isFinite(t.duration)||t.duration<=0||t.duration>1e9||typeof t.favorite!=='boolean'||!integer(t.revision,1)||!text(t.createdAt,64,1)||!Number.isFinite(Date.parse(t.createdAt)))return null;
+ if(t.accountId!==undefined&&!uuid(t.accountId))return null;if(t.catalogChoice!==undefined){try{if(!copyAccountCatalog(t.catalogChoice))return null;}catch{return null;}}
  const manual=optionalRecord(t.manualOverrides,[],['title','artist','album']);if(!manual||Object.entries(manual).some(([k,v])=>!(text(v,300,k==='title'?1:0)||k!=='title'&&v===null)))return null;t.manualOverrides=manual;
  if(t.audioFingerprint===undefined)delete t.audioFingerprint;
  if(Object.hasOwn(t,'audioFingerprint')&&t.audioFingerprint!==null){const f=plain(t.audioFingerprint,['algorithm','sha256','bytes']);if(!f||f.algorithm!=='sha256'||!text(f.sha256,64)||!/^[a-f0-9]{64}$/.test(f.sha256)||!integer(f.bytes,1,100*1024*1024))return null;t.audioFingerprint=f;}

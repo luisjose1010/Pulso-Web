@@ -135,4 +135,34 @@ export async function runSingleGroups(e){
   return {outcomes};
  });
 
+ await group('58 callback metadata diagnostics remain closed in native main',async()=>{
+  const outcomes=[];
+  for(const field of (process.env.MUSIC_FLOW_DIAGNOSTIC_CASES?.split(',')??['artist','title-version','duration','menu','control'])){
+   await fresh();await ready();await button('Configuración').click();const account=e.page().locator('.settings-group').filter({has:e.page().locator('summary').filter({hasText:'Cuenta y fuentes'})}).first();if(await account.getAttribute('open')===null)await account.locator('summary').first().click();await e.page().getByLabel('@usuario o enlace público de Telegram',{exact:true}).fill('@lydbot');await button('Comprobar y añadir').click();await button('Quitar @lydbot').waitFor();await button('Cerrar configuración').click();e.setMetaRows([{id:1,trackName:title,artistName:'MUSIC_FLOW Artist; Guest',albumName:'MUSIC_FLOW Album',duration:45}]);fixture.set({mode:field==='menu'?'download-no-match':'download-option',diagnostic:field,hold:field==='artist'?'callback':undefined});
+   const start=report.rpc.length,plays=await e.page().evaluate(()=>MUSIC_FLOW.playCalls);
+   await input().fill('MUSIC_FLOW Song');await e.page().waitForFunction(()=>MUSIC_FLOW.panel().suggestions.some(r=>r.source==='lrclib')&&!MUSIC_FLOW.panel().suggestionsPending);
+   await panel().locator('[data-catalog-kind="track"]').first().click();
+   if(field==='artist'){await wait(()=>fixture.pendingCount===1);assert.equal(await panel().getByRole('button',{name:'Agregar canción',exact:true}).isDisabled(),true);for(const width of [320,390]){await e.page().setViewportSize({width,height:844});await e.page().evaluate(()=>{const l=document.createElement('link');l.rel='stylesheet';l.href='/__musicflow/zoom.css';l.dataset.d02Zoom='1';document.head.append(l);});await e.page().waitForTimeout(100);assert(await e.page().evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await panel().getByRole('button',{name:'Agregar canción',exact:true}).scrollIntoViewIfNeeded();if(process.env.MUSIC_FLOW_ENGINE!=='webkit')await e.page().screenshot({caret:'initial',path:report.run+'/d02-disabled-'+width+'.png'});}fixture.resume();}
+   if(field==='control')await playing();else await e.page().waitForFunction(()=>/D0[12]/.test(MUSIC_FLOW.panel().error??MUSIC_FLOW.panel().status??''),null,{timeout:150000});
+   await idle();const saved=await state(),o=await observe(),rpc=report.rpc.slice(start),message=o.panel.error??o.panel.status;
+   assert.equal(saved.assets.length,field==='control'?1:0);assert.equal(saved.tracks.length,field==='control'?1:0);assert.equal(await e.page().evaluate(()=>MUSIC_FLOW.playCalls)-plays,field==='control'?1:0);
+   assert.equal(rpc.filter(r=>r.method==='messages.sendMessage').length,field==='control'?1:2);assert.deepEqual(rpc.filter(r=>r.method==='messages.sendMessage').map(r=>r.peer.id),field==='control'?[101]:[101,102]);assert.equal(rpc.filter(r=>r.method==='messages.getBotCallbackAnswer').length,field==='menu'?0:field==='control'?1:2);
+   if(field!=='control'){assert.equal(rpc.filter(r=>r.method==='upload.getFile').length,0);assert.match(message,field==='menu'?/D01/:/D02/);assert.equal(o.panel.pending,false);if(field!=='menu')assert(message.includes(field==='title-version'?'título/versión':field==='artist'?'artista':'duración'));else assert.doesNotMatch(message,/D02|duración|incompleto/);
+    for(const width of [320,390]){await e.page().setViewportSize({width,height:844});await e.page().evaluate(()=>{if(!document.querySelector('link[data-d02-zoom]')){const l=document.createElement('link');l.rel='stylesheet';l.href='/__musicflow/zoom.css';l.dataset.d02Zoom='1';document.head.append(l);}});await e.page().waitForTimeout(100);assert(await e.page().evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await panel().getByText(/D0[12]/).first().scrollIntoViewIfNeeded();if(process.env.MUSIC_FLOW_ENGINE!=='webkit')await e.page().screenshot({caret:'initial',path:report.run+'/d02-'+field+'-'+width+'.png'});}
+   }
+   outcomes.push({field,message,assets:saved.assets.length,providerOrder:rpc.filter(r=>r.method==='messages.sendMessage').map(r=>r.peer),callbacks:rpc.filter(r=>r.method==='messages.getBotCallbackAnswer').length});
+  }
+  if(process.env.MUSIC_FLOW_ZERO_DURATION==='1')for(const field of ['zero-duration-valid','zero-duration-wrong-file']){
+   await fresh();await ready();e.setMetaRows([{id:1,trackName:title,artistName:'MUSIC_FLOW Artist; Guest',albumName:'MUSIC_FLOW Album',duration:45}]);fixture.set({mode:'download-option',diagnostic:field});
+   const start=report.rpc.length,plays=await e.page().evaluate(()=>MUSIC_FLOW.playCalls);
+   await input().fill('MUSIC_FLOW Song');await e.page().waitForFunction(()=>MUSIC_FLOW.panel().suggestions.some(r=>r.source==='lrclib')&&!MUSIC_FLOW.panel().suggestionsPending);await panel().locator('[data-catalog-kind="track"]').first().click();
+   if(field==='zero-duration-valid')await playing();else await panel().getByText('No se pudo guardar la canción.',{exact:true}).waitFor({timeout:30000});await idle();
+   const saved=await state(),o=await observe(),rpc=report.rpc.slice(start),accepted=field==='zero-duration-valid';
+   assert.equal(saved.assets.length,accepted?1:0);assert.equal(saved.tracks.length,accepted?1:0);assert.equal(await e.page().evaluate(()=>MUSIC_FLOW.playCalls)-plays,accepted?1:0);assert.equal(rpc.filter(r=>r.method==='messages.sendMessage').length,1);assert.equal(rpc.filter(r=>r.method==='messages.getBotCallbackAnswer').length,1);assert(rpc.some(r=>r.method==='upload.getFile'));
+   if(accepted)assert(Math.abs(saved.tracks[0].duration-45)<=1);else{const failure=o.workers.flatMap(w=>w.received).find(r=>r.type==='error'&&r.outcome?.primary?.code==='metadata-duration-mismatch');assert(failure);assert.equal(failure.outcome.writeState,'not-started');assert.equal(saved.jobs.length,0);}
+   outcomes.push({field,accepted,assets:saved.assets.length,actualDuration:accepted?saved.tracks[0].duration:65,searches:1,callbacks:1,stagingBeforeValidation:false});
+  }
+  return {outcomes,syntheticOnly:true,visualScreenshots:process.env.MUSIC_FLOW_ENGINE==='webkit'?'separate visual receipt; strict CSP retained, Playwright screenshot sync stylesheet omitted':'Chromium captures'};
+ });
+
 }

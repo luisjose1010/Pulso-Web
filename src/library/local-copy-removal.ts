@@ -17,7 +17,8 @@ const digest=(s:string)=>bytesToHex(sha256(new TextEncoder().encode(s)));
 const candidates=new WeakMap<RemovalCandidate,{target:LocalAsset;trackId:string;revision:number}>();
 interface PlanData {target:LocalAsset;snapshot:RemovalSnapshot;summary:RemovalSummary;tracking:RemovalTracking;planRevision:number;context:RemovalContext;used:boolean;controller:AbortController;settlement:Promise<RemovalOutcome>|null;detachedDigest:string;planDigest:string;preparedDispatched:boolean;strict:boolean}
 const plans=new WeakMap<RemovalPlan,PlanData>();
-const strictOutcomes=new WeakMap<RemovalOutcome,{context:RemovalContext;target:LocalAsset;tracking:RemovalTracking;state:'removed'|'not-committed';revision:number}>();
+const settledOutcomes=new WeakMap<RemovalOutcome,{context:RemovalContext;target:LocalAsset;tracking:RemovalTracking;state:'removed'|'not-committed';revision:number}>();
+const strictOutcomeResults=new WeakSet<RemovalOutcome>();
 const continuations=new WeakMap<RemovalContinuation,{journal:RemovalJournalV1;context:RemovalContext;planRevision:number;used:boolean}>();
 let activePlan:RemovalPlan|null=null;
 let planning=false;
@@ -150,10 +151,10 @@ export async function confirmCopyRemoval(plan:RemovalPlan,value:RemovalConsent,c
  return await fenced({operationId:d.tracking.operationId,target:d.target},async()=>{try{check(owned,d.target);j=await prepare(d,consent,owned);check(owned,d.target);j=await detach(j,owned);check(owned,d.target);j=await remove(j,owned,now=>{j=now;});return outcome(j);}
  catch(e){const primary=fromKnownError(e,{phase:'commit',backend:d.target.backend});const secondary:RemovalOutcome['secondary'][number][]=[];
  if(j?.state==='prepared'){try{check(owned,d.target,true);j=await transition(j,'not-committed',owned,true);}catch(cleanup){secondary.push({phase:'reconcile',failure:fromKnownError(cleanup,{phase:'reconcile',backend:'idb'})});}}
- return {...attemptOutcome(d,j,e,primary),secondary};}},d.strict);
+ return {...attemptOutcome(d,j,e,primary),secondary};}},true);
  }catch(e){return attemptOutcome(d,j,e,fromKnownError(e,{phase:'verify',backend:d.target.backend}));}
  finally{c.signal.removeEventListener('abort',abort);if(activePlan===plan)activePlan=null;}
- })();const result=await d.settlement;if(d.strict&&(result.state==='removed'||result.state==='not-committed')&&result.preparation==='recorded'&&result.journalRevision!==null)strictOutcomes.set(result,{context:c,target:d.target,tracking:d.tracking,state:result.state,revision:result.journalRevision});return result;
+ })();const result=await d.settlement;if((result.state==='removed'||result.state==='not-committed')&&result.preparation==='recorded'&&result.journalRevision!==null){settledOutcomes.set(result,{context:c,target:d.target,tracking:d.tracking,state:result.state,revision:result.journalRevision});if(d.strict)strictOutcomeResults.add(result);}return result;
 }
 /** Cancels only this private attempt and awaits native settlement. Caller keeps
  * the reservation occupied until this promise resolves. Never republish. */
@@ -164,7 +165,12 @@ async function readPrefix(c:RemovalReadContext){const s=await transaction(['sett
 async function getJournal(tracking:RemovalTracking,c:RemovalReadContext){const r=copyRemovalTracking(tracking);if(!r)corrupt();const p=await readPrefix(c);if(p.incarnation!==r.incarnation)changed();const j=p.journals.find(j=>j.operationId===r.operationId);if(!j)changed();return {j};}
 /** Acknowledge only the fresh, private result of a strict collection operation. */
 export async function acknowledgeUnreferencedCopyRemoval(result:RemovalOutcome,c:RemovalContext):Promise<boolean>{
- const d=strictOutcomes.get(result);if(!d||d.context!==c)return false;strictOutcomes.delete(result);
+ if(!strictOutcomeResults.has(result))return false;return acknowledgeCopyRemoval(result,c);
+}
+/** Prune only a privately branded, fresh terminal result in its original live
+ * reservation. Never accepts a deserialized receipt or an uncertain attempt. */
+export async function acknowledgeCopyRemoval(result:RemovalOutcome,c:RemovalContext):Promise<boolean>{
+ const d=settledOutcomes.get(result);if(!d||d.context!==c||result.recoveryRequired)return false;settledOutcomes.delete(result);strictOutcomeResults.delete(result);
  try{return await fenced({operationId:d.tracking.operationId,target:d.target},async()=>{
   check(c,d.target);const {j}=await getJournal(d.tracking,c);if(j.state!==d.state||j.revision!==d.revision||!sameSourceAsset(j.target,d.target))changed();
   if(j.state==='removed'&&await physical(j,c)!=='absent')changed();

@@ -1,0 +1,46 @@
+.pulso-app .track-actions-trigger { display:grid;place-items:center;inline-size:44px;min-inline-size:44px;block-size:48px;padding:0;border:0;border-radius:50%;background:transparent;color:var(--pulso-muted); }
+.track-actions-trigger svg,.track-actions-menu__close svg { inline-size:22px;block-size:22px; }
+.pulso-app dialog.track-actions-menu { position:fixed;inset:0;inline-size:min(360px,calc(100% - 2rem));max-inline-size:none;max-block-size:calc(100dvh - 2rem);margin:auto;padding:0;border:1px solid var(--pulso-border);border-radius:1.25rem;color:var(--pulso-foreground);background:var(--pulso-surface);box-shadow:0 1.25rem 4rem #0003;overflow:hidden; }
+.track-actions-menu:not([open]) { display:none; }
+.track-actions-menu[open] { display:flex;flex-direction:column; }
+.track-actions-menu::backdrop { background:rgb(6 12 22 / .48); }
+.track-actions-menu__handle { display:none; }
+.track-actions-menu__header { display:flex;align-items:center;flex:none;gap:.75rem;padding:1rem;border-block-end:1px solid var(--pulso-border); }
+.track-actions-menu__art { flex:none;inline-size:48px;block-size:48px;border-radius:.4rem;overflow:hidden; }
+.track-actions-menu__art>* { display:grid;place-items:center;inline-size:100%;block-size:100%; }
+.track-actions-menu__art img { inline-size:100%;block-size:100%;object-fit:cover; }
+.track-actions-menu__copy { flex:1;min-inline-size:0; }
+.pulso-app .track-actions-menu__copy h2 { margin:0;font-size:1rem;line-height:1.35;letter-spacing:0;overflow-wrap:anywhere; }
+.pulso-app .track-actions-menu__copy p { margin:.25rem 0 0;font-size:.8rem;line-height:1.4;color:var(--pulso-muted);overflow-wrap:anywhere; }
+.pulso-app .track-actions-menu__close { display:grid;place-items:center;flex:none;inline-size:44px;block-size:44px;min-inline-size:44px;padding:0;border:0;border-radius:50%;background:transparent; }
+.track-actions-menu__content { min-block-size:0;padding:.5rem;overflow:auto;overscroll-behavior:contain;overflow-wrap:anywhere; }
+.pulso-app .track-actions-menu__content button,.pulso-app .track-actions-menu__content summary { display:flex;align-items:center;gap:.75rem;inline-size:100%;min-block-size:48px;margin:0;padding:.75rem;border:0;border-radius:.6rem;background:transparent;text-align:start;font-size:.9rem;line-height:1.4;white-space:normal;overflow-wrap:anywhere; }
+.track-actions-menu__content button>svg { inline-size:22px;block-size:22px;flex:none; }
+.track-actions-menu__content details { margin:0; }
+.track-actions-menu__content summary { cursor:pointer;touch-action:manipulation; }
+.track-actions-menu__content summary::after { content:'›';margin-inline-start:auto;font-size:1.25rem;color:var(--pulso-muted); }
+.track-actions-menu__content details[open]>summary::after { transform:rotate(90deg); }
+.track-actions-menu__content details[open] { background:var(--pulso-canvas);border-radius:.6rem; }
+.track-actions-menu__content label { display:grid;gap:.5rem;min-inline-size:0;padding:.5rem .75rem;font-size:.85rem; }
+.track-actions-menu__content select,.track-actions-menu__content input { inline-size:100%;min-inline-size:0;max-inline-size:100%;font-size:max(1rem,16px); }
+.pulso-app .track-actions-menu__content p { margin:.5rem .75rem;font-size:.8rem;line-height:1.5;color:var(--pulso-muted); }
+.track-actions-menu :is(button,summary,input,select):focus-visible { outline:3px solid var(--pulso-accent);outline-offset:-3px; }
+@media(hover:hover) and (pointer:fine) {
+ .pulso-app .track-actions-menu__content button:hover:not(:disabled),.pulso-app .track-actions-menu__content summary:hover,.pulso-app .track-actions-menu__close:hover,.pulso-app .track-actions-trigger:hover { background:var(--pulso-soft); }
+}
+@media(max-width:600px) {
+ .pulso-app dialog.track-actions-menu { inset:auto 0 0;inline-size:100%;max-block-size:min(80dvh,44rem);margin:0;border-inline:0;border-block-end:0;border-radius:1.25rem 1.25rem 0 0;padding-block-end:env(safe-area-inset-bottom,0px); }
+ .track-actions-menu__handle { display:block;flex:none;inline-size:2rem;block-size:4px;margin:.5rem auto 0;border-radius:999px;background:var(--pulso-border); }
+ .track-actions-menu__header { padding-block:.5rem .75rem; }
+ .track-actions-menu__content { padding-inline:max(.5rem,env(safe-area-inset-left,0px)) max(.5rem,env(safe-area-inset-right,0px)); }
+}
+@media(max-width:360px) {
+ .track-actions-menu__header { padding:.75rem;gap:.5rem; }
+ .track-actions-menu__art { display:none; }
+}
+.pulso-app .track-actions-menu__back { flex:none;margin:.25rem .75rem;padding:.5rem;background:transparent;border:0;text-align:start;min-block-size:44px;color:var(--pulso-muted);font-size:.85rem; }
+.track-actions-menu__content[data-subpage=true]>:not(details[open]) { display:none; }
+.pulso-app .track-actions-menu__content details[open] { background:transparent; }
+.pulso-app .track-actions-menu__content details[open]>summary { font-weight:650; }
+.pulso-app .track-actions-menu__content details[open]>summary::after { content:none; }
+.pulso-app .track-actions-menu__content>button:last-of-type { border-top:1px solid var(--pulso-border);border-radius:0; }

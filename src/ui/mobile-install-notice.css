@@ -1,0 +1,22 @@
+:is(.pulso-app,.account-required) .mobile-install-banner { position:sticky;top:env(safe-area-inset-top,0px);z-index:30;margin:0 0 .75rem;grid-column:1/-1; }
+:is(.pulso-app,.account-required) .mobile-install-banner>button { display:flex;align-items:center;gap:.75rem;width:100%;padding:.65rem .85rem;background:var(--pulso-soft);border:1px solid var(--pulso-border);text-align:start;min-height:56px; }
+.mobile-install-banner__icon { font-size:1.4rem;color:var(--pulso-accent); }
+.mobile-install-banner button>span:nth-child(2) { display:grid;gap:.15rem;flex:1;min-width:0; }
+.mobile-install-banner strong { font-size:.9rem; }.mobile-install-banner small { font-size:.75rem;color:var(--pulso-muted); }
+:is(.pulso-app,.account-required) .mobile-install-sheet { position:fixed;inset:auto 0 0;margin:0;inline-size:100%;max-inline-size:none;max-block-size:90dvh;padding:1.25rem 1rem calc(1.25rem + env(safe-area-inset-bottom,0px));border:1px solid var(--pulso-border);border-radius:1.25rem 1.25rem 0 0;background:var(--pulso-surface);color:var(--pulso-foreground);overflow:auto;overscroll-behavior:contain; }
+.mobile-install-sheet:not([open]) { display:none; }.mobile-install-sheet::backdrop { background:#060c167a; }
+.mobile-install-sheet header { display:flex;align-items:center;justify-content:space-between;gap:1rem; }
+:is(.pulso-app,.account-required) .mobile-install-sheet h2 { margin:0;font-size:1.25rem; }
+.mobile-install-sheet header button { min-width:44px;min-height:44px;font-size:1.4rem; }
+:is(.pulso-app,.account-required) .mobile-install-sheet p,:is(.pulso-app,.account-required) .mobile-install-sheet li { font-size:.9rem;line-height:1.5; }
+.mobile-install-sheet ol { padding-inline-start:1.4rem; }.mobile-install-sheet li { margin-block:1rem; }
+:is(.pulso-app,.account-required) .mobile-install-note { color:var(--pulso-muted);font-size:.8rem; }
+:is(.pulso-app,.account-required) .mobile-notification-invite { position:fixed;inset:calc(env(safe-area-inset-top,0px) + .75rem) .75rem auto;z-index:70;max-inline-size:26rem;margin-inline:auto;padding:1rem;background:var(--pulso-surface);border:1px solid var(--pulso-border);border-radius:1rem;box-shadow:0 .5rem 2rem #0003;max-block-size:85dvh;overflow:auto; }
+.mobile-notification-invite strong { font-size:.95rem; }:is(.pulso-app,.account-required) .mobile-notification-invite p { font-size:.8rem;line-height:1.5;color:var(--pulso-muted); }
+.mobile-notification-invite__actions { display:flex;flex-wrap:wrap;gap:.5rem; }
+:is(.pulso-app,.account-required) .mobile-notification-invite button { margin:0;min-height:44px;font-size:.85rem; }
+:is(.pulso-app,.account-required) button.mobile-install-primary { background:var(--pulso-accent);color:var(--pulso-on-accent,#fff);border-color:transparent; }
+
+.account-required .mobile-install-banner { position:fixed;inset:calc(env(safe-area-inset-top,0px) + .75rem) .75rem auto;max-inline-size:26rem;margin-inline:auto;text-align:start; }
+.account-required .mobile-install-sheet,.account-required .mobile-notification-invite { text-align:start; }
+.account-required .mobile-install-banner button { border-radius:.8rem;color:var(--pulso-foreground); }

@@ -1,0 +1,2 @@
+.library-download-hint{position:fixed;z-index:95;inset-block-start:max(1rem,env(safe-area-inset-top));inset-inline:1rem;margin-inline:auto;width:min(28rem,calc(100% - 2rem));padding:1rem;border:1px solid var(--border,#3b4a60);border-radius:1rem;background:var(--surface,#1b2535);color:var(--text,#f4f6fc);box-shadow:0 .5rem 2rem #0004;overflow-wrap:anywhere}
+.library-download-hint p{margin:0 0 .5rem}.library-download-hint button{min-height:44px}

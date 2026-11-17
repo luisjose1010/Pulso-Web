@@ -38,6 +38,38 @@ function identity(value: string | null): string | null {
  return value === null || value.trim() === '' ? null : value.normalize('NFC');
 }
 
+// Presentation equivalence is confined to the disposable album view. Artist browsing
+// and stored labels retain their existing contract; no punctuation/accent/fuzzy match.
+function albumIdentity(value: string | null): string | null {
+ return identity(value)?.trim().replace(/\s+/gu, ' ').toLowerCase().normalize('NFC') ?? null;
+}
+
+function albumKeys(tracks: readonly Track[], sources: ReturnType<typeof resolveLocalAlbumMetadata>[]): string[] {
+ const bases = tracks.map((track, index) => {
+  const album = albumIdentity(track.album);
+  const source = sources[index];
+  const credit = source.albumArtist.state === 'known' ? source.albumArtist.value : track.artist;
+  return JSON.stringify(['album-local-v2', album, album === null ? null : albumIdentity(credit)]);
+ });
+ // Unknown compilation may join one compatible declaration, never bridge true/false.
+ // Scan first so neither partition nor key depends on encounter order.
+ const declarations = new Map<string, Set<boolean>>();
+ tracks.forEach((track, index) => {
+  const flag = sources[index].compilation;
+  if (albumIdentity(track.album) === null || flag.state !== 'known') return;
+  let values = declarations.get(bases[index]);
+  if (!values) declarations.set(bases[index], values = new Set());
+  values.add(flag.value);
+ });
+ return bases.map((base, index) => {
+  if (albumIdentity(tracks[index].album) === null) return base;
+  const flag = sources[index].compilation;
+  const values = declarations.get(base);
+  const compilation = flag.state === 'known' ? flag.value : values?.size === 1 ? [...values][0] : null;
+  return JSON.stringify([base, compilation]);
+ });
+}
+
 function addUnique<T>(values: T[], value: T): void {
  if (!values.includes(value)) values.push(value);
 }
@@ -49,17 +81,17 @@ function fieldEvidence(track: Track, field: 'artist' | 'album'): MetadataProvena
 
 function groupTracks(tracks: readonly Track[], kind: LibraryGroup['kind']): LibraryGroup[] {
  const groups = new Map<string, MutableGroup>();
- for (const track of tracks) {
+ const sources = tracks.map(resolveLocalAlbumMetadata);
+ const keys = kind === 'album' ? albumKeys(tracks, sources) : [];
+ for (const [index, track] of tracks.entries()) {
   const artist = identity(track.artist);
   const album = identity(track.album);
   const unknown = (kind === 'artist' ? artist : album) === null;
   // JSON tuples are unambiguous even with delimiters, quotes or literal bucket labels.
   // All missing albums share an explicit bucket, rather than implying an album entity.
-  const source=resolveLocalAlbumMetadata(track);
+  const source=sources[index];
   const albumArtist=source.albumArtist.state==='known'?source.albumArtist.value:null;
-  const key = JSON.stringify(kind === 'artist' ? ['artist', artist]
-   : album!==null&&albumArtist!==null ? ['album-local-v1',album,'albumArtist',albumArtist.normalize('NFC'),source.compilation.state==='known'?source.compilation.value:null]
-   : ['album', album, album === null ? null : artist]);
+  const key = kind === 'artist' ? JSON.stringify(['artist', artist]) : keys[index];
   let group = groups.get(key);
   if (!group) {
    group = {
@@ -71,6 +103,11 @@ function groupTracks(tracks: readonly Track[], kind: LibraryGroup['kind']): Libr
     labels: [], artistLabels: [], trackIds: [], provenance: [], evidence: {artist: [], album: []},
    };
    groups.set(key, group);
+  }
+  if (kind === 'album' && !unknown && source.albumArtist.state === 'known' && !group.albumArtistSource) {
+   group.criterion = 'albumArtist';
+   group.albumArtistSource = source.albumArtist;
+   group.artist = source.albumArtist.value;
   }
   group.trackIds.push(track.id);
   if (!unknown) addUnique(group.labels, (kind === 'artist' ? track.artist : track.album)!);
@@ -91,7 +128,7 @@ export function groupArtists(tracks: readonly Track[]): LibraryGroup[] {
  return groupTracks(tracks, 'artist');
 }
 
-/** Provisional grouping by exact NFC album title + available artist, with no completeness inference. */
+/** Provisional presentation-equivalent title/credit groups, with no completeness inference. */
 export function groupAlbums(tracks: readonly Track[]): LibraryGroup[] {
  return groupTracks(tracks, 'album');
 }

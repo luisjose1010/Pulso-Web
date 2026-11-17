@@ -29,3 +29,22 @@
 
 .album-download-notice { display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem 1rem;padding:1rem;margin:0 0 1rem;border:1px solid var(--pulso-border);border-radius:1rem;background:var(--pulso-surface);min-width:0; }
 .album-download-notice strong { overflow-wrap:anywhere; }.album-download-notice p { margin:.3rem 0 0;font-size:.9rem;color:var(--pulso-muted); }.album-download-notice button { min-height:44px; }
+
+/* Keep album browsing aligned with playlist rows while giving status room to wrap. */
+.pulso-app .album-page .album-actions>button { border-radius:999px;padding-inline:1.25rem; }
+.pulso-app .album-page .album-art { box-shadow:0 .75rem 2rem #07112020; }
+.pulso-app .album-page .album-tracks>li { border-radius:.6rem; }
+.pulso-app .album-page .album-tracks>li:has(.playback-indicator) .album-track-copy strong { color:var(--pulso-accent); }
+.pulso-app .album-page .album-track-copy { flex:1; }
+.pulso-app .album-page .album-track-copy strong { overflow-wrap:anywhere; }
+.pulso-app .album-page .album-track-badges,.pulso-app .album-page .album-track-message { padding-inline-end:.5rem;overflow-wrap:anywhere; }
+.pulso-app .album-page .artist-album-grid strong { display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden; }
+.pulso-app .album-page .artist-album-grid button { justify-content:flex-start; }
+@media (hover:hover) and (pointer:fine) {
+ .pulso-app .album-page .album-tracks>li:hover { background:var(--pulso-soft); }
+}
+@media (min-width:801px) {
+ .pulso-app .album-page .album-tracks>li { grid-template-columns:minmax(0,1fr) minmax(8rem,auto);column-gap:1rem;padding-inline:.5rem; }
+ .pulso-app .album-page .album-track-badges { max-inline-size:16rem;padding-inline-start:0;text-align:end; }
+ .pulso-app .album-page .album-track-message { grid-column:1/-1;text-align:start; }
+}

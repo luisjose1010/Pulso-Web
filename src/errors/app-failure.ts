@@ -2,7 +2,7 @@ import {backendValues,phaseValues,plain,type Backend,type Family,type Phase,type
 export interface FailureV1 {readonly version:1;readonly phase:Phase|null;readonly family:Family;readonly code:Exclude<SafeCode,'none'>;readonly backend:Backend}
 // Closed pairs: membership in two unrelated enums is insufficient.
 const pairs={
- unknown:'internal','input-invalid':'internal','limit-exceeded':'internal','metadata-invalid':'integrity','metadata-title-mismatch':'integrity','metadata-artist-mismatch':'integrity','audio-duration-invalid':'integrity','audio-codec-missing':'integrity',
+ unknown:'internal','input-invalid':'internal','limit-exceeded':'internal','metadata-invalid':'integrity','metadata-title-mismatch':'integrity','metadata-artist-mismatch':'integrity','metadata-duration-mismatch':'integrity','audio-duration-invalid':'integrity','audio-codec-missing':'integrity',
  'format-unsupported':'unsupported-format','quota-exceeded':'quota','storage-denied':'storage-unavailable',
  'storage-unavailable':'storage-unavailable','database-blocked':'storage-unavailable','transaction-aborted':'storage-unavailable',
  'asset-missing':'integrity','asset-changed':'integrity','length-mismatch':'integrity','digest-mismatch':'integrity','local-corrupt':'integrity',

@@ -14,7 +14,7 @@ globalThis.fetch=((input:RequestInfo|URL,init?:RequestInit)=>{
  const u=new URL(typeof input==='string'?input:input instanceof URL?input.href:input.url,location.href);
  if(u.origin!==location.origin){void event('blocked-fetch');throw Error('TESTONLY external denied');}return nativeFetch(input,init);
 }) as typeof fetch;
-let wireMode='';let wireTitle='MUSIC_FLOW Song (Live version)';
+let wirePeer=101;let diagnostic='';let wireMode='';let wireTitle='MUSIC_FLOW Song (Live version)';
 const history=(messages:unknown[]=[])=>({_:'messages.messages',messages:messages.map((value:any)=>{
  if(value.out===true)return value;const m={...value};
  if(['download-sender-omitted','download-private-optional','download-unthreaded-ambiguous'].includes(wireMode))delete m.fromId;
@@ -31,7 +31,7 @@ const markup={_:'replyInlineMarkup',rows:[{_:'keyboardInlineButtonRow',buttons:[
 ]}]} satisfies tl.RawReplyInlineMarkup;
 function page(mode:string){
  if(mode==='download-partial'&&wireTitle.includes('Second'))return page('download-no-match');
- const msg={_:'message',id:12,peerId:{_:'peerUser',userId:101},fromId:{_:'peerUser',userId:101},date:1,replyTo:{_:'messageReplyHeader',replyToMsgId:10},message:''};
+ const msg={_:'message',id:12,peerId:{_:'peerUser',userId:wirePeer},fromId:{_:'peerUser',userId:wirePeer},date:1,replyTo:{_:'messageReplyHeader',replyToMsgId:10},message:''};
  if(mode==='download-ambiguous'||mode==='download-unthreaded-ambiguous'){const copied=structuredClone(markup);copied.rows[0].buttons[1]={...copied.rows[0].buttons[0],type:{_:'inlineButtonTypeCallback',data:new Uint8Array([1,2,4])}};return history([{...msg,replyMarkup:copied}]);}
  if(mode==='download-wide-menu'){
   const rows=Array.from({length:25},(_,i)=>({_:'keyboardInlineButtonRow',buttons:[{_:'keyboardInlineButton',text:i===24?'MUSIC_FLOW Song (Live version) — MUSIC_FLOW Artist':'Other song '+i+' — Other artist',type:{_:'inlineButtonTypeCallback',data:new Uint8Array(i===24?[1,2,3]:[9,i])}}]}));
@@ -45,14 +45,14 @@ function page(mode:string){
  if(mode==='empty')return history();
  if(mode==='unknown')return history([{...msg,media:{_:'messageMediaPhoto'}}]);
  if(mode==='conflict'||mode==='missing')return history([{...msg,media:{_:'messageMediaDocument',document:{_:'document',id:new Long(1,0),accessHash:new Long(2,0),fileReference:new Uint8Array([1]),mimeType:'audio/mpeg',size:40000,attributes:[{_:'documentAttributeAudio',duration:45,...(mode==='conflict'?{title:'Different studio version',performer:'Different artist'}:{})}]}}}]);
- const selected=structuredClone(markup);if(mode==='download-multi'||mode==='download-partial')selected.rows[0].buttons[0].text=wireTitle+' — MUSIC_FLOW Artist';return history([{...msg,replyMarkup:selected}]);
+ const selected=structuredClone(markup);if(diagnostic)selected.rows[0].buttons[0].text+='; Guest';if(mode==='download-multi'||mode==='download-partial')selected.rows[0].buttons[0].text=wireTitle+' — MUSIC_FLOW Artist';return history([{...msg,replyMarkup:selected}]);
 }
 export async function openTemporaryTelegram(_identity:unknown,lifetime:AbortSignal){
  await event('synthetic-sdk-open');lifetime.throwIfAborted();let closed=false,binding:{accountRef:string;accountEpoch:number}|null=null;
  let bots:BotProvidersDriver|undefined,sources:SourcesDriver|undefined,search:BotSearchDriver|undefined;
  let clicked=false,polls=0,callbackPolls=0,fileTransferred=false;let audioBytes:Uint8Array|undefined;
- const ownAudio=async()=>audioBytes??=new Uint8Array(await(await nativeFetch(['download-multi','download-partial'].includes(wireMode)?(wireTitle.includes('Second')?'/__musicflow/second.mp3':'/__musicflow/third.mp3'):wireMode==='download-collaboration'?'/__musicflow/collaboration.m4a':wireMode==='download-wrong-tags'?'/__musicflow/wrong-tags.m4a':'/__musicflow/download.mp3')).arrayBuffer());
- const audioPage=async(mode:string)=>{const bytes=await ownAudio();return history([{_:'message',id:clicked?13:12,peerId:{_:'peerUser',userId:101},fromId:{_:'peerUser',userId:101},date:1,message:'',...(mode==='download-recent'?{}:{replyTo:{_:'messageReplyHeader',replyToMsgId:10}}),media:{_:'messageMediaDocument',document:{_:'document',id:new Long(mode==='download-document-changed'&&fileTransferred?99:12,1),accessHash:new Long(45,2),fileReference:new Uint8Array([4,mode==='download-reference-refresh'&&fileTransferred?6:5]),dcId:2,mimeType:['download-collaboration','download-wrong-tags'].includes(mode)?'audio/mp4':'audio/mpeg',size:mode==='download-oversize'?8388609:bytes.length,attributes:[{_:'documentAttributeAudio',duration:45,title:mode==='download-conflict'?'Different studio version':['download-multi','download-partial'].includes(mode)?wireTitle:'MUSIC_FLOW Song (Live version)',performer:'MUSIC_FLOW Artist'}]}}}]);};
+ const ownAudio=async()=>audioBytes??=new Uint8Array(await(await nativeFetch(['download-multi','download-partial'].includes(wireMode)?(wireTitle.includes('Second')?'/__musicflow/second.mp3':'/__musicflow/third.mp3'):diagnostic==='zero-duration-wrong-file'?'/__musicflow/zero-wrong-duration.m4a':(wireMode==='download-collaboration'||diagnostic==='control'||diagnostic==='zero-duration-valid')?'/__musicflow/collaboration.m4a':wireMode==='download-wrong-tags'?'/__musicflow/wrong-tags.m4a':'/__musicflow/download.mp3')).arrayBuffer());
+ const audioPage=async(mode:string)=>{const bytes=await ownAudio();return history([{_:'message',id:clicked?13:12,peerId:{_:'peerUser',userId:wirePeer},fromId:{_:'peerUser',userId:wirePeer},date:1,message:'',...(mode==='download-recent'?{}:{replyTo:{_:'messageReplyHeader',replyToMsgId:10}}),media:{_:'messageMediaDocument',document:{_:'document',id:new Long(mode==='download-document-changed'&&fileTransferred?99:12,1),accessHash:new Long(45,2),fileReference:new Uint8Array([4,mode==='download-reference-refresh'&&fileTransferred?6:5]),dcId:2,mimeType:(diagnostic==='control'||diagnostic.startsWith('zero-duration')||['download-collaboration','download-wrong-tags'].includes(mode))?'audio/mp4':'audio/mpeg',size:mode==='download-oversize'?8388609:bytes.length,attributes:[{_:'documentAttributeAudio',duration:diagnostic.startsWith('zero-duration')?0:diagnostic==='duration'?60:45,title:diagnostic==='title-version'?'Other version':mode==='download-conflict'?'Different studio version':['download-multi','download-partial'].includes(mode)?wireTitle:'MUSIC_FLOW Song (Live version)',performer:diagnostic==='artist'?'Other Artist':diagnostic?'MUSIC_FLOW Artist; Guest':'MUSIC_FLOW Artist'}]}}}]);};
  let cooldown:{retryAt:number|null;retryBlocked:boolean}|null=null;
  const getAccountCooldown=()=>{if(cooldown&&!cooldown.retryBlocked&&cooldown.retryAt!==null&&Date.now()>=cooldown.retryAt)cooldown=null;return cooldown;};
  const current=(signal:AbortSignal)=>{if(closed||lifetime.aborted||signal.aborted)throw Error('cancelled');};
@@ -61,11 +61,12 @@ export async function openTemporaryTelegram(_identity:unknown,lifetime:AbortSign
  const rawCall=async(request:any,options:any)=>{
   // Closed transport schema, peer capability and policy checked BEFORE fixture IO.
   if(!['contacts.resolveUsername','messages.getHistory','messages.sendMessage','messages.getDialogs','messages.getMessages','messages.getBotCallbackAnswer','upload.getFile'].includes(request._))throw Error('Forbidden SDK method');
-  if(request.peer&&(request.peer._!=='inputPeerUser'||request.peer.userId!==101||!Long.isLong(request.peer.accessHash)))throw Error('Peer capability not closed');
+  if(request.peer&&(request.peer._!=='inputPeerUser'||![101,102].includes(request.peer.userId)||!Long.isLong(request.peer.accessHash)))throw Error('Peer capability not closed');
   if(options.maxRetryCount!==0||options.floodSleepThreshold!==0||options.timeout<0||options.timeout>15000||options.timeout===0&&options.abortSignal!==undefined)throw Error('SDK policy changed');
+  if(request.peer)wirePeer=request.peer.userId;
   const payload={method:request._,username:request.username??null,query:request.message??null,offset:request.offset??null,limit:request.limit??null,minId:request.minId??null,peer:request.peer?{type:request.peer._,id:request.peer.userId}:null,keys:Object.keys(request).sort(),randomLong:request.randomId?Long.isLong(request.randomId):null,policy:{maxRetryCount:options.maxRetryCount,floodSleepThreshold:options.floodSleepThreshold,timeout:options.timeout}};
   // Native await barrier deliberately ignores abort, so cancel ACK cannot stand for settlement.
-  const r=await nativeFetch('/__musicflow/rpc',{method:'POST',body:JSON.stringify(payload)});const v=await r.json();wireMode=v.mode;await event('rpc-settled',{method:request._});
+  const r=await nativeFetch('/__musicflow/rpc',{method:'POST',body:JSON.stringify(payload)});const v=await r.json();wireMode=v.mode;diagnostic=v.diagnostic??'';await event('rpc-settled',{method:request._});
   if(v.error){const e={errorMessage:v.error};const f=botProvidersFailure(e,Date.now());if(f.error==='rate-limit')cooldown={retryAt:f.retryAt,retryBlocked:f.retryBlocked};throw e;}
   if(v.mode==='diagnostic-binary'&&request._==='messages.getHistory'&&request.limit===20)return {...page('menu'),incidental:new Uint8Array(4097)};
   if(request._==='contacts.resolveUsername')return identity(request.username,v.label);
@@ -76,10 +77,10 @@ export async function openTemporaryTelegram(_identity:unknown,lifetime:AbortSign
   if(request._==='messages.sendMessage'){wireTitle=request.message?.includes('Second')?'MUSIC_FLOW Second':request.message?.includes('Third')?'MUSIC_FLOW Third':'MUSIC_FLOW Song (Live version)';audioBytes=undefined;clicked=false;polls=0;fileTransferred=false;return v.mode==='badack'?{_:'updates',updates:[],users:[],chats:[]}:{_:'updateShortSentMessage',out:true,id:10,date:1,pts:1,ptsCount:1};}
   if(request._==='messages.getHistory'&&request.limit===20&&v.mode==='download-metadata-budget'){
    const count=clicked?++callbackPolls:++polls;
-   if(count<3)return history([{_:'message',id:clicked?13:12,peerId:{_:'peerUser',userId:101},fromId:{_:'peerUser',userId:101},date:1,message:'Searching…',replyTo:{_:'messageReplyHeader',replyToMsgId:10}}]);
+   if(count<3)return history([{_:'message',id:clicked?13:12,peerId:{_:'peerUser',userId:wirePeer},fromId:{_:'peerUser',userId:wirePeer},date:1,message:'Searching…',replyTo:{_:'messageReplyHeader',replyToMsgId:10}}]);
    return clicked?audioPage(v.mode):page('menu');
   }
-  if(request._==='messages.getHistory'&&request.limit!==1&&v.mode==='download-progress'&&!clicked){polls++;if(polls===1)return history([{_:'message',id:12,peerId:{_:'peerUser',userId:101},fromId:{_:'peerUser',userId:101},date:1,message:'Searching…',replyTo:{_:'messageReplyHeader',replyToMsgId:10}}]);return page('menu');}
+  if(request._==='messages.getHistory'&&request.limit!==1&&v.mode==='download-progress'&&!clicked){polls++;if(polls===1)return history([{_:'message',id:12,peerId:{_:'peerUser',userId:wirePeer},fromId:{_:'peerUser',userId:wirePeer},date:1,message:'Searching…',replyTo:{_:'messageReplyHeader',replyToMsgId:10}}]);return page('menu');}
   if(request.limit!==1&&v.mode.startsWith('download-')&&(clicked||!['download-partial','download-multi','download-option','download-collaboration','download-wrong-tags','download-reference-refresh','download-document-changed','download-changed','download-url','download-recent','download-progress','download-ambiguous','download-sender-omitted','download-unthreaded','download-private-optional','download-unthreaded-ambiguous','download-wide-menu','download-metadata-budget','download-ranked-options','download-no-match'].includes(v.mode)))return audioPage(v.mode);
   return request.limit===1?history():page(v.mode);
  };

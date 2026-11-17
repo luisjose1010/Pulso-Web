@@ -72,12 +72,12 @@ export async function clearTelegramSessionLease(lease:string):Promise<void>{
 export async function loadTelegramBots(lease:string):Promise<SavedBot[]> {
  return (await loadTelegramBotSelection(lease)).bots;
 }
-export async function loadTelegramBotSelection(lease:string):Promise<{bots:SavedBot[];revision:number}> {
+export async function loadTelegramBotSelection(lease:string):Promise<{bots:SavedBot[];revision:number;initialized:boolean}> {
  if(!epochValue(lease))throw failure();
- const selection=await transaction<{bots:SavedBot[];revision:number}|null>(false,'readonly',(store,set)=>{read(store,EPOCH,epoch=>read(store,SECRET,secret=>read(store,BOTS,value=>read(store,BOTS_REV,storedRevision=>{
+ const selection=await transaction<{bots:SavedBot[];revision:number;initialized:boolean}|null>(false,'readonly',(store,set)=>{read(store,EPOCH,epoch=>read(store,SECRET,secret=>read(store,BOTS,value=>read(store,BOTS_REV,storedRevision=>{
   if(epoch!==lease||typeof secret!=='string'||!secret)throw failure();
   const bots=value===undefined?[]:parseSavedBots(value),revision=storedRevision===undefined?0:storedRevision;
-  if(!bots||typeof revision!=='number'||!Number.isSafeInteger(revision)||revision<0)throw failure();set({bots,revision});
+  if(!bots||typeof revision!=='number'||!Number.isSafeInteger(revision)||revision<0)throw failure();set({bots,revision,initialized:value!==undefined||revision!==0});
  }))));},null);
  if(!selection)throw failure();return selection;
 }

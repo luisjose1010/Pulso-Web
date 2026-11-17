@@ -1,0 +1,24 @@
+import {createTestWorkspace} from './test-workspace.mjs';
+import {build,preview} from 'vite';
+import {chromium,webkit} from 'playwright-core';
+import {writeFile} from 'node:fs/promises';
+import assert from 'node:assert/strict';
+const workspace=await createTestWorkspace('download-feedback'),{dir,evidence}=workspace;
+
+const report={cases:[],errors:[],external:[]};let server;
+try{
+await writeFile(`${dir}/fixture.html`,'<meta name="viewport" content="width=device-width,initial-scale=1"><div id="root"></div><script type="module" src="/tests/integration/download-feedback-fixture.tsx"></script>');
+await build({configFile:false,logLevel:'error',build:{outDir:`${dir}/bundle`,rolldownOptions:{input:`${dir}/fixture.html`}}});if(process.env.PULSO_TEST_FAIL_AFTER_BUILD==='1')throw Error('Injected teardown verification failure after build');
+server=await preview({configFile:false,build:{outDir:`${dir}/bundle`},preview:{host:'127.0.0.1',port:0}});const origin=`http://127.0.0.1:${server.httpServer.address().port}`;
+for(const [name,launcher]of [['chromium',chromium],['webkit',webkit]]){const browser=await launcher.launch(name==='chromium'?{executablePath:'/usr/bin/chromium',headless:true}:{headless:true});try{const page=await browser.newPage({viewport:{width:390,height:664}});page.on('pageerror',e=>report.errors.push(String(e)));await page.route('**/*',r=>{const u=new URL(r.request().url());if(u.origin===origin)return r.continue();if(u.hostname==='itunes.apple.com'){const album={wrapperType:'collection',collectionType:'Album',collectionId:42,collectionName:'Synthetic',artistName:'Artist',trackCount:2};return r.fulfill({headers:{'access-control-allow-origin':'*'},json:{resultCount:3,results:[album,...[1,2].map(n=>({wrapperType:'track',kind:'song',collectionId:42,trackId:80+n,discNumber:1,discCount:1,trackNumber:n,trackCount:2,trackName:'Track '+n,artistName:'Artist',trackTimeMillis:60000}))]}});}report.external.push(u.origin);return r.abort();});
+await page.goto(`${origin}/${dir}/fixture.html`);await page.locator('[data-suggestion-id="one"]').click();let row=page.locator('.catalog-mixed-list>li').first();await row.getByRole('progressbar').waitFor();assert.equal(await row.getByRole('progressbar').getAttribute('value'),null);await page.evaluate(()=>feedbackUI.progress({bytes:25,total:100}));assert.equal(await row.getByRole('progressbar').getAttribute('value'),'25');await row.getByRole('button',{name:'Cancelar carga'}).click();assert.deepEqual(await page.evaluate(()=>feedbackUI.calls),['cancel']);assert.equal(await page.locator('.selected-song-actions').count(),1);await page.screenshot({path:`${evidence}/${name}-search-progress.png`});report.cases.push(`${name}: search progress stays in selected row, indeterminate/bytes/cancel`);
+await page.evaluate(()=>feedbackUI.view('album'));await page.locator('.album-tracks>li').first().getByRole('button').click();row=page.locator('.album-tracks>li').first();await row.getByRole('progressbar').waitFor();assert.equal(await page.locator('.album-tracks>li').nth(1).getByRole('progressbar').count(),0);await row.scrollIntoViewIfNeeded();await page.screenshot({path:`${evidence}/${name}-album-progress.png`});report.cases.push(`${name}: album selection progress in matching row`);
+await page.evaluate(()=>feedbackUI.downloads());const bubble=page.locator('.download-bubble');await bubble.locator('summary').click();await bubble.getByText('Canción dos',{exact:true}).waitFor();assert.equal(await bubble.getByRole('progressbar').getAttribute('value'),'1');await bubble.getByRole('button',{name:'Detener descarga de álbum'}).click();assert.equal(await page.evaluate(()=>feedbackUI.aborted()),true);report.cases.push(`${name}: floating download queue, truthful confirmed count and cancellation`);
+for(const width of [390,1366,320]){await page.setViewportSize({width,height:750});if(width===320)await page.evaluate(()=>document.documentElement.style.fontSize='200%');assert.ok(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));await page.screenshot({path:`${evidence}/${name}-${width}.png`});}report.cases.push(`${name}: responsive and text200`);
+}finally{await browser.close();}}
+assert.deepEqual(report.errors,[]);assert.deepEqual(report.external,[]);report.status='PASS';}catch(e){report.status='FAIL';report.error=String(e.stack||e);}finally{
+ let serverStopped=true;
+ try{if(server)await new Promise((resolve,reject)=>server.httpServer.close(e=>e?reject(e):resolve()));}catch(e){serverStopped=false;report.status='FAIL';report.serverCleanupError=String(e);}
+ if(serverStopped){try{report.cleanup=await workspace.cleanup();}catch(e){report.status='FAIL';report.cleanupError=String(e);}}else report.retainedTemporaryPath=dir;
+ await writeFile(`${evidence}/report.json`,JSON.stringify(report,null,2));console.log(JSON.stringify({evidence,...report},null,2));if(report.status!=='PASS')process.exitCode=1;
+}

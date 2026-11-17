@@ -31,7 +31,7 @@
 .music-search-actions { display: flex; flex-wrap: wrap; gap: .5rem; }
 .music-search-actions button { border-radius: 999px; }
 .music-search-actions [aria-pressed="true"] { background: var(--pulso-foreground); color: var(--pulso-canvas); }
-.music-search-catalog [aria-pressed="true"][data-suggestion-id] { outline: 2px solid var(--pulso-accent); outline-offset: -2px; }
+.music-search-catalog [aria-pressed="true"][data-suggestion-id] { color:var(--pulso-accent); }
 .catalog-discovery { padding: 1.25rem; background: var(--pulso-surface); border: 1px solid var(--pulso-border); border-radius: 1rem; }
 .catalog-discovery h3 { margin: 0; }.catalog-discovery p { color: var(--pulso-muted); }
 .catalog-discovery div { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,8rem),1fr)); gap: .6rem; }
@@ -64,7 +64,8 @@
 .music-search .catalog-search-field .catalog-clear { display: grid; place-items: center; inline-size: 44px; block-size: 44px; min-inline-size: 44px; padding: 0; border: 0; border-radius: 50%; background: transparent; color: var(--pulso-muted); }
 .catalog-clear svg { inline-size: 20px; block-size: 20px; }
 .music-search .music-search-query-bar .catalog-cancel { background: transparent; border-color: transparent; color: var(--pulso-foreground); font-weight: 500; padding-inline: .25rem; font-size: .9rem; }
-.catalog-search-status { min-block-size: 1.25rem; color: var(--pulso-muted); font-size: .8rem; }
+.catalog-search-status { color: var(--pulso-muted); font-size: .8rem; }
+.catalog-search-status:not(:empty) { padding-block: .35rem; min-block-size: 1.25rem; }
 .pulso-app .music-search .music-search-catalog { margin-block-start: .25rem; }
 .music-search .music-search-actions { flex-wrap: nowrap; overflow-x: auto; gap: .4rem; padding-block: .25rem; margin-block: 0 .75rem; scrollbar-width: thin; }
 .music-search .music-search-actions button { flex: 0 0 auto; white-space: nowrap; padding: .45rem .85rem; font-size: .8rem; border-radius: 2rem; }
@@ -72,12 +73,20 @@
 .music-search .catalog-mixed-list>li { padding: 0; }
 .pulso-app .music-search .catalog-mixed-list [data-suggestion-id] { min-block-size: 72px; gap: .85rem; padding: .5rem 0; border-radius: .4rem; }
 .music-search .catalog-row-copy { display: block; }
-.pulso-app .music-search .catalog-row-copy strong { display: block; font-size: 1rem; font-weight: 500; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.music-search .catalog-row-copy .catalog-row-meta { display: block; margin-block-start: .15rem; font-size: .85rem; line-height: 1.4; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.pulso-app .music-search .catalog-row-copy strong { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; font-size: 1rem; font-weight: 500; line-height: 1.4; overflow: hidden; white-space: normal; }
+.music-search .catalog-row-copy .catalog-row-meta { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; margin-block-start: .15rem; font-size: .85rem; line-height: 1.4; overflow: hidden; white-space: normal; }
 .music-search .catalog-art { flex: 0 0 48px; inline-size: 48px; block-size: 48px; border-radius: .25rem; }
 .music-search .catalog-art--artist { border-radius: 50%; }
 .music-search .catalog-chevron { font-size: 1.35rem; padding-inline: .3rem; }
 .music-search .catalog-empty { color: var(--pulso-muted); font-size: .9rem; margin-block: 1.5rem; }
+.music-search .catalog-empty p { margin-block: 0 .75rem; }
+/* Keep focus rings inside the horizontal filter scroller and row gutters. */
+.music-search .music-search-actions button:focus-visible,
+.music-search-catalog [data-suggestion-id]:focus-visible { outline-offset: -3px; }
+.music-search .music-search-actions { scroll-padding-inline: .25rem; overscroll-behavior-inline: contain; }
+.music-search button { touch-action: manipulation; -webkit-user-select: none; user-select: none; }
+.music-search button:active:not(:disabled) { background: var(--pulso-soft); color: var(--pulso-foreground); }
+.music-search summary { min-block-size: 44px; padding-block: .65rem; }
 .pulso-app .music-search .music-search-bot { margin-block-start: 1.25rem; }
 .pulso-app .music-search[data-search-active="true"] { margin-block-start: 0; }
 @media (max-width: 600px) {

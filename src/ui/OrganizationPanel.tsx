@@ -1,3 +1,4 @@
+import {BackButton} from './BackButton';
 import {formatStorageMB} from '../library/storage-format';
 import type {BeginPanelDiagnostic,PanelDiagnosticAttempt,PanelOperation} from '../diagnostics/panel-mapping';
 import type {Activity} from '../playback/ownership';
@@ -225,7 +226,7 @@ export function OrganizationPanel({activity, canWrite, captureWriteCurrent, onSt
       {!confirmRecovery ? <button type="button" disabled={pending || !canWrite} onClick={() => {if(!writeCurrent()||busy.current||pending)return;activity.block('backup-confirm',true);setConfirmRecovery(true);}}>Restaurar en este almacenamiento</button> : <div>
         <p>Confirma que quieres abandonar el seguimiento anterior y preparar una restauración nueva.</p>
         <button type="button" disabled={pending || !canWrite} onClick={() => void recover()}>Confirmar abandono del seguimiento</button>
-        <button type="button" disabled={pending} onClick={() => setConfirmRecovery(false)}>Volver al seguimiento</button>
+        <BackButton disabled={pending} onClick={() => setConfirmRecovery(false)}>Volver al seguimiento</BackButton>
       </div>}
     </div>}
     {history.length > 0 && <div><p>Restauraciones anteriores con resultado desconocido:</p><ul>{history.map(id => <li key={id}>Resultado desconocido · Operación {id}</li>)}</ul></div>}
@@ -248,7 +249,7 @@ export function OrganizationPanel({activity, canWrite, captureWriteCurrent, onSt
       {phase === 'confirm' && <div onKeyDown={event => { if (event.key === 'Escape') { event.preventDefault(); setPhase('preview'); } }}>
         <p ref={confirmRef} tabIndex={-1}>Confirma la restauración con las decisiones mostradas. Los datos locales ajenos a la copia se conservan.</p>
         <button type="button" disabled={!canWrite || blocked} onClick={() => void apply()}>Confirmar restauración</button>
-        <button type="button" onClick={() => setPhase('preview')}>Volver</button>
+        <BackButton onClick={() => setPhase('preview')}>Volver</BackButton>
       </div>}
     </div>}
   </details>;

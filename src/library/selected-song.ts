@@ -1,10 +1,11 @@
 import {MB_UUID} from './catalog-id';
+import {activeLibraryAccount} from '../accounts/library-local';
 import type {PlayerArtworkQuery} from './player-artwork-provider';
 import {AUDIO_FILE_MAX_BYTES} from '../storage/audio-limits';
 import type {MusicCatalogChoice} from './music-search-catalog';
 import type {BotDownloadedAudio} from '../telegram/bot-search-protocol';
 import {dataRecord,isUuid} from '../telegram/sources-protocol';
-import {admittedTransaction,openExistingDatabase,request,closeDatabase} from '../storage/database';
+import {admittedTransaction,openExistingDatabase,request,closeDatabase,readRecord} from '../storage/database';
 import {transactionDone} from '../storage/transaction-done';
 import {validAsset,validAudioFingerprint,type Track,type LocalAsset} from './library';
 import {expectedAudioTagMismatch} from '../imports/expected-audio-metadata';
@@ -111,8 +112,9 @@ export async function readSongArtworkIdentity(track:Track,current:()=>boolean):P
  }finally{closeDatabase(db);}
 }
 export async function readSongAlias(choice:SongChoice,current:()=>boolean,allowCompatible=true):Promise<string|null> {
+ const accountId=await activeLibraryAccount();
  const key=songChoiceKey(choice);if(!key||!current())return null;
- if(choice.source==='local')return choice.id.slice(6);
+ if(choice.source==='local'){const t=await readRecord<Track>('tracks',choice.id.slice(6));return current()&&t?.accountId===accountId?t?.id??null:null;}
  const db=await openExistingDatabase();
  try{
   if(!current())throw Error('cancelled');const tx=admittedTransaction(db,['settings','tracks'],'readonly'),done=transactionDone(tx);
@@ -120,7 +122,7 @@ export async function readSongAlias(choice:SongChoice,current:()=>boolean,allowC
   if(raw===undefined){await done;return allowCompatible?await compatibleLocalSong(db,choice,current):null;}const a=alias(raw,key);if(!a){await done;throw Error('Alias musical inválido; revisa el almacenamiento.');}
   const track=await request<Track|undefined>(tx.objectStore('tracks').get(a.trackId));await done;
   if(!current())throw Error('cancelled');
-  if(!track)return null;
+  if(!track||track.accountId!==accountId)return null;
   if(track.id!==a.trackId)throw Error('La identidad de la ficha local ha cambiado.');
   // A detached track retains its fingerprint. Never attach an alias to other bytes.
   if(track.audioFingerprint?.sha256!==a.sha256||track.audioFingerprint?.bytes!==a.bytes)throw Error('La referencia de esta canción ha cambiado.');
@@ -128,11 +130,12 @@ export async function readSongAlias(choice:SongChoice,current:()=>boolean,allowC
  }finally{closeDatabase(db);}
 }
 async function compatibleLocalSong(db:IDBDatabase,choice:SongChoice,current:()=>boolean):Promise<string|null> {
+ const accountId=await activeLibraryAccount();
  if(!choice.artist||choice.duration===null||!current())return null;
  const tx=admittedTransaction(db,['tracks','assets'],'readonly'),done=transactionDone(tx);
  const rows=await request<Track[]>(tx.objectStore('tracks').getAll(undefined,2001));
  if(rows.length>2000){await done;throw Error('Hay demasiadas fichas para comprobar una copia compatible.');}
- const candidates=rows.filter(t=>t&&isUuid(t.id)&&typeof t.title==='string'&&typeof t.artist==='string'&&t.artist.trim()&&typeof t.duration==='number'&&Number.isFinite(t.duration)&&t.duration>0&&Math.abs(t.duration-choice.duration!)<=5&&recordingTitlesEquivalent(t.title,choice.title,{actualAlbum:t.album,expectedAlbum:choice.album,actualDurationSeconds:t.duration,expectedDurationSeconds:choice.duration})&&!expectedAudioTagMismatch({title:t.title,artist:t.artist,album:t.album??undefined},{title:choice.title,artist:choice.artist,...(musicIdentityText(t.title)!==musicIdentityText(choice.title)&&choice.album&&choice.duration!==null?{recordingTitle:t.title,album:choice.album,durationSeconds:choice.duration}:{})},t.duration)&&validAudioFingerprint(t.audioFingerprint));
+ const candidates=rows.filter(t=>t&&t.accountId===accountId&&isUuid(t.id)&&typeof t.title==='string'&&typeof t.artist==='string'&&t.artist.trim()&&typeof t.duration==='number'&&Number.isFinite(t.duration)&&t.duration>0&&Math.abs(t.duration-choice.duration!)<=5&&recordingTitlesEquivalent(t.title,choice.title,{actualAlbum:t.album,expectedAlbum:choice.album,actualDurationSeconds:t.duration,expectedDurationSeconds:choice.duration})&&!expectedAudioTagMismatch({title:t.title,artist:t.artist,album:t.album??undefined},{title:choice.title,artist:choice.artist,...(musicIdentityText(t.title)!==musicIdentityText(choice.title)&&choice.album&&choice.duration!==null?{recordingTitle:t.title,album:choice.album,durationSeconds:choice.duration}:{})},t.duration)&&validAudioFingerprint(t.audioFingerprint));
  // Detached identities still participate in ambiguity. Filtering by physical
  // availability first could silently select another recording with equal tags.
  if(candidates.length>1){await done;throw Error('Hay varias copias locales compatibles. Revisa tu biblioteca antes de continuar.');}
@@ -156,6 +159,7 @@ export async function rememberSongAlias(choice:SongChoice,trackId:string,sha256:
    const asset=track?.assetId?await request<LocalAsset|undefined>(tx.objectStore('assets').get(track.assetId)):undefined;
    if(!current()||!track||track.id!==trackId||!validAsset(asset)||asset.sha256!==sha256||asset.bytes!==bytes||track.audioFingerprint?.sha256!==sha256)throw Error('conflict');
    const displayArtist=(choice.source==='itunes'||choice.source==='musicbrainz')?choice.searchArtist:choice.source==='lrclib'?choice.artist:undefined;
+   const {id,source,title,artist,album,duration,searchArtist}=choice;tx.objectStore('tracks').put({...track,catalogChoice:{id,source,title,artist,album,duration,...(searchArtist?{searchArtist}:{})},revision:track.revision+1},track.id);
    tx.objectStore('settings').put({version:1,key,trackId,sha256,bytes,...(displayArtist?.trim()&&displayArtist.length<=300?{displayArtist:displayArtist.trim()}: {})} satisfies Alias,aliasKey(key));
    if(!current())throw Error('cancelled');await done;
   }catch(error){try{tx.abort();}catch{/* commit winner */}await done.catch(()=>{});throw error;}

@@ -43,7 +43,13 @@
 .pulso-app .mini-player__range input:disabled { cursor: default; opacity: .4; }
 .pulso-app .mini-player__range input:focus-visible { outline: 2px solid var(--pulso-accent); outline-offset: 3px; border-radius: .25rem; }
 .mini-player__time { font-size: .6875rem; line-height: 1; color: var(--pulso-muted); font-variant-numeric: tabular-nums; white-space: nowrap; }
+/* A quiet mobile timeline conveys playback without adding another small target. */
+.pulso-app .mini-player__mobile-progress { position:absolute; inset-inline:.75rem; inset-block-end:0; inline-size:calc(100% - 1.5rem); block-size:2px; appearance:none; border:0; border-radius:2px; overflow:hidden; background:var(--pulso-border); color:var(--pulso-accent); pointer-events:none; }
+.mini-player__mobile-progress::-webkit-progress-bar { background:var(--pulso-border); }
+.mini-player__mobile-progress::-webkit-progress-value { background:var(--pulso-accent); }
+.mini-player__mobile-progress::-moz-progress-bar { background:var(--pulso-accent); }
 @media (min-width: 1024px) {
+  .pulso-app .mini-player__mobile-progress { display:none; }
   .pulso-app .mini-player {
     grid-template-columns: minmax(0, 1fr) minmax(0, 1.4fr) minmax(0, 1fr);
     grid-template-rows: 44px 24px;
@@ -58,7 +64,7 @@
   .pulso-app .mini-player__details { grid-column: 1; grid-row: 1 / 3; }
   .pulso-app .mini-player__actions { grid-column: 2; grid-row: 1; justify-content: center; }
   .pulso-app .mini-player .desktop-transport { display: grid; place-items: center; inline-size: 44px; block-size: 44px; padding: 0; background: transparent; color: var(--pulso-muted); border: 0; }
-  .pulso-app .mini-player__toggle { inline-size: 36px; min-inline-size: 36px; block-size: 36px; min-block-size: 36px; margin-inline: .375rem; }
+  .pulso-app .mini-player__toggle { inline-size: 44px; min-inline-size: 44px; block-size: 44px; min-block-size: 44px; margin-inline: .375rem; }
   .pulso-app .mini-player__toggle svg { inline-size: 18px; block-size: 18px; }
   .pulso-app .mini-player .desktop-seek { display: grid; grid-template-columns: minmax(2rem, auto) minmax(0, 1fr) minmax(2rem, auto); grid-column: 2; grid-row: 2; align-items: center; gap: .625rem; margin: 0; }
   .desktop-seek .mini-player__time:first-child { text-align: end; }

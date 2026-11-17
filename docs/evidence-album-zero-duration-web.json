@@ -1,0 +1,308 @@
+{
+  "status": "PUBLISHED; Llora repaired real acceptance PASS; album partial13/15",
+  "date": "2026-11-17",
+  "album": "La Vida Era Más Corta",
+  "artist": "Milo j",
+  "observedBefore": {
+    "origin": "https://pulso-web.pruebassoftware.workers.dev",
+    "release": "b34ea1aee33c6357",
+    "album": "La Vida Era Más Corta",
+    "artist": "Milo j",
+    "trackCount": 15,
+    "discs": 2,
+    "openedAlbumWithZeroTelegramCommands": true,
+    "tests": [
+      {
+        "title": "Llora Llora",
+        "catalogueArtist": "Milo j & AKRIILA",
+        "catalogueDuration": 243.587,
+        "searchCommands": 2,
+        "downloadCommands": 1,
+        "positiveBytesObserved": false,
+        "outcome": "REPRODUCED D02 and D01; no local copy",
+        "closedAudioObservation": [
+          {
+            "kind": "audio",
+            "titlePresent": true,
+            "artistPresent": true,
+            "titleExact": true,
+            "artistExact": true,
+            "durationDelta": -243.587,
+            "creditUsesFeaturing": false
+          }
+        ]
+      },
+      {
+        "title": "Bajo De La Piel",
+        "catalogueDuration": 168.4,
+        "searchCommands": 2,
+        "downloadCommands": 2,
+        "outcome": "KD returned zero Telegram duration; Deezer download and playback succeeded",
+        "newAssets": 1
+      },
+      {
+        "title": "Niño",
+        "catalogueDuration": 210.533,
+        "searchCommands": 2,
+        "downloadCommands": 2,
+        "outcome": "KD returned zero Telegram duration; Deezer download and playback succeeded",
+        "newAssets": 1
+      }
+    ],
+    "totalMusicCommands": {
+      "search": 6,
+      "download": 5,
+      "cancel": 0
+    },
+    "after": {
+      "assets": 2,
+      "tracks": 2,
+      "bytes": 15715435,
+      "durations": [
+        {
+          "title": "Bajo De La Piel",
+          "seconds": 168.43755102040816
+        },
+        {
+          "title": "Niño",
+          "seconds": 210.5730612244898
+        }
+      ]
+    },
+    "realTelegram": true,
+    "realAccount": true,
+    "rawChatSaved": false,
+    "realAudioOrMusicHashesSaved": false,
+    "limitations": [
+      "No repaired public build accepted yet",
+      "Not an all-album batch",
+      "No iPhone physical acceptance"
+    ]
+  },
+  "copyVerificationBefore": {
+    "copiesVerified": 2,
+    "results": [
+      {
+        "backend": "opfs",
+        "lengthMatches": true,
+        "shaMatches": true
+      },
+      {
+        "backend": "opfs",
+        "lengthMatches": true,
+        "shaMatches": true
+      }
+    ],
+    "rawBytesOrHashesReturned": false
+  },
+  "repair": {
+    "zeroDuration": "Inspect bytes only for an exact normalized title/full artist with known positive catalogue duration and album",
+    "fileValidation": "Actual parsed duration checked before staging; normal tolerance5s, album-version alias1s",
+    "titleArtistValidation": "Preserved",
+    "knownPositiveWrongDuration": "Still rejected",
+    "newFailure": "metadata-duration-mismatch"
+  },
+  "validation": {
+    "unit": {
+      "pass": 766,
+      "fail": 0
+    },
+    "lint": "PASS",
+    "cloudflareBuild": "PASS",
+    "workerDryRun": "PASS",
+    "chromium": {
+      "groups": 9,
+      "report": {
+        "path": ".local/album-current-investigation/fix-root/.local/zero-duration/chromium-verified/main/final-2026-11-17T05-07-32-734Z/report.json",
+        "bytes": 726986,
+        "sha256": "ee465f49ab34a84ebae57713b0a76f000442f0138a0aa4b0d290469a9b3d585c"
+      },
+      "csp": 0
+    },
+    "webkitDesktop": {
+      "groups": 4,
+      "report": {
+        "path": ".local/album-current-investigation/fix-root/.local/zero-duration/webkit/main/final-2026-11-17T05-05-02-915Z/report.json",
+        "bytes": 477705,
+        "sha256": "2cf850008a9141a999d77bf7a0c2ba7f7bd06289186077b0901d64ee60d059bc"
+      },
+      "csp": 48,
+      "baselineCsp": 48
+    },
+    "zeroDurationCases": [
+      "known-duration control",
+      "Telegram0 / parsed45.046s accepted",
+      "Telegram0 / parsed65s vs catalogue45s rejected before staging without retry"
+    ]
+  },
+  "entry": "/releases/4f6976956f305019.html",
+  "publication": {
+    "status": "PUBLISHED; independent readback PASS; repaired Llora real acceptance PASS",
+    "provider": "official Cloudflare MCP OAuth",
+    "plan": "Workers Free / USD 0",
+    "deploymentId": "fd1d19643b7a4f75bc9dfd06d7e99573",
+    "workerBytes": 303826,
+    "workerSHA256": "ba1385a54b291151f15b62ecd51c30fa9697c6fa00ac67b19fe4d1d742d41165",
+    "entry": "/releases/4f6976956f305019.html",
+    "manifestFiles": 154,
+    "publicStaticRoutesExpected": 151,
+    "publicStaticRoutesBytesSHA256Verified": 151,
+    "latestJsonEntryVerified": true,
+    "serviceWorkerBytes": 50072,
+    "serviceWorkerSHA256": "cfd36a27d85e5126cbf529ba7c59bb275d78e8eca30d68668931793d30dd75fd",
+    "bindingsReadback": "7 names/types verified; secret values not read; existing values preserved",
+    "workersDev": true,
+    "previewsEnabled": false,
+    "accountConfig": {
+      "status": 200,
+      "cacheControl": "no-store",
+      "enabled": true,
+      "google": true
+    },
+    "anonymousAccountProfile": {
+      "status": 401,
+      "ok": true
+    },
+    "readbackFailures": 0
+  },
+  "repairedRealAcceptance": {
+    "date": "2026-11-17",
+    "origin": "https://pulso-web.pruebassoftware.workers.dev",
+    "entry": "/releases/4f6976956f305019.html",
+    "realAccount": true,
+    "realTelegram": true,
+    "accountAndTelegramRestoredAfterPublishedUpdate": true,
+    "metadataIdentityOnly": true,
+    "llora": {
+      "catalogueDurationSeconds": 243.587,
+      "parsedDurationSeconds": 243.62328798185942,
+      "searchCommands": 1,
+      "downloadCommands": 1,
+      "receivedBytes": 3943218,
+      "downloadedSavedAndPlayed": true,
+      "libraryAddedExplicitly": true,
+      "reselectionAndLibraryAddKeptSameCommandCounts": true
+    },
+    "initialBatch": {
+      "reused": 2,
+      "downloaded": 1,
+      "failed": 1,
+      "unattempted": 11,
+      "requiresReview": 0,
+      "stopReason": "metadata-title-mismatch",
+      "failedBeforeStaging": true,
+      "failedTrack": "Ama De Mi Sol"
+    },
+    "manualProviderComparison": {
+      "track": "Ama De Mi Sol",
+      "secondProviderFirstByExplicitUIAction": true,
+      "secondProviderSavedAndPlayed": true,
+      "parsedDurationSeconds": 176.24816326530612
+    },
+    "continuation": {
+      "temporaryProviderOrder": [
+        "Deezer",
+        "KD"
+      ],
+      "reused": 5,
+      "downloaded": 8,
+      "failed": 2,
+      "unattempted": 0,
+      "requiresReview": 0,
+      "confirmed": 13,
+      "total": 15,
+      "searchCommands": 16,
+      "downloadCommands": 9,
+      "observedAdditionalPlayCalls": 0,
+      "playCounterInstalledAfterStart": true,
+      "playerPausedAtEnd": true
+    },
+    "remaining": [
+      {
+        "title": "MmmM",
+        "diagnosis": [
+          "D01",
+          "D02"
+        ],
+        "compatibleRecordingConfirmed": false
+      },
+      {
+        "title": "Luciérnagas",
+        "diagnosis": [
+          "D01"
+        ],
+        "compatibleRecordingConfirmed": false
+      }
+    ],
+    "totalObservedWorkerCommands": {
+      "search": 20,
+      "download": 13,
+      "cancel": 0
+    },
+    "physicalCopyVerification": {
+      "assets": 13,
+      "tracks": 13,
+      "copiesVerified": 13,
+      "bytes": 72706469,
+      "allLengthAndShaValid": true,
+      "rawBytesOrHashesReturned": false,
+      "commands": {
+        "search": 20,
+        "download": 13,
+        "cancel": 0
+      },
+      "providers": [
+        "@kdmusic_botPerfil",
+        "@deezermusicbotPerfil"
+      ],
+      "playingControl": false
+    },
+    "uniqueness": {
+      "assets": 13,
+      "tracks": 13,
+      "distinctTitles": 13,
+      "distinctTrackAssets": 13,
+      "distinctFingerprints": 13,
+      "jobs": 13
+    },
+    "providerOrderRestored": [
+      "KD",
+      "Deezer"
+    ],
+    "reloadAcceptance": {
+      "assets": 13,
+      "tracks": 13,
+      "bytes": 72706469,
+      "accountRestored": true,
+      "telegramRestored": true,
+      "providers": [
+        "KD",
+        "Deezer"
+      ],
+      "playerPaused": true,
+      "commands": {
+        "search": 0,
+        "download": 0,
+        "cancel": 0
+      },
+      "status": "PASS",
+      "replayedTrack": "Ama De Mi Sol",
+      "positionAdvancedToSeconds": 123.6,
+      "workerObserverInstalledAfterReload": true,
+      "nativeAudioOutputAnalysed": false
+    },
+    "observerCleanup": "confirmed; temporary worker observer removed and player paused",
+    "rawChatAudioHashesOrCredentialsSaved": false,
+    "all15Downloaded": false,
+    "iPhonePhysical": false
+  },
+  "limits": [
+    "Real album partial13/15; MmmM and Luciérnagas lack compatible confirmed copies",
+    "No iPhone physical acceptance",
+    "Metadata identity, not acoustic identity",
+    "Unknown Telegram duration path limited to exact normalized title with complete credit and catalogue context",
+    "Worker command counters do not cover every Telegram RPC or network request",
+    "Authenticated account-profile HTTP503 remains a separate open issue; account and Telegram restoration passed",
+    "No real audio, hashes, credentials or private chat saved"
+  ]
+}

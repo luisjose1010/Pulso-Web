@@ -1,0 +1,42 @@
+{
+  "status": "published-and-verified",
+  "entry": "/releases/5715374fd4a96362.html",
+  "change": "Shared return button with chevron, destination, 44px target, theme and accessible focus; existing navigation guards unchanged.",
+  "validation": {
+    "browserGroups": "44/44 Chromium/WebKit",
+    "sourceInputs": 822,
+    "pageErrors": 0,
+    "externalObserved": 0,
+    "cleanup": true,
+    "CSP": "108 historical WebKit style warnings retained",
+    "lintBuildDryRun": "PASS",
+    "publication": "PASS: module bytes/SHA exact; 188/188 HTTPS static routes; root/latest/SW/entry aligned; account config enabled/google true; anonymous profile/library 401; cross-origin library PUT 403."
+  },
+  "limits": [
+    "Synthetic musical/auth fixtures only",
+    "No real Telegram or account access",
+    "Physical iPhone acceptance pending"
+  ],
+  "evidenceDirectory": "/data/home/Proyectos/Pulso-Web/.local/test-evidence/back-buttons-1b9dPe",
+  "preservedConcurrentWork": "Spotify export excluded from the frozen source candidate",
+  "publication": {
+    "worker": "pulso-web",
+    "deploymentId": "7bfaf7f4-754d-419d-86e5-daf29c95ea93",
+    "versionId": "26a6441e-1b21-484e-a66e-8134a96d6cbd",
+    "versionNumber": 38,
+    "activePercentage": 100,
+    "entry": "/releases/5715374fd4a96362.html",
+    "manifestFiles": 191,
+    "staticRoutesVerified": 188,
+    "workerBytes": 318422,
+    "workerSha256": "e73c6acf441d48a39dc92ed76153d49281a39f404e2cebf1cf0fac5e8121ca6f",
+    "bindingsPreserved": 7,
+    "previewUrls": false,
+    "observability": false,
+    "logpush": false,
+    "migration": "none",
+    "cost": "USD 0 / existing Workers Free",
+    "mcpReadback": "/data/home/Proyectos/Pulso-Web/.local/test-evidence/back-buttons-1b9dPe/publication/mcp-readback.json",
+    "httpsReadback": "/data/home/Proyectos/Pulso-Web/.local/test-evidence/back-buttons-1b9dPe/publication/https-readback.json"
+  }
+}

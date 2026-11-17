@@ -40,11 +40,11 @@ test('MP4 real 16bit pair validates reserved bytes, text and booleans',()=>{
  payload[14]=1;assert.deepEqual(extractLocalAlbumMetadata({},'audio/mp4',[{tag:'trkn',payload}]).source.track,{state:'unknown',reason:'invalid'});
  payload[14]=0;payload[10]=0;payload[11]=0;assert.deepEqual(extractLocalAlbumMetadata({},'audio/mp4',[{tag:'disk',payload}]).source.disc.state==='known'&&extractLocalAlbumMetadata({},'audio/mp4',[{tag:'disk',payload}]).source.disc,{state:'known',value:{current:null,total:512},evidence:{kind:'embedded-mp4',tag:'disk'}});
 });
-test('group albumArtist exact NFC, fallback unchanged, artists independent',()=>{
+test('group albumArtist presentation equivalence, distinct fallback credits, artists independent',()=>{
  const a=t('a','1'),b=t('b','2');b.localAlbum=source('2','Café');
  const groups=groupAlbums([a,b,a]);assert.equal(groups.length,1);assert.deepEqual(groups[0].trackIds,['a','b','a']);assert.equal(groups[0].criterion,'albumArtist');assert.equal(groups[0].completeness,'unknown');assert.equal(groups[0].artist,'Cafe\u0301');
  assert.equal(groupArtists([a,b]).length,2);assert.equal(groupAlbums([a,t('a')]).length,2);
- b.localAlbum=source('2','café');assert.equal(groupAlbums([a,b]).length,2);
+ b.localAlbum=source('2','café');assert.equal(groupAlbums([a,b]).length,1);
 });
 test('stable selected-album ordering keeps all occurrences and ignores totals',()=>{
  const a=t('same','2/9'),b=t('same','1/8'),c=t('c','2/99'),d=t('d');

@@ -1,3 +1,4 @@
+import {copyAccountCatalog} from '../accounts/library-document.mjs';
 import {fail} from '../errors/app-failure';
 import {request} from '../storage/database';
 import {validImportOperation,terminal} from '../storage/import-operations';
@@ -50,8 +51,8 @@ export async function scanRemovalSnapshot(tx:IDBTransaction,check:()=>void):Prom
 export function validateTrack(value:unknown,key:IDBValidKey):Track {
  const m=dataObject(value);if(!m)corrupt();
  const required=['id','assetId','title','artist','album','duration','favorite','revision','createdAt','manualOverrides'];
- if(required.some(k=>!Object.hasOwn(m,k))||Object.keys(m).some(k=>!required.includes(k)&&!['audioFingerprint','organizationRef','localAlbum'].includes(k)))corrupt();
- const t=m as unknown as Track;
+ if(required.some(k=>!Object.hasOwn(m,k))||Object.keys(m).some(k=>!required.includes(k)&&!['audioFingerprint','organizationRef','localAlbum','accountId','catalogChoice'].includes(k)))corrupt();
+ const t=m as unknown as Track;if(t.accountId!==undefined&&!uuid(t.accountId))corrupt();if(t.catalogChoice!==undefined){try{if(!copyAccountCatalog(t.catalogChoice))corrupt();}catch{corrupt();}}
  if(!uuid(t.id)||t.id!==key||!(t.assetId===null||uuid(t.assetId))||!positive(t.revision)||t.revision>=Number.MAX_SAFE_INTEGER||typeof t.title!=='string'||!t.title.trim()||t.title.length>300||[t.artist,t.album].some(v=>v!==null&&(typeof v!=='string'||v.length>300))||!Number.isFinite(t.duration)||t.duration<=0||typeof t.favorite!=='boolean'||typeof t.createdAt!=='string'||!Number.isFinite(Date.parse(t.createdAt)))corrupt();
  const overrides=dataObject(t.manualOverrides);if(!overrides||Object.entries(overrides).some(([k,v])=>!['title','artist','album'].includes(k)||!(typeof v==='string'&&v.length<=300||k!=='title'&&v===null)))corrupt();
  if(t.audioFingerprint!=null&&(!closedObject(t.audioFingerprint,['algorithm','sha256','bytes'])||!validAudioFingerprint(t.audioFingerprint)))corrupt();
@@ -70,7 +71,8 @@ export function validateRemovalSnapshot(s:RemovalSnapshot,a:LocalAsset,detached=
  if(aliases.length<1||aliases.length>L.aliases||detached&&aliases.length!==journal!.tracks.length)corrupt();
  for(const t of aliases){if(t.audioFingerprint!=null&&(t.audioFingerprint.sha256!==a.sha256||t.audioFingerprint.bytes!==a.bytes))corrupt();if(detached&&(!t.audioFingerprint||t.assetId!==null||t.revision!==journal!.tracks.find(x=>x.id===t.id)!.afterRevision))changed();}
  const aliasIds=new Set(aliases.map(t=>t.id));let playlists=0,playlistEntries=0;
- for(const e of s.entries.playlists){const m=dataObject(e.value);if(!m||m.id!==e.key||!uuid(m.id)||!positive(m.revision)||typeof m.name!=='string'||m.name.length<1||m.name.length>100||!Array.isArray(m.entries)||Object.keys(m).some(k=>!['id','name','entries','revision','organizationRef'].includes(k)))corrupt();
+ for(const e of s.entries.playlists){const m=dataObject(e.value);if(!m||m.id!==e.key||!uuid(m.id)||!positive(m.revision)||typeof m.name!=='string'||m.name.length<1||m.name.length>100||!Array.isArray(m.entries)||Object.keys(m).some(k=>!['id','name','entries','revision','organizationRef','accountId'].includes(k)))corrupt();
+ if(m.accountId!==undefined&&!uuid(m.accountId))corrupt();
  if(m.organizationRef!==undefined){const r=closedObject(m.organizationRef,['id','libraryId']);if(!r||!uuid(r.id)||!uuid(r.libraryId))corrupt();}
  const entryIds=new Set<string>();let count=0;for(const raw of m.entries){const r=closedObject(raw,['id','trackId']);if(!r||!uuid(r.id)||!uuid(r.trackId)||!ids.has(r.trackId)||entryIds.has(r.id))corrupt();entryIds.add(r.id);if(aliasIds.has(r.trackId))count++;}if(count)playlists++;playlistEntries+=count;
  }if(playlistEntries>1000)limit();
@@ -81,7 +83,7 @@ export function validateRemovalSnapshot(s:RemovalSnapshot,a:LocalAsset,detached=
  const proof=s.entries.settings.find(e=>Array.isArray(e.key)&&e.key.length===3&&e.key[0]==='asset-ownership'&&e.key[1]===a.backend&&e.key[2]===a.storageKey);
  const p=closedObject(proof?.value,['operationId','owner','everPublished']);if(!p||!uuid(p.operationId)||!uuid(p.owner)||p.everPublished!==true)corrupt();
  let ownerJob=false;
- for(const e of s.entries.jobs){const fields=dataObject(e.value);if(!fields||Object.keys(fields).some(k=>!['version','operationId','owner','revision','state','backend','storageKey','bytes','expectedBytes','cause','libraryMode','asset','track','expectedAssetRevision','result'].includes(k))||!validImportOperation(e.value,e.key))corrupt();const j=e.value;if(!terminal(j))corrupt();if(j.backend===a.backend&&j.storageKey===a.storageKey){if(j.operationId!==p.operationId||j.owner!==p.owner||j.state!=='sealed'||!j.asset||!sameSourceAsset(j.asset,a))corrupt();ownerJob=true;}}
+ for(const e of s.entries.jobs){const fields=dataObject(e.value);if(!fields||Object.keys(fields).some(k=>!['version','operationId','owner','revision','state','backend','storageKey','bytes','expectedBytes','cause','libraryMode','asset','track','expectedAssetRevision','result','accountId'].includes(k))||!validImportOperation(e.value,e.key))corrupt();const j=e.value;if(!terminal(j))corrupt();if(j.backend===a.backend&&j.storageKey===a.storageKey){if(j.operationId!==p.operationId||j.owner!==p.owner||j.state!=='sealed'||!j.asset||!sameSourceAsset(j.asset,a))corrupt();ownerJob=true;}}
  if(!ownerJob)corrupt();
  return {aliases,summary:{bytes:a.bytes,tracks:aliases.length,favorites:aliases.filter(t=>t.favorite).length,playlists,playlistEntries,persistedQueueOccurrences:queueOccurrences}};
 }

@@ -5,11 +5,11 @@
 .collection-cover__tile { display:grid;place-items:center;inline-size:100%;block-size:100%;min-inline-size:0;overflow:hidden;font-size:clamp(2rem,6vw,4rem); }
 .collection-cover__tile img { display:block;inline-size:100%;block-size:100%;object-fit:cover; }
 .pulso-app .collection-card__art:has(.collection-cover) { padding:0; }
-.pulso-app .library-detail>.collection-back { border:0;background:transparent;padding-inline:0;min-block-size:44px;font-size:.85rem;margin-block-end:.75rem; }
+
 .library-view:has(.library-detail:not([hidden]))>h2 { position:absolute;inline-size:1px;block-size:1px;margin:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap; }
 .pulso-app .library-view:has(.library-detail:not([hidden])) { margin-block-start:0; }
 .collection-header { display:grid;grid-template-columns:minmax(0,1fr);gap:1rem;min-inline-size:0; }
-.collection-header__art { inline-size:min(72%,max(7rem,calc(100dvh - 31rem)),17rem);aspect-ratio:1;justify-self:center;border-radius:.5rem;overflow:hidden;box-shadow:0 1rem 2.5rem #07112020; }
+.collection-header__art { inline-size:min(72%,17rem);aspect-ratio:1;justify-self:center;border-radius:.5rem;overflow:hidden;box-shadow:0 1rem 2.5rem #07112020; }
 .collection-header__info { min-inline-size:0; }
 .collection-header__kind { margin:0 0 .4rem;color:var(--pulso-muted);font-size:.75rem; }
 .pulso-app .collection-header h3 { margin:0;letter-spacing:-.045em;font-size:clamp(1.8rem,5vw,2.8rem);line-height:1.15;overflow-wrap:anywhere; }
@@ -20,7 +20,7 @@
 .pulso-app .collection-shuffle[aria-pressed="true"] { background:var(--pulso-soft);color:var(--pulso-accent); }
 .pulso-app .collection-play { inline-size:64px;block-size:64px;background:var(--pulso-accent);color:var(--pulso-on-accent); }
 .collection-shuffle svg { inline-size:24px;block-size:24px; }.collection-play svg { inline-size:28px;block-size:28px; }
-.pulso-app .collection-tools { margin-block:0 1.25rem; }
+.pulso-app .collection-tools { margin-block:0 .5rem; }
 .collection-tools>summary { inline-size:fit-content;min-block-size:44px;display:flex;align-items:center;gap:.5rem;color:var(--pulso-muted);font-size:.8rem;list-style:none;cursor:pointer; }
 .collection-tools>summary::-webkit-details-marker { display:none; }
 .collection-tools>summary>span:first-child { display:grid;place-items:center;inline-size:44px;block-size:44px;font-size:1.8rem; }
@@ -34,7 +34,7 @@
 .pulso-app .library-detail .collection-track-main { display:block;text-align:start;min-inline-size:0;inline-size:100%;padding:0;border:0;background:transparent; }
 .collection-track-main strong,.collection-track-main>span { display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap; }
 .collection-track-main strong { font-size:1rem;font-weight:500;line-height:1.4; }.collection-track-main>span { color:var(--pulso-muted);font-size:.85rem;margin-block-start:.15rem; }
-.collection-track-main[aria-current="true"] strong { color:var(--pulso-accent); }
+.pulso-app .library-detail .collection-track-main[aria-current="true"] strong,.pulso-app .library-detail .collection-track-main>.playback-indicator { color:var(--pulso-accent); }
 .pulso-app .library-detail .track-options { grid-column:1/-1;min-inline-size:0;margin:0; }
 .track-options:not([open]) { block-size:0; }
 .track-options>summary { position:absolute;inset-inline-end:0;inset-block-start:.55rem;display:grid;place-items:center;inline-size:44px;block-size:48px;min-block-size:44px;list-style:none;font-size:1.6rem;color:var(--pulso-muted);cursor:pointer; }
@@ -49,3 +49,31 @@
  .pulso-app:has(.library-detail:not([hidden]):not([hidden] *))>.pulso-header { min-block-size:0;margin-block:0;padding-block:0;border:0; }
  .pulso-app:has(.library-detail:not([hidden]):not([hidden] *))>.pulso-header>.pulso-wordmark,.pulso-app:has(.library-detail:not([hidden]):not([hidden] *))>.pulso-header>button { display:none; }
 }
+
+/* A collection is scrollable content: its cover follows width, not Safari chrome height. */
+.pulso-app .library-detail .tracks>li { border-radius:.6rem; }
+
+.pulso-app .library-detail .collection-track-main { min-block-size:48px; }
+.collection-tools>summary,.track-options>summary { touch-action:manipulation;user-select:none;-webkit-user-select:none;border-radius:.5rem; }
+.collection-tools[open]>summary,.track-options[open]>summary { color:var(--pulso-accent); }
+.track-options__content { overflow-wrap:anywhere; }
+.track-options__content>.controls { display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,13rem),1fr));gap:.5rem;align-items:start; }
+.pulso-app .track-options__content .controls>button { inline-size:100%;min-inline-size:0;text-align:start;white-space:normal; }
+.track-options__content .controls>label { display:grid;min-inline-size:0;gap:.35rem; }
+.track-options__content .controls>label select { inline-size:100%; }
+.pulso-app .library-detail nav[aria-label="Páginas de canciones"] { display:flex;flex-wrap:wrap;gap:.5rem;padding-block:.75rem;margin-block:.5rem 1rem;border-block:1px solid var(--pulso-border); }
+.library-detail nav[aria-label="Páginas de canciones"]>p { flex-basis:100%;margin:0;color:var(--pulso-muted);font-size:.8rem; }
+.library-detail nav[aria-label="Páginas de canciones"] button[aria-disabled="true"] { opacity:.5; }
+@media (hover:hover) and (pointer:fine) {
+ .pulso-app .library-detail .tracks>li:hover { background:var(--pulso-soft); }
+ .collection-tools>summary:hover,.track-options>summary:hover { background:var(--pulso-soft);color:var(--pulso-foreground); }
+}
+
+/* Selected music keeps the row's geometry; keyboard focus remains explicit. */
+.pulso-app .library-detail .collection-track-main { position:relative; }
+.pulso-app .library-detail .collection-track-main[aria-current="true"]:not(:focus-visible) { outline:none; }
+.pulso-app .library-detail .collection-track-main:has(.playback-indicator) { padding-inline-end:1.75rem; }
+.pulso-app .library-detail .collection-track-main>.playback-indicator { position:absolute;inset-inline-end:.35rem;inset-block-start:50%;transform:translateY(-50%);margin:0;display:inline-flex; }
+.collection-track-loading { grid-column:2;grid-row:2;min-inline-size:0;color:var(--pulso-accent);font-size:.8rem; }
+.collection-track-loading progress { display:block;inline-size:100%;block-size:4px;margin-block:.3rem;accent-color:var(--pulso-accent); }
+.pulso-app .library-detail .tracks>li:has(.collection-track-loading)>.track-actions-trigger { grid-column:3;grid-row:1; }

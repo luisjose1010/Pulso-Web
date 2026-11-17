@@ -11,18 +11,19 @@ const provider=new PlayerArtworkProvider((...args)=>fetch(...args));
 export interface PlayerArtworkProps {
  activity:Activity; trackId:string; title:string; artist:string|null; album:string|null;
  durationSeconds:number|null; scopeKey:string; enabled:boolean; current:()=>boolean;
- refreshToken:number; onAlbum?:(album:string|null)=>void;
+ refreshToken:number; onArtwork?:(image:MediaImage|null,previousUrl?:string)=>void; onAlbum?:(album:string|null)=>void;
 }
 type View={key:string;current:()=>boolean;url:string|null};
-export function PlayerArtwork({activity,trackId,title,artist,album,durationSeconds,scopeKey,enabled,current,refreshToken,onAlbum}:PlayerArtworkProps){
+export function PlayerArtwork({activity,trackId,title,artist,album,durationSeconds,scopeKey,enabled,current,refreshToken,onAlbum,onArtwork}:PlayerArtworkProps){
  const [view,setView]=useState<View|null>(null);const currentRef=useRef(current);currentRef.current=current;
+ const artworkRef=useRef(onArtwork);artworkRef.current=onArtwork;
  const albumRef=useRef(onAlbum);albumRef.current=onAlbum;
  const key=JSON.stringify([trackId,title,artist,album,durationSeconds,scopeKey,enabled,refreshToken]);
  useEffect(()=>{
   const scope=activity.scope(),controller=new AbortController();let objectUrl:string|null=null, cancelled=false;
   const active=()=>{try{return !cancelled&&!controller.signal.aborted&&scope()&&currentRef.current();}catch{return false;}};
-  const revoke=()=>{if(objectUrl){URL.revokeObjectURL(objectUrl);objectUrl=null;}};
-  const publish=(blob:Blob)=>{if(!active())return;objectUrl=URL.createObjectURL(blob);if(active())setView({key,current:active,url:objectUrl});else revoke();};
+  const revoke=()=>{if(objectUrl){artworkRef.current?.(null,objectUrl);URL.revokeObjectURL(objectUrl);objectUrl=null;}};
+  const publish=(blob:Blob)=>{if(!active())return;objectUrl=URL.createObjectURL(blob);if(active()){setView({key,current:active,url:objectUrl});artworkRef.current?.({src:objectUrl,type:blob.type});}else revoke();};
   if(!enabled||!active())return ()=>{cancelled=true;controller.abort();revoke();};
   const operation=activity.begin();
   let ended=false;

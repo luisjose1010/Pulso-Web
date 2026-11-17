@@ -1,4 +1,5 @@
 import {libraryMembershipKey,makeLibraryMembership,copyLibraryMembership} from '../library/library-membership';
+import {copyAccountCatalog} from '../accounts/library-document.mjs';
 import {copyLocalAlbumMetadata} from '../library/album-metadata';
 import {assertDatabaseUse,type DatabaseUseKind} from './database';
 import {admittedTransaction,closeDatabase} from './database';
@@ -16,6 +17,7 @@ const all=<T>(store:string)=>atBoundary('read','idb',()=>allRaw<T>(store));
 export type ImportState='writing'|'verifying'|'ready'|'publishing'|'uncertain'|'cleanup'|'discarded'|'sealed';
 export interface ImportResult {track:LinkedTrack;duplicate:boolean}
 export interface ImportOperation {
+ accountId?:string;
  version:1;operationId:string;owner:string;revision:number;state:ImportState;
  backend:'idb'|'opfs';storageKey:string;bytes:number;expectedBytes:number;cause?:string;libraryMode?:'cache';
  asset?:LocalAsset;track?:LinkedTrack;expectedAssetRevision?:number;result?:ImportResult;
@@ -28,6 +30,7 @@ const positive=(n:unknown)=>Number.isSafeInteger(n)&&Number(n)>0;
 const record=(v:unknown):v is Record<string,unknown>=>!!v&&typeof v==='object'&&(Object.getPrototypeOf(v)===Object.prototype||Object.getPrototypeOf(v)===null);
 function validStoredTrack(value:unknown):value is Track {
  if(!record(value))return false;const t=value as unknown as Track;
+ if(t.accountId!==undefined&&!uuid(t.accountId))return false;if(t.catalogChoice!==undefined){try{if(!copyAccountCatalog(t.catalogChoice))return false;}catch{return false;}}
  return (!Object.hasOwn(t,'localAlbum')||copyLocalAlbumMetadata(t.localAlbum)!==null)&&uuid(t.id)&&(t.assetId===null||uuid(t.assetId))&&(t.audioFingerprint==null||record(t.audioFingerprint)&&validAudioFingerprint(t.audioFingerprint))&&typeof t.title==='string'&&t.title.length>0&&t.title.length<=300&&
  [t.artist,t.album].every(v=>v===null||typeof v==='string'&&v.length<=300)&&Number.isFinite(t.duration)&&t.duration>0&&
  (t.organizationRef===undefined||record(t.organizationRef)&&uuid(t.organizationRef.libraryId)&&uuid(t.organizationRef.id))&&
@@ -44,7 +47,7 @@ export function validImportOperation(value:unknown,key:IDBValidKey):value is Imp
 }
 function validateImportOperation(value:unknown,key:IDBValidKey):value is ImportOperation {
  if(!record(value))return false;const j=value as unknown as ImportOperation;
- if(j.version!==1||!uuid(j.operationId)||j.operationId!==key||!uuid(j.owner)||!positive(j.revision)||
+ if(j.version!==1||!uuid(j.operationId)||j.operationId!==key||!uuid(j.owner)||!positive(j.revision)||j.accountId!==undefined&&!uuid(j.accountId)||j.accountId!==undefined&&j.track!==undefined&&j.track.accountId!==j.accountId||
  !['writing','verifying','ready','publishing','uncertain','cleanup','discarded','sealed'].includes(j.state)||
  !['idb','opfs'].includes(j.backend)||!uuid(j.storageKey)||!positive(j.expectedBytes)||j.expectedBytes>100*1024*1024||
  !Number.isSafeInteger(j.bytes)||j.bytes<0||j.bytes>j.expectedBytes||j.cause!==undefined&&typeof j.cause!=='string'||j.libraryMode!==undefined&&j.libraryMode!=='cache')return false;
@@ -172,7 +175,7 @@ async function deduplicateOperationCore(job:ImportOperation,signal?:AbortSignal,
  const current=await request<unknown>(tx.objectStore('jobs').get(job.operationId));
  const proof=await request<Ownership|undefined>(tx.objectStore('settings').get(ownershipKey(job)));
  if(!proof||proof.owner!==job.owner||proof.operationId!==job.operationId||proof.everPublished!==false)fail('commit','internal','conflict','idb');
- const tracks=await publicationTracks(tx.objectStore('tracks'),existing);const track=tracks.find((t):t is LinkedTrack=>t.assetId===existing.id);
+ const tracks=(await publicationTracks(tx.objectStore('tracks'),existing)).filter(t=>t.accountId===job.track?.accountId);const track=tracks.find((t):t is LinkedTrack=>t.assetId===existing.id);
  if(JSON.stringify(now)===JSON.stringify(existing)&&now?.revision===existing.revision&&now.storageKey===existing.storageKey&&now.backend===existing.backend&&validImportOperation(current,job.operationId)&&JSON.stringify(current)===JSON.stringify(job)&&current.owner===job.owner&&current.revision===job.revision&&current.state===job.state){
  checkUse('publish',guard);const linked=linkRestoredTracks(tx.objectStore('tracks'),tracks,existing);
  const resultTrack=track??linked[0];
@@ -209,7 +212,7 @@ async function publishOperationCore(job:ImportOperation,signal?:AbortSignal,guar
  const proof=await request<Ownership|undefined>(tx.objectStore('settings').get(ownershipKey(job)));
  if(!proof||proof.owner!==job.owner||proof.operationId!==job.operationId||proof.everPublished!==false||JSON.stringify(current)!==JSON.stringify(job)||!validImportOperation(current,job.operationId)||current.owner!==job.owner||current.revision!==job.revision||current.state!==job.state||(previous?.revision??0)!==job.expectedAssetRevision){fail('commit','internal','conflict','idb');}
  // Re-read inside the publication transaction: never put a stale Track over current edits.
- const tracks=await publicationTracks(tx.objectStore('tracks'),job.asset);
+ const tracks=(await publicationTracks(tx.objectStore('tracks'),job.asset)).filter(t=>t.accountId===job.track?.accountId);
  const existing=tracks.find((t):t is LinkedTrack=>t.assetId===job.asset!.id);
  if(signal?.aborted){tx.abort();await done;signal.throwIfAborted();}
  checkUse('publish',guard);const linked=linkRestoredTracks(tx.objectStore('tracks'),tracks,job.asset);

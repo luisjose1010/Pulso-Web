@@ -1,4 +1,5 @@
 import type {LocalAlbumMetadataV1} from './album-metadata';
+import {activeLibraryAccount} from '../accounts/library-local';
 import {admittedTransaction,closeDatabase,assertDatabaseUse} from '../storage/database';
 import {openAssetReader,verificationFailure,WRITER_LOCK} from '../storage/asset-reader';
 import {fromKnownError,makeFailure,type FailureV1} from '../errors/app-failure';
@@ -10,8 +11,8 @@ export function validAudioFingerprint(value:unknown):value is AudioFingerprint {
  if(!value||typeof value!=='object')return false;const f=value as AudioFingerprint;
  return f.algorithm==='sha256'&&typeof f.sha256==='string'&&/^[a-f0-9]{64}$/.test(f.sha256)&&Number.isSafeInteger(f.bytes)&&f.bytes>=1&&f.bytes<=100*1024*1024;
 }
-export interface Track {localAlbum?:LocalAlbumMetadataV1;id:string;assetId:string|null;audioFingerprint?:AudioFingerprint|null;organizationRef?:OrganizationRef;title:string;artist:string|null;album:string|null;duration:number;favorite:boolean;revision:number;createdAt:string;manualOverrides:Partial<{title:string;artist:string|null;album:string|null}>}
-export interface Playlist {organizationRef?:OrganizationRef;id:string;name:string;entries:{id:string;trackId:string}[];revision:number}
+export interface Track {catalogChoice?:import('./selected-song').SongChoice;accountId?:string;localAlbum?:LocalAlbumMetadataV1;id:string;assetId:string|null;audioFingerprint?:AudioFingerprint|null;organizationRef?:OrganizationRef;title:string;artist:string|null;album:string|null;duration:number;favorite:boolean;revision:number;createdAt:string;manualOverrides:Partial<{title:string;artist:string|null;album:string|null}>}
+export interface Playlist {accountId?:string;organizationRef?:OrganizationRef;id:string;name:string;entries:{id:string;trackId:string}[];revision:number}
 interface AssetFields {id:string;namespace:'local';storageKey:string;bytes:number;sha256:string;mime:string;chunks:number;state:'complete';revision:number;chunkSize:number;retention:'kept'}
 export type LocalAsset=AssetFields & ({backend:'idb'}|{backend:'opfs'});
 export function validAsset(a: unknown): a is LocalAsset {
@@ -37,7 +38,8 @@ export async function editTrack(id:string, revision:number, patch:Partial<Pick<T
 export async function createPlaylist(name:string,current:()=>boolean=()=>true):Promise<Playlist> {
  if(!current())throw new Error('La operación ya no está vigente.');
  name=name.trim();if(!name||name.length>100)throw new Error('Escribe un nombre de 1 a 100 caracteres.');
- const playlist:Playlist={id:crypto.randomUUID(),name,entries:[],revision:1};
+ const accountId=await activeLibraryAccount();if(!current())throw new Error('La operación ya no está vigente.');
+ const playlist:Playlist={id:crypto.randomUUID(),name,entries:[],revision:1,...(accountId?{accountId}:{})};
  return navigator.locks.request(WRITER_LOCK,async()=>{if(!current())throw new Error('La operación ya no está vigente.');const db=await openDatabase();try{if(!current())throw new Error('La operación ya no está vigente.');const tx=admittedTransaction(db,'playlists','readwrite');const done=committed(tx);tx.objectStore('playlists').add(playlist,playlist.id);await done;return playlist;}finally{closeDatabase(db);}});
 }
 export async function changePlaylist(id:string, revision:number, action:{type:'rename';name:string}|{type:'add';trackId:string}|{type:'remove';entryId:string}|{type:'move';entryId:string;delta:-1|1}|{type:'delete'},current:()=>boolean=()=>true) {

@@ -1,3 +1,4 @@
+import {unknownLocalAlbum} from '../../src/library/album-metadata.ts';
 import {test} from 'node:test';
 import assert from 'node:assert/strict';
 import type {Track} from '../../src/library/library.ts';
@@ -37,8 +38,8 @@ test('case, similar names, compatibility characters and joint artist strings sta
  assert.equal(new Set(groups.map(group => group.key)).size, names.length);
 });
 
-test('albums require exact title and available artist and keys cannot collide by delimiters', () => {
- const tracks = [track('a'), track('b', {artist: 'Otro'}), track('c', {album: 'álbum'}),
+test('albums require equivalent title and credit and keys cannot collide by delimiters', () => {
+ const tracks = [track('a'), track('b', {artist: 'Otro'}), track('c', {album: 'Álbum (Deluxe)'}),
   track('d', {artist: null}), track('e', {album: 'a|b', artist: 'c'}),
   track('f', {album: 'a', artist: 'b|c'})];
  const groups = groupAlbums(tracks);
@@ -130,4 +131,54 @@ test('metadata revision changes views without mutating frozen input or previous 
  assert.equal(getGroupTracks(tracks, albums[0])[0], original);
  assert.equal(JSON.stringify(tracks), before);
  assert.deepEqual(revisedAlbums[0].trackIds, ['a']);
+});
+
+function albumSource(artist: string | null, compilation: boolean | null = null): Track['localAlbum'] {
+ const metadata = unknownLocalAlbum('absent');
+ if (artist !== null) metadata.source.albumArtist = {state:'known', value:artist, evidence:{kind:'embedded-id3', tag:'TPE2'}};
+ if (compilation !== null) metadata.source.compilation = {state:'known', value:compilation, evidence:{kind:'embedded-id3', tag:'TCMP'}};
+ return metadata;
+}
+
+test('stored album variants merge by presentation without changing tracks or embedded evidence', () => {
+ const tracks = [track('sisifo', {artist:'NSQK', album:'SÍSIFO / NADIE MÁS!', localAlbum:albumSource('NSQK', false)}),
+  track('nadie', {artist:' Nsqk ', album:' síSiFO /  NADIE MÁS! '})];
+ const before = JSON.stringify(tracks);
+ for (const input of [tracks, [...tracks].reverse()]) {
+  const groups = groupAlbums(input);
+  assert.equal(groups.length, 1);
+  assert.deepEqual(groups[0].trackIds, input.map(t => t.id));
+  assert.equal(groups[0].criterion, 'albumArtist');
+  assert.deepEqual(groups[0].albumArtistSource, tracks[0].localAlbum!.source.albumArtist);
+  assert.deepEqual(groups[0].labels, input.map(t => t.album));
+  assert.deepEqual(groups[0].artistLabels, input.map(t => t.artist));
+  assert.deepEqual(getGroupTracks(input, groups[0]), input);
+ }
+ assert.equal(JSON.stringify(tracks), before);
+ assert.equal(groupAlbums(tracks)[0].key, groupAlbums([...tracks].reverse())[0].key);
+});
+
+test('album grouping keeps distinct credits, punctuation, editions and unknown artists apart', () => {
+ const tracks = [track('a', {artist:'NSQK'}), track('b', {artist:'Nsqk feat. Otro'}),
+  track('c', {artist:'Otro'}), track('d', {artist:null}), track('e', {artist:'NSQK', album:'Álbum (Deluxe)'}),
+  track('f', {artist:'NSQK', album:'Album'}), track('g', {artist:'NSQK', album:'Álbum!'})];
+ assert.equal(groupAlbums(tracks).length, tracks.length);
+ const sameTitle = [track('h', {artist:'NSQK', localAlbum:albumSource('Otro')}), tracks[0]];
+ assert.equal(groupAlbums(sameTitle).length, 2);
+});
+
+test('compilation conflicts remain separate and missing flags never bridge an ambiguous pair', () => {
+ const yes = track('yes', {localAlbum:albumSource('Artista', true)});
+ const no = track('no', {localAlbum:albumSource('Artista', false)});
+ const missing = track('missing');
+ for (const input of [[yes,no,missing], [missing,no,yes]]) {
+  assert.equal(groupAlbums(input).length, 3);
+  assert.deepEqual(groupAlbums(input).map(g => g.trackIds), input.map(t => [t.id]));
+  const keys = new Map(groupAlbums(input).map(g => [g.trackIds[0], g.key]));
+  assert.deepEqual(new Map(groupAlbums([...input].reverse()).map(g => [g.trackIds[0], g.key])), keys);
+ }
+ assert.equal(groupAlbums([missing,no]).length, 1);
+ assert.equal(groupAlbums([yes,missing]).length, 1);
+ const fallbackFlag = track('fallback', {localAlbum:albumSource(null, false)});
+ assert.equal(groupAlbums([yes,fallbackFlag]).length, 2);
 });

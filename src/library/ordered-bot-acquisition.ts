@@ -1,7 +1,7 @@
 import {formatStorageMB} from './storage-format';
 import {AUDIO_FILE_MAX_BYTES} from '../storage/audio-limits';
 import {matchingSongRows} from './selected-song';
-import type {BotSearchTarget,BotDownloadedAudio} from '../telegram/bot-search-protocol';
+import {botAudioMismatchFields,type BotSearchTarget,type BotDownloadedAudio} from '../telegram/bot-search-protocol';
 import type {BotsSnapshot,TelegramSessionClient} from '../telegram/session-client';
 
 export type OrderedProvider={providerRef:string;label:string};
@@ -9,18 +9,23 @@ export function orderedProviders(bots:BotsSnapshot|null):OrderedProvider[] {
  const seen=new Set<string>(),usernames=new Set<string>();
  return (bots?.providers??[]).filter(p=>{const username=p.username.toLowerCase();if(!['ivkmbot','lydbot','ansmusicbot','kdmusic_bot','deezermusicbot'].includes(username)||seen.has(p.providerRef)||usernames.has(username))return false;seen.add(p.providerRef);usernames.add(username);return true;}).slice(0,5).map(p=>({providerRef:p.providerRef,label:p.label}));
 }
-export type AcquisitionFailureReason='no-compatible-row'|'returned-audio-mismatch'|'file-too-large'|'file-invalid'|'selection-changed';
+export type AcquisitionFailureReason='no-compatible-row'|'returned-audio-mismatch'|'file-too-large'|'file-invalid'|'selection-changed'|'audio-title-version-mismatch'|'audio-artist-mismatch'|'audio-duration-mismatch';
 /** Closed explanations shared by individual and album acquisition. Never assert
  * catalogue absence from a local validation failure. */
 export function acquisitionFailureText(reasons:readonly AcquisitionFailureReason[]):string {
+ const fields=[...new Set(reasons)].flatMap(reason=>reason==='audio-title-version-mismatch'?['título/versión']:reason==='audio-artist-mismatch'?['artista']:reason==='audio-duration-mismatch'?['duración']:[]);
+ const mismatch=fields.length?`Diferencias observadas en los audios recibidos: ${fields.join(', ')}. [D02]`:'El audio recibido no coincide con la canción. [D02]';
  const messages:Record<AcquisitionFailureReason,string>={
   'no-compatible-row':'Las opciones del bot no pudieron vincularse con el título y artista elegidos. [D01]',
-  'returned-audio-mismatch':'Se recibió audio, pero sus metadatos no coinciden con la canción elegida (título, artista, versión o duración). [D02]',
+  'returned-audio-mismatch':mismatch,
+  'audio-title-version-mismatch':'En los audios recibidos se observó título o versión incompatible.',
+  'audio-artist-mismatch':'En los audios recibidos se observó crédito de artista incompatible o incompleto; se exige el crédito completo.',
+  'audio-duration-mismatch':'En los audios recibidos se observó duración fuera de la tolerancia permitida.',
   'file-too-large':`El bot entregó un archivo que supera el límite actual de ${formatStorageMB(AUDIO_FILE_MAX_BYTES)} de Pulso. No se descargó. [D03]`,
   'file-invalid':'El archivo recibido está incompleto o su formato no es compatible. No se guardó. [D04]',
   'selection-changed':'La opción del bot cambió antes de confirmar la descarga. [D05]',
  };
- return [...new Set(reasons)].map(reason=>messages[reason]).join(' ')||'No se pudo confirmar una coincidencia musical.';
+ return [...new Set(reasons)].filter(reason=>!reason.startsWith('audio-')).map(reason=>messages[reason]).join(' ')||'No se pudo confirmar una coincidencia musical.';
 }
 type Result={state:'audio';audio:BotDownloadedAudio}|{state:'known-failure';reasons:readonly AcquisitionFailureReason[]}|{state:'uncertain'};
 /** One gesture, one sequential attempt per captured provider. Never releases the client's lane. */
@@ -68,7 +73,7 @@ export async function acquireFromOrderedBots(p:{client:TelegramSessionClient;pro
    if(after.error==='conflict'&&after.delivery==='not-dispatched'){reasons.push('selection-changed');continue;}
    if(after.error==='file-too-large'&&after.delivery!=='uncertain'){reasons.push('file-too-large');continue;}
    if(after.delivery==='acknowledged'&&after.error==='file-invalid'){reasons.push('file-invalid');continue;}
-   if(after.delivery==='acknowledged'&&after.error===null&&after.rows.some(r=>r.kind==='audio')&&!matchingSongRows(after.rows,target).length){reasons.push('returned-audio-mismatch');continue;}
+   if(after.delivery==='acknowledged'&&after.error===null&&after.rows.some(r=>r.kind==='audio')&&!matchingSongRows(after.rows,target).length){reasons.push('returned-audio-mismatch');for(const row of after.rows)if(row.kind==='audio')for(const field of botAudioMismatchFields(row,target))reasons.push(`audio-${field}-mismatch`);continue;}
    return {state:'uncertain'};
   }
   return {state:'known-failure',reasons};

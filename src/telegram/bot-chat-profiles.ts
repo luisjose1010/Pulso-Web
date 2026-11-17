@@ -1,4 +1,4 @@
-/** Curated public suggestions. Choosing one never connects or sends a message. */
+/** Curated first-use defaults and manual suggestions. Profile checks never send messages. */
 export const PULSO_BOT_SUGGESTIONS:readonly string[]=Object.freeze(['KDMusic_Bot','DeezerMusicBot']);
 
 /** Historical study metadata, not the application's current suggestions. */

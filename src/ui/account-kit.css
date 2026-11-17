@@ -41,4 +41,9 @@
 .account-kit [data-slot=input-otp-group]{flex-wrap:wrap;justify-content:center;gap:.3rem}
 .account-kit [data-slot=input-otp-slot]{inline-size:2.25rem;block-size:3rem;border:1px solid var(--pulso-border);border-radius:.45rem;background:var(--pulso-canvas)}
 .account-kit :focus-visible{outline:2px solid var(--pulso-accent);outline-offset:3px}
+/* Radix uses data-orientation; keep the divider a hairline, not a filled bar. */
+.account-kit [data-slot=separator][data-orientation=horizontal]{block-size:1px;inline-size:100%}
+.account-kit [data-slot=input-group-addon]{padding:0;margin:0;flex:none;align-self:center}
+.account-dialog .account-kit [data-slot=input-group-addon] [data-slot=button]{inline-size:44px;min-inline-size:44px;block-size:44px;padding:.5rem;background:transparent}
+.account-kit [data-slot=card-footer] a{display:inline-flex;align-items:center;min-block-size:44px}
 @media(prefers-reduced-motion:reduce){.account-kit *{animation:none!important;transition:none!important}}

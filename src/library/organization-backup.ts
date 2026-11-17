@@ -1,3 +1,4 @@
+import {ACTIVE_LIBRARY_ACCOUNT,activeLibraryAccount} from '../accounts/library-local';
 import {libraryMembershipKey,makeLibraryMembership,copyLibraryMembership,type LibraryMembership} from './library-membership';
 import {copyLocalAlbumMetadata} from './album-metadata';
 import {admittedTransaction,closeDatabase} from '../storage/database';
@@ -131,7 +132,8 @@ async function snapshot(tx: IDBTransaction): Promise<Snapshot> {
   rows(tx.objectStore('assets'),MAX_ASSETS,budget), rows(tx.objectStore('settings'),MAX_RECORDS,budget,IDBKeyRange.bound(PREFIX,PREFIX+'\uffff')),
   rows(tx.objectStore('settings'),ORGANIZATION_LIMITS.tracks,budget,IDBKeyRange.bound(['library-membership',1],['library-membership',2],false,true)),
  ]);
- return {tracks,playlists,assets,own,memberships};
+ const accountId=await request(tx.objectStore('settings').get(ACTIVE_LIBRARY_ACCOUNT));
+ return {tracks:accountId?tracks.filter(r=>(r.value as Track).accountId===accountId):tracks,playlists:accountId?playlists.filter(r=>(r.value as Playlist).accountId===accountId):playlists,assets,own,memberships};
 }
 function own(s: Snapshot, key: string): unknown {return s.own.find(r=>r.key===key)?.value;}
 function identity(s: Snapshot): string {const id = own(s,LIBRARY); if (!uuid(id)) fail('local-corrupt'); return id;}
@@ -250,7 +252,7 @@ export function previewOrganization(file: Blob, choices: Readonly<Record<string,
  const bytes=await io('read',()=>file.arrayBuffer(),'none');
  let text: string;
  try {text = new TextDecoder('utf-8',{fatal:true}).decode(bytes);} catch {throw domainError('format',undefined,'parse');}
- const backup = formatCall(()=>parseOrganization(text));
+ const backup = formatCall(()=>parseOrganization(text));const accountId=await activeLibraryAccount();
  const digest = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(serializeOrganization(backup)))),b=>b.toString(16).padStart(2,'0')).join('');
  await ensureIdentity(); const base = await readSnapshot(), warnings: string[] = [], local = dto(base,warnings), libraryId = identity(base);
  const exportKey = PREFIX+'export:'+backup.exportId, previous = own(base,exportKey);
@@ -287,7 +289,7 @@ export function previewOrganization(file: Blob, choices: Readonly<Record<string,
   } else {
    let id = t.ref.id; while (trackIds.has(id)) id=crypto.randomUUID(); trackIds.add(id); remap.set(rk,id);
    if (!t.audio) warnings.push(`audio-unavailable:${id}`);
-   const restored:Track={id,assetId:null,audioFingerprint:t.audio,organizationRef:t.ref,...content,localAlbum:content.localAlbum??undefined,revision:1};
+   const restored:Track={...(accountId?{accountId}:{}),id,assetId:null,audioFingerprint:t.audio,organizationRef:t.ref,...content,localAlbum:content.localAlbum??undefined,revision:1};
    if(restored.localAlbum===undefined)delete restored.localAlbum;
    tracks.push(restored);memberships.set(id,makeLibraryMembership(id,'inLibrary'in t?t.inLibrary===true:true)); newTracks++;
   }
@@ -302,7 +304,7 @@ export function previewOrganization(file: Blob, choices: Readonly<Record<string,
    }
   } else {
    let id=p.ref.id; while (playlistIds.has(id)) id=crypto.randomUUID(); playlistIds.add(id);
-   playlists.push({id,organizationRef:p.ref,name:p.name,entries,revision:1}); newPlaylists++;
+   playlists.push({...(accountId?{accountId}:{}),id,organizationRef:p.ref,name:p.name,entries,revision:1}); newPlaylists++;
   }
  }
  const conflictKeys = new Set(conflicts.map(c=>c.key));

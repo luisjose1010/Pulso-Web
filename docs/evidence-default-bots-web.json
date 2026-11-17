@@ -1,0 +1,68 @@
+{
+  "status": "published-and-verified",
+  "entry": "/releases/150f856bf04bae5b.html",
+  "defaults": [
+    "KDMusic_Bot",
+    "DeezerMusicBot"
+  ],
+  "behavior": {
+    "initialize": "after Telegram authentication if no saved selection",
+    "preserveCustomAndEmpty": true,
+    "identityChecksOnly": true,
+    "searchStartDownloadOnInitialization": false,
+    "atomicRevisionCompare": true,
+    "preferenceScope": "local Telegram authorization, not Neon"
+  },
+  "validation": {
+    "unit": "797/797",
+    "nativeChromiumWebKit": "12/12 TESTONLY auth/transport/crypto; real SDK adapter/provider/vault",
+    "workerVM": "13/13, historical harness adaptation recorded",
+    "qr": "7/7 TESTONLY",
+    "resend": "6/6 TESTONLY",
+    "lint": "PASS",
+    "buildAndDryRun": "PASS",
+    "sourceInputs": 806
+  },
+  "limits": [
+    "No real Telegram account used",
+    "No new real searches or downloads",
+    "No physical iPhone acceptance",
+    "No real Telegram account, real music, Neon writes, or physical iPhone acceptance; P0-W remains incomplete"
+  ],
+  "evidenceDirectory": "/data/home/Proyectos/Pulso-Web/.local/test-evidence/default-bots-release-ow87Qp",
+  "publication": {
+    "provider": "official Cloudflare MCP OAuth",
+    "plan": "Workers Free / USD 0",
+    "worker": "pulso-web",
+    "deploymentId": "a2d30a171699485293d80b116d0a1843",
+    "workerBytes": 318422,
+    "workerSha256": "e73c6acf441d48a39dc92ed76153d49281a39f404e2cebf1cf0fac5e8121ca6f",
+    "workerReadback": "PASS via MCP module download; exact bytes and SHA-256",
+    "manifestFiles": 165,
+    "staticRoutes": "162/162 exact HTTP bytes/SHA-256; .assetsignore and _headers excluded, account-config dynamic",
+    "specialRoutes": {
+      "root": "exact index.html",
+      "latest": "exact and entry aligned",
+      "serviceWorker": "exact sw.js",
+      "entry": "/releases/150f856bf04bae5b.html exact",
+      "accountConfig": "200 enabled=true, google=true",
+      "accountLibraryAnonymous": 401,
+      "accountProfileAnonymous": 401,
+      "crossOriginLibraryPut": 403
+    },
+    "bindingsPreserved": [
+      "ASSETS",
+      "CATALOG",
+      "TELEGRAM_API_IDENTITY",
+      "PULSO_AUTH_COOKIE_SECRET",
+      "PULSO_AUTH_GOOGLE_ENABLED",
+      "PULSO_NEON_AUTH_URL",
+      "PULSO_NEON_DATA_API_URL"
+    ],
+    "secretValuesRead": false,
+    "workersDev": true,
+    "previewUrls": false,
+    "httpsPublicResponseBytes": 38620303,
+    "evidenceDirectory": "/data/home/Proyectos/Pulso-Web/.local/test-evidence/default-bots-release-ow87Qp/publication"
+  }
+}

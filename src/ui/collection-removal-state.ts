@@ -24,7 +24,11 @@ export function createCollectionRemovalController(host:CollectionHost){
  const live=(r:Run)=>!disposed&&run===r&&!r.abort.signal.aborted&&safe(r.raw);
  function release(r:Run){if(r.released||r.settling)return;r.released=true;if(r.preview)core.releaseCollectionRemovalPreview(r.preview);r.preview=null;r.token?.end();r.token=null;if(run===r){run=null;host.gate(false);if(safe(r.raw))host.checkpoint(r.raw);}}
  function start(selection:core.CollectionSelection,title:string){
-  if(disposed||run||!host.canStart())return false;
+  if(disposed||run)return false;
+  if(!host.canStart()){
+   publish({...initial,visible:true,state:'blocked',title,kind:selection.kind,message:'Hay una operación en curso o no se puede comprobar el almacenamiento ahora. Espera a que termine y vuelve a abrir la revisión.'});
+   return true;
+  }
   const raw=host.captureRaw(),abort=new AbortController();
   const r:Run={abort,raw,context:{signal:abort.signal,current:()=>live(r)},token:null,preview:null,settlement:null,settling:true,released:false};
   run=r;host.gate(true);publish({...initial,visible:true,state:'preparing',title,kind:selection.kind});

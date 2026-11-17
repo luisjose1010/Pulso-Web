@@ -115,6 +115,25 @@ export function parseBotDownloadedAudio(raw:unknown):BotDownloadedAudio|null {
 // Presentation normalization; never acoustic identity or a substitute for worker peer/epoch checks.
 export const musicIdentityText=(s:string)=>s.normalize('NFKD').replace(/\p{M}/gu,'').toLowerCase().replace(/[^\p{L}\p{N}]+/gu,' ').trim();
 
+/** A zero Telegram duration is not evidence of a zero-length recording.
+ * Permit byte inspection only for an exact title/full credit with a positive
+ * catalogue duration and album; the importer must verify the actual duration. */
+export function canCheckBotDurationFromFile(row:Extract<BotSearchRow,{kind:'audio'}>,target:BotSearchTarget):boolean {
+ return row.durationSeconds===0&&target.durationSeconds!==null&&target.durationSeconds>0&&!!target.album?.trim()&&!!row.title&&musicIdentityText(row.title)===musicIdentityText(target.title)&&!!target.artist&&!!row.performer&&musicIdentityText(row.performer)===musicIdentityText(target.artist);
+}
+
+export type BotAudioMismatchField='title-version'|'artist'|'duration';
+/** Closed local observation only: no metadata values, ids or acoustic claims.
+ * Title/version stay combined because the catalogue supplies one title string. */
+export function botAudioMismatchFields(row:Extract<BotSearchRow,{kind:'audio'}>,target:BotSearchTarget):readonly BotAudioMismatchField[] {
+ const fields:BotAudioMismatchField[]=[];
+ if(!row.title||!recordingTitleCandidate(row.title,target.title,target.album,target.durationSeconds))fields.push('title-version');
+ if(!target.artist||!row.performer||musicIdentityText(row.performer)!==musicIdentityText(target.artist))fields.push('artist');
+ const tolerance=row.title&&musicIdentityText(row.title)===musicIdentityText(target.title)?BOT_SEARCH_DURATION_TOLERANCE_SECONDS:1;
+ if(target.durationSeconds!==null&&!canCheckBotDurationFromFile(row,target)&&Math.abs(target.durationSeconds-row.durationSeconds)>tolerance)fields.push('duration');
+ return fields;
+}
+
 // The downloader accepts only these containers and one file up to AUDIO_FILE_MAX_BYTES.
 // A row it would reject must never outrank one it can fetch: selection is a single attempt.
 const DOWNLOADABLE_MIME=new Set(['audio/mpeg','audio/mp4','audio/wav']);
@@ -138,9 +157,10 @@ export function matchingSongRows(rows:readonly BotSearchRow[],target:BotSearchTa
   const correlation=row.correlation==='reply'?1:0;
   if(row.kind==='audio'){
    if(!row.title||!row.performer||!recordingTitleCandidate(row.title,target.title,target.album,target.durationSeconds)||musicIdentityText(row.performer)!==artist)return 0;
-   const delta=target.durationSeconds===null?0:Math.abs(target.durationSeconds-row.durationSeconds);
+   const fileCheck=canCheckBotDurationFromFile(row,target);
+   const delta=target.durationSeconds===null||fileCheck?0:Math.abs(target.durationSeconds-row.durationSeconds);
    const tolerance=musicIdentityText(row.title)===title?BOT_SEARCH_DURATION_TOLERANCE_SECONDS:1;
-   return delta<=tolerance?4000-Math.round(delta*100)+correlation:0;
+   return delta<=tolerance?(fileCheck?3000:4000)-Math.round(delta*100)+correlation:0;
   }
   if(row.kind!=='option')return 0;
   const matches=(label:string)=>label.split(/\s+[–—−-]\s+/u).some((_,i,parts)=>{

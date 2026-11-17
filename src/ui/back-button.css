@@ -1,0 +1,27 @@
+/* Shared visual hierarchy, with the original navigation handlers kept by callers. */
+.pulso-app button.back-button {
+ display:inline-flex;align-items:center;justify-content:flex-start;gap:.4rem;
+ inline-size:fit-content;max-inline-size:100%;min-inline-size:44px;min-block-size:44px;
+ padding:.5rem .9rem .5rem .6rem;margin-block:0 .75rem;
+ border:1px solid var(--pulso-border);border-radius:999px;
+ background:var(--pulso-surface);color:var(--pulso-foreground);
+ font:inherit;font-size:.875rem;font-weight:600;line-height:1.35;text-align:start;
+ text-decoration:none;white-space:normal;overflow-wrap:anywhere;cursor:pointer;
+ touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+ -webkit-user-select:none;user-select:none;
+ transition:transform 120ms cubic-bezier(.23,1,.32,1);
+}
+.back-button__icon { display:grid;place-items:center;flex:0 0 24px;inline-size:24px;block-size:24px;color:var(--pulso-accent); }
+.back-button__icon svg { display:block;inline-size:20px;block-size:20px; }
+.back-button__label { min-inline-size:0; }
+.pulso-app button.back-button:focus-visible { outline:3px solid var(--pulso-accent);outline-offset:3px; }
+.pulso-app button.back-button:active:not(:disabled):not(:focus-visible) { transform:scale(.98);background:var(--pulso-soft); }
+.pulso-app button.back-button:disabled { opacity:.5;cursor:default; }
+.back-button:dir(rtl) .back-button__icon { transform:rotate(180deg); }
+@media (hover:hover) and (pointer:fine) {
+ .pulso-app button.back-button:hover:not(:disabled) { background:var(--pulso-soft);border-color:var(--pulso-accent); }
+}
+@media (prefers-reduced-motion:reduce) {
+ .pulso-app button.back-button { transition:none; }
+ .pulso-app button.back-button:active:not(:disabled):not(:focus-visible) { transform:none; }
+}

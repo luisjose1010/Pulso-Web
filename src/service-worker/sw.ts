@@ -245,3 +245,16 @@ self.addEventListener('fetch', event => {
   }
 });
 declare const SHELL_FILES: string[];
+
+// Only our own download notifications can focus/open Pulso. Never start audio
+// or accept a navigation URL from notification payload data.
+self.addEventListener('notificationclick',event=>{
+ if(event.notification.data?.kind!=='pulso-download'||event.notification.data?.version!==1)return;
+ event.notification.close();
+ event.waitUntil((async()=>{
+  const windows=await self.clients.matchAll({type:'window',includeUncontrolled:true});
+  const client=windows.find(client=>new URL(client.url).origin===self.location.origin);
+  if(client){await (client as WindowClient).focus();return;}
+  await self.clients.openWindow(new URL('/open.html',self.location.origin).href);
+ })());
+});
