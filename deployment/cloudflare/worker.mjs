@@ -1,3 +1,4 @@
+import {spotifyPlaylist} from './spotify-playlist.mjs';
 import {DurableObject} from 'cloudflare:workers';
 import {accountAuth} from './accounts.mjs';
 import {accountProfile} from './account-profile.mjs';
@@ -20,6 +21,7 @@ export default {
  async fetch(request,env){
   const url=new URL(request.url),path=url.pathname;
   if(path==='/account-config.json'||path.startsWith('/api/account-auth/'))return accountAuth(request,env);
+  if(path.startsWith('/api/spotify-playlist/'))return spotifyPlaylist(request);
   if(path==='/api/account-profile')return accountProfile(request,env);
   if(path==='/api/account-library')return accountLibrary(request,env);
   if(!['GET','HEAD'].includes(request.method))return response('{}',405);

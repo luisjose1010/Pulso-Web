@@ -1,0 +1,172 @@
+{
+  "task": "T23",
+  "date": "2026-11-17",
+  "base": "bd246ee6274358c194e0e8ecdf780137050901e3",
+  "status": "PUBLIC_API_VERIFIED",
+  "local": {
+    "backend": 8,
+    "unit": 2,
+    "browserGroups": 6,
+    "engines": [
+      "Chromium",
+      "WebKit"
+    ],
+    "lint": "PASS",
+    "build": "PASS",
+    "dryRun": "PASS",
+    "backendRuntime": "Miniflare/workerd metadata200 and redirect302 rejection; one call each; root verified"
+  },
+  "runtime": {
+    "base": "bd246ee6274358c194e0e8ecdf780137050901e3",
+    "files": 195,
+    "retained": 0,
+    "worker": {
+      "bytes": 322536,
+      "sha256": "ac603bfc2b712a002df917bcdfbc9c964d654ec9af0ab1edaa54463ab89762a8"
+    },
+    "entry": "/releases/923694510c59acf7.html",
+    "sourceHashes": {
+      "deployment/cloudflare/worker.mjs": "675aa4c9433606d68eb9a9a3e849bca4a46b4abd3eb035787da36b99a16d755b",
+      "deployment/cloudflare/spotify-playlist.mjs": "2fc88bc09444e83cc1653298b0b92680adebf1c7e8600b861ff444a0c5c26868",
+      "wrangler.jsonc": "c2caea721e1b3ae713e93e649e54a8b43e49a0df92c92bd9523a16ffbdbdd222",
+      "src/main.tsx": "87397831f30491c46b56d9db80ae872cb6bf488db4665e98e5811dee700a7676",
+      "src/playlists/spotify-export.ts": "151fa06da5ce8433b3c3e24ff9e094e739929445345da107259df923beda6106",
+      "src/ui/SpotifyPlaylistExport.tsx": "c3e8c2c24224f2014e279e72059707a5480d80c4e90ed380911677ec099daac2",
+      "src/ui/spotify-playlist-export.css": "df9c07d6f7d6bd26b20de582010d8e0270582d31e4ec5f76b812381f8af3d1ac"
+    }
+  },
+  "publication": {
+    "deployment": "f8acfd60-3329-4baa-9051-c552f83e2ed9",
+    "version": "ff8eec4b-5252-4a6d-900c-85fba52bbe09",
+    "versionNumber": 41,
+    "module": {
+      "bytes": 322536,
+      "sha256": "ac603bfc2b712a002df917bcdfbc9c964d654ec9af0ab1edaa54463ab89762a8"
+    },
+    "bindings": [
+      {
+        "name": "ASSETS",
+        "type": "assets"
+      },
+      {
+        "name": "CATALOG",
+        "type": "durable_object_namespace",
+        "class_name": "CatalogCoordinator"
+      },
+      {
+        "name": "PULSO_AUTH_COOKIE_SECRET",
+        "type": "secret_text"
+      },
+      {
+        "name": "PULSO_AUTH_GOOGLE_ENABLED",
+        "type": "secret_text"
+      },
+      {
+        "name": "PULSO_NEON_AUTH_URL",
+        "type": "secret_text"
+      },
+      {
+        "name": "PULSO_NEON_DATA_API_URL",
+        "type": "secret_text"
+      },
+      {
+        "name": "TELEGRAM_API_IDENTITY",
+        "type": "secret_text"
+      }
+    ],
+    "subdomain": {
+      "enabled": true,
+      "previews_enabled": false
+    }
+  },
+  "https": {
+    "status": "PASS",
+    "staticStatus": "PASS",
+    "origin": "https://pulso-web.pruebassoftware.workers.dev",
+    "entry": "/releases/923694510c59acf7.html",
+    "manifestFiles": 195,
+    "publicFilesChecked": 192,
+    "failures": [],
+    "specialRoutes": "root/latest/entry/SW GET+HEAD bytes/SHA aligned; CSP present; account-config enabled/google true no-store; anonymous profile/library 401",
+    "api": {
+      "httpStatus": 200,
+      "readCount": 41,
+      "exportable": 41,
+      "omitted": 0,
+      "total": null,
+      "complete": false,
+      "limited": false,
+      "csvCountMatches": true,
+      "txtCountMatches": true
+    },
+    "localBrowserEvidence": ".local/test-evidence/spotify-export-969MtY/report.json",
+    "physicalIPhone": false
+  },
+  "limits": [
+    "Public embed can change; total unknown and completeness false; limit100",
+    "No new browser or physical iPhone acceptance; P0-W incomplete",
+    "No personal playlist bodies/audio retained"
+  ],
+  "historicalFailure": {
+    "status": "PUBLIC_API_BLOCKED",
+    "publication": {
+      "deployment": "a5ffe3f6-35e8-46ee-a0e4-8791d6479615",
+      "version": "9d8c0310-aed0-4b4a-b3b6-6738d37bcd60",
+      "versionNumber": 40,
+      "module": {
+        "bytes": 322535,
+        "sha256": "21e6da9d5cd7db6642a227f10cc87bfae94eba0b18d7de9c4c54f181d368624a"
+      },
+      "bindings": [
+        {
+          "name": "ASSETS",
+          "type": "assets"
+        },
+        {
+          "name": "CATALOG",
+          "type": "durable_object_namespace",
+          "class_name": "CatalogCoordinator"
+        },
+        {
+          "name": "PULSO_AUTH_COOKIE_SECRET",
+          "type": "secret_text"
+        },
+        {
+          "name": "PULSO_AUTH_GOOGLE_ENABLED",
+          "type": "secret_text"
+        },
+        {
+          "name": "PULSO_NEON_AUTH_URL",
+          "type": "secret_text"
+        },
+        {
+          "name": "PULSO_NEON_DATA_API_URL",
+          "type": "secret_text"
+        },
+        {
+          "name": "TELEGRAM_API_IDENTITY",
+          "type": "secret_text"
+        }
+      ],
+      "subdomain": {
+        "enabled": true,
+        "previews_enabled": false
+      }
+    },
+    "api": {
+      "httpStatus": 502,
+      "error": "unavailable",
+      "reason": "network",
+      "publicCSVTXTVerified": false
+    },
+    "cause": "Workers rejects redirect:error constructing Request before network; not evidence of DNS or Spotify blocking"
+  },
+  "cleanup": {
+    "removedBytes": 15326332,
+    "freeBeforeCleanup": 4990046208,
+    "freeAfterCleanup": 5008199680,
+    "freeBeforeBuild": 5006786560,
+    "retained": "minimal hashes/manifests/readback aggregates; no playlist bodies/audio/secrets",
+    "path": ".local/tmp/spotify-runtime-fix"
+  }
+}

@@ -1,0 +1,7 @@
+export interface SpotifyPlaylist {name:string;tracks:{title:string;artists:string;durationMs:number|null;url:string}[];readCount:number;omitted:number;total:number|null;limited:boolean;complete:boolean}
+export function spotifyPlaylistId(input:string):string|null {
+ try{const url=new URL(input.trim());return url.protocol==='https:'&&url.hostname==='open.spotify.com'&&!url.port&&!url.username&&!url.password&&/^\/playlist\/[A-Za-z0-9]{22}\/?$/.test(url.pathname)?url.pathname.split('/')[2]:null;}catch{return null;}
+}
+function csvCell(value:string){const safe=/^[\s\u0000-\u001f]*[=+@-]/u.test(value)||/^[\t\r\n]/.test(value)?`'${value}`:value;return `"${safe.replaceAll('"','""')}"`;}
+export function playlistCSV(data:SpotifyPlaylist){return '\ufeff'+[['Título','Artistas','Duración (ms)','Enlace'],...data.tracks.map(t=>[t.title,t.artists,t.durationMs===null?'':String(t.durationMs),t.url])].map(row=>row.map(csvCell).join(',')).join('\r\n')+'\r\n';}
+export function playlistTXT(data:SpotifyPlaylist){return `${data.name}\n${data.tracks.length} canciones exportables · ${data.readCount} entradas leídas · ${data.omitted} omitidas\n${data.complete?'Total confirmado por Spotify.':'Completitud desconocida: no se ha confirmado el listado completo.'}${data.limited?' Límite de lectura: 100 entradas; podría estar truncado.':''}\n\n`+data.tracks.map((t,i)=>`${i+1}. ${t.title}\n${t.artists}\nDuración (ms): ${t.durationMs??'desconocida'}\n${t.url}`).join('\n\n')+'\n';}
