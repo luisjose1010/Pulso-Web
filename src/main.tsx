@@ -1,3 +1,4 @@
+import {LOCAL_ACCOUNT} from './accounts/account-controller';
 import {createDownloadRemovalController} from './ui/download-removal-state';
 import {DownloadRemovalDialog} from './ui/DownloadRemovalDialog';
 import {SpotifyPlaylistExport} from './ui/SpotifyPlaylistExport';
@@ -768,7 +769,7 @@ attachDatabaseTransportLifecycle(applyDatabaseLifecycle);
 let activeAccount:string|null=null,accountQueue:Snapshot|undefined,accountQueueOwner:string|null=null;
 function accountBoundary(){
  const next=accountController.getSnapshot().user?.id??null;if(next===activeAccount)return;
- const previous=activeAccount;activeAccount=next;librarySync.account(next);preparedLibraryAccount=null;lastLibrarySyncSignature='';tracks=[];playlists=[];addedTrackIds=new Set();
+ const previous=activeAccount;activeAccount=next;librarySync.account(next===LOCAL_ACCOUNT.id?null:next);preparedLibraryAccount=null;lastLibrarySyncSignature='';tracks=[];playlists=[];addedTrackIds=new Set();
  if(previous){
   accountEpoch++;accountQueue=snapshot();accountQueueOwner=previous;transferPlayIntent=null;cancelSelectedSongIntent();queueInsertions.cancelAll('user');control.cancelTransfer();audio.pause();player.suspend();player.setQueue([]);clearMediaSession();
   if(control.owner&&control.activity.idle&&!releaseBlocked()){
