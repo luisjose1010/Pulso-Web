@@ -12,6 +12,10 @@
     {
       "source": "/catalog-config.json",
       "destination": "/api/catalog-config"
+    },
+    {
+      "source": "/account-config.json",
+      "destination": "/api/account-config"
     }
   ],
   "headers": [

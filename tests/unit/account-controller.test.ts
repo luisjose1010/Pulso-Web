@@ -8,3 +8,10 @@ test('one in-flight action prevents double submission and refresh overlap',async
 test('network error during logout preserves the confirmed user and never retries automatically',async()=>{let count=0;const s=setup({signOut:async()=>{count++;throw Error('private raw detail');}});await s.c.load();await s.c.signIn('own@example.test','test-only-password');assert.equal(await s.c.signOut(),false);assert.deepEqual(s.c.getSnapshot().user,user);assert.equal(count,1);assert.ok(!JSON.stringify(s.c.getSnapshot()).includes('private raw detail'));});
 test('unverified registration does not fabricate an authenticated session',async()=>{const s=setup();await s.c.load();assert.equal(await s.c.signUp('Persona','own@example.test','test-only-password'),true);assert.equal(s.c.getSnapshot().status,'signed-out');assert.equal(s.c.getSnapshot().user,null);});
 test('provider errors have fixed Spanish messages and never expose raw fields',()=>{for(const code of ['INVALID_EMAIL_OR_PASSWORD','EMAIL_NOT_VERIFIED','USER_ALREADY_EXISTS','TOO_MANY_REQUESTS','INVALID_TOKEN','TOKEN_EXPIRED','INVALID_OTP','DISABLED'])assert.notEqual(accountError(new AccountFailure(code)),code);assert.equal(accountError(Error('private raw error')),accountError(null));const thrown=Object.assign(Error('private message'),{code:'invalid_credentials',error:{code:'EMAIL_NOT_VERIFIED',status:403}});assert.equal(accountError(thrown),'Verifica tu correo antes de iniciar sesión.');assert.equal(accountError({code:'invalid_credentials'}),'El correo o la contraseña no son correctos.');});
+
+test('a deployment without an account service runs as one fixed local profile and never builds a provider',async()=>{
+ const {LOCAL_ACCOUNT}=await import('../../src/accounts/account-controller');let factories=0;
+ const c=createAccountController({config:async()=>({enabled:false,google:false,local:true}),provider:async()=>{factories++;throw Error('unexpected');}});
+ await c.load();assert.equal(c.getSnapshot().status,'signed-in');assert.deepEqual(c.getSnapshot().user,LOCAL_ACCOUNT);assert.equal(factories,0);
+ assert.equal(await c.signOut(),false);assert.deepEqual(c.getSnapshot().user,LOCAL_ACCOUNT);
+});

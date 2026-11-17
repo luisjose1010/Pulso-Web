@@ -28,7 +28,9 @@ export function accountError(error:unknown):string {
  if(code==='DISABLED')return 'El acceso a cuentas todavía no está habilitado.';
  return 'No pudimos completar la conexión. Comprueba tu conexión e inténtalo de nuevo.';
 }
-export interface AccountHost {config():Promise<{enabled:boolean;google:boolean}>;provider():Promise<AccountProvider>;offlineSession?():AccountUser|null;confirmed?(user:AccountUser|null):void}
+/** `local`: a deployment without an account service (e.g. Vercel) runs as one fixed local profile. */
+export const LOCAL_ACCOUNT:AccountUser=Object.freeze({id:'local-profile',name:'Este navegador',email:'',verified:true});
+export interface AccountHost {config():Promise<{enabled:boolean;google:boolean;local?:boolean}>;provider():Promise<AccountProvider>;offlineSession?():AccountUser|null;confirmed?(user:AccountUser|null):void}
 /** Only public profile data lives here. Passwords, codes and tokens are never
  * persisted, logged or passed to the music/Telegram controllers. */
 export function createAccountController(host:AccountHost){
@@ -47,6 +49,7 @@ export function createAccountController(host:AccountHost){
   const attempt=++generation;publish({...state,status:'checking',pending:true,error:null});
   loading=(async()=>{try{
    const config=await host.config();if(attempt!==generation)return;
+   if(!config.enabled&&config.local===true){confirmed(LOCAL_ACCOUNT);publish({status:'signed-in',pending:false,google:false,user:LOCAL_ACCOUNT,error:null});return;}
    if(!config.enabled){publish({status:'disabled',pending:false,google:false,user:null,error:null});return;}
    provider??=await host.provider();const user=await provider.session();if(attempt!==generation)return;
    confirmed(user);publish({status:user?'signed-in':'signed-out',pending:false,google:config.google,user,error:null});
